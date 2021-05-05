@@ -1,5 +1,7 @@
 <resources>
     <string name="app_name">AlcoCalendar</string>
-    <string name="tab_text_1">Tab 1</string>
-    <string name="tab_text_2">Tab 2</string>
+    <string name="tab_text_1">Calendar</string>
+    <string name="tab_text_2">Settings</string>
+    <string name="hello_settings_fragment">Hello settings fragment</string>
+    <string name="somebutton">SomeButton</string>
 </resources>
