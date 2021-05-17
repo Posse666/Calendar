@@ -1,11 +1,9 @@
-package com.posse.kotlin1.calendar.ui
+package com.posse.kotlin1.calendar.view
 
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import com.posse.kotlin1.calendar.R
-import com.posse.kotlin1.calendar.ui.main.CalendarFragment
-import com.posse.kotlin1.calendar.ui.settings.SettingsFragment
 
 class SectionsPagerAdapter(fragmentActivity: FragmentActivity) :
     FragmentStateAdapter(fragmentActivity) {

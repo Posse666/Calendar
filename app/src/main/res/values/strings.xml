@@ -4,4 +4,6 @@
     <string name="tab_text_2">Settings</string>
     <string name="hello_settings_fragment">Hello settings fragment</string>
     <string name="somebutton">SomeButton</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>
