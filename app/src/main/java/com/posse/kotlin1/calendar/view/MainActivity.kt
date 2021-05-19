@@ -27,11 +27,5 @@ class MainActivity : AppCompatActivity() {
             tab.text = sectionsPagerAdapter.tabTitles[position]
             viewPager.setCurrentItem(tab.position, true)
         }.attach()
-
-        val fab: FloatingActionButton = binding.fab
-        fab.setOnClickListener {
-            Snackbar.make(it, "Replace with your own action", Snackbar.LENGTH_LONG)
-                .setAction("Action", null).show()
-        }
     }
 }
