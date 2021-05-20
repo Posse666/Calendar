@@ -9,14 +9,14 @@ import com.posse.kotlin1.calendar.databinding.FragmentFriendsBinding
 
 class FriendsFragment : Fragment() {
     private var _binding: FragmentFriendsBinding? = null
-    private val binding get() = _binding!!
+    private val mBinding get() = _binding!!
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
         _binding = FragmentFriendsBinding.inflate(inflater, container, false)
-        return binding.root
+        return mBinding.root
     }
 
     companion object {

@@ -7,26 +7,21 @@ import com.posse.kotlin1.calendar.model.RepositoryImpl
 import java.time.LocalDate
 
 class CalendarViewModel(
-    private val liveDataToObserve: MutableLiveData<Map<LocalDate, Boolean>> = MutableLiveData(),
-    private val repository: Repository = RepositoryImpl()
+    private val mLiveDataToObserve: MutableLiveData<Set<LocalDate>> = MutableLiveData(),
+    private val mRepository: Repository = RepositoryImpl()
 ) : ViewModel() {
 
-    fun getLiveData() = liveDataToObserve
+    fun getLiveData() = mLiveDataToObserve
 
     fun refreshDrankState() = getDataFromLocalSource()
 
-    fun dayClicked(date: LocalDate){
-        repository.changeState(date)
-//        liveDataToObserve.value = repository.getDrankStateFromLocalStorage()
+    fun dayClicked(date: LocalDate) {
+        mRepository.changeState(date)
+//        mLiveDataToObserve.value = mRepository.getDrankStateFromLocalStorage()
     }
 
     private fun getDataFromLocalSource() {
-//        liveDataToObserve.value = CalendarState().Loading
-        repository.init()
-        liveDataToObserve.value = repository.getDrankStateFromLocalStorage()
-//        Thread {
-//            Thread.sleep(1000)
-//            liveDataToObserve.postValue(CalendarState().Success(repository.getWeatherFromLocalStorage()))
-//        }.start()
+        mRepository.init()
+        mLiveDataToObserve.value = mRepository.getDrankStateFromLocalStorage()
     }
 }

@@ -6,25 +6,21 @@ class RepositoryImpl : Repository {
     override fun init() {
         CalendarState.clearAll()
         var date = LocalDate.now()
-        val daysNumber = (10 + Math.random() * 10).toInt()
+        val daysNumber = (50 + Math.random() * 100).toInt()
         for (i in 1..daysNumber) {
-            CalendarState.addDay(date, true)
+            CalendarState.addDay(date)
             date = date.minusDays(1 + (Math.random() * 10).toLong())
         }
     }
 
-    override fun getDrankStateFromLocalStorage(): Map<LocalDate, Boolean> {
+    override fun getDrankStateFromLocalStorage(): Set<LocalDate> {
         return CalendarState.dates
     }
 
-    override fun getState(date: LocalDate): Boolean? {
-        return CalendarState.dates[date]
-    }
-
     override fun changeState(date: LocalDate) {
-        if (CalendarState.dates[date] == true){
+        if (CalendarState.dates.contains(date)) {
             CalendarState.removeDay(date)
-        } else CalendarState.addDay(date,true)
+        } else CalendarState.addDay(date)
     }
 
 }

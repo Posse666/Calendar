@@ -6,9 +6,7 @@ interface Repository {
 
     fun init()
 
-    fun getDrankStateFromLocalStorage(): Map<LocalDate, Boolean>
+    fun getDrankStateFromLocalStorage(): Set<LocalDate>
 
-    fun getState (date: LocalDate): Boolean?
-
-    fun changeState (date: LocalDate)
+    fun changeState(date: LocalDate)
 }

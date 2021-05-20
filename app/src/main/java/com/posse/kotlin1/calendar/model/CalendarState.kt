@@ -2,22 +2,21 @@ package com.posse.kotlin1.calendar.model
 
 import java.time.LocalDate
 import java.util.*
-import kotlin.collections.HashMap
 
 object CalendarState {
-    private val drinkDates: MutableMap<LocalDate, Boolean> = HashMap()
-    val dates: Map<LocalDate, Boolean>
-        get() = Collections.unmodifiableMap(drinkDates)
+    private val mDrinkDates: MutableSet<LocalDate> = mutableSetOf()
+    val dates: Set<LocalDate>
+        get() = Collections.unmodifiableSet(mDrinkDates)
 
-    fun addDay(date: LocalDate, state: Boolean) {
-        drinkDates[date] = state
+    fun addDay(date: LocalDate) {
+        mDrinkDates.add(date)
     }
 
     fun removeDay(date: LocalDate) {
-        drinkDates.remove(date)
+        mDrinkDates.remove(date)
     }
 
     fun clearAll() {
-        drinkDates.clear()
+        mDrinkDates.clear()
     }
 }
