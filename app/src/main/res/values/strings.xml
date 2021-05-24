@@ -29,4 +29,6 @@
     <string name="friday">Fri</string>
     <string name="saturday">Sat</string>
     <string name="sunday">Sun</string>
+    <string name="in_this_year_you_drank">In this year you drank</string>
+    <string name="days_of">days of</string>
 </resources>

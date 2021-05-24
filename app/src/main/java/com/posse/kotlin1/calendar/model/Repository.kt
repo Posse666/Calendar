@@ -9,4 +9,8 @@ interface Repository {
     fun getDrankStateFromLocalStorage(): Set<LocalDate>
 
     fun changeState(date: LocalDate)
+
+    fun getDrinkDaysInThisYear(): Int
+
+    fun getThisYearDaysQuantity(): Int
 }

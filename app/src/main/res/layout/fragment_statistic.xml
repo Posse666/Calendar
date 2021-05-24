@@ -5,11 +5,17 @@
     android:layout_height="match_parent"
     tools:context=".view.StatisticFragment">
 
-    <androidx.cardview.widget.CardView style="@style/CardStyle">
+    <androidx.cardview.widget.CardView
+        style="@style/CardStyle">
 
-        <TextView
+        <androidx.appcompat.widget.LinearLayoutCompat
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:text="@string/hello_statistic_fragment" />
+            android:orientation="vertical">
+
+            <include
+                android:id="@+id/stats"
+                layout="@layout/main_stats" />
+        </androidx.appcompat.widget.LinearLayoutCompat>
     </androidx.cardview.widget.CardView>
 </FrameLayout>

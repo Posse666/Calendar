@@ -4,19 +4,19 @@ import java.time.LocalDate
 import java.util.*
 
 object CalendarState {
-    private val mDrinkDates: MutableSet<LocalDate> = mutableSetOf()
+    private val drinkDates: MutableSet<LocalDate> = mutableSetOf()
     val dates: Set<LocalDate>
-        get() = Collections.unmodifiableSet(mDrinkDates)
+        get() = Collections.unmodifiableSet(drinkDates)
 
     fun addDay(date: LocalDate) {
-        mDrinkDates.add(date)
+        drinkDates.add(date)
     }
 
     fun removeDay(date: LocalDate) {
-        mDrinkDates.remove(date)
+        drinkDates.remove(date)
     }
 
     fun clearAll() {
-        mDrinkDates.clear()
+        drinkDates.clear()
     }
 }

@@ -10,13 +10,13 @@ import com.posse.kotlin1.calendar.R
 
 object Background {
     private const val PADDING: Int = 5
-    private val mCircleSize: Int =
+    private val circleSize: Int =
         Resources.getSystem().displayMetrics.widthPixels / Days.values().size
 
     fun getCircle(context: Context, circleType: CircleType): Drawable {
         val drawable = GradientDrawable()
         drawable.shape = GradientDrawable.OVAL
-        drawable.setSize(mCircleSize, mCircleSize)
+        drawable.setSize(circleSize, circleSize)
         when (circleType) {
             CircleType.EMPTY -> {
                 drawable.setStroke(PADDING, getColor(context, R.color.strokeColor))

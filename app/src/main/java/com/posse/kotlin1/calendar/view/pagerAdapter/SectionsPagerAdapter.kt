@@ -12,24 +12,24 @@ import com.posse.kotlin1.calendar.view.calendar.CalendarFragment
 class SectionsPagerAdapter(fragmentActivity: FragmentActivity) :
     FragmentStateAdapter(fragmentActivity) {
 
-    val tabTitles = arrayOf(
-        fragmentActivity.getString(R.string.tab_calendar_text),
-        fragmentActivity.getString(R.string.tab_friends_text),
-        fragmentActivity.getString(R.string.tab_statistic_text),
-        fragmentActivity.getString(R.string.tab_settings_text)
-    )
-
     override fun getItemCount(): Int {
-        return tabTitles.size
+        return TabTitles.values().size
     }
 
     override fun createFragment(position: Int): Fragment {
         return when (position) {
-            0 -> CalendarFragment.newInstance()
-            1 -> FriendsFragment.newInstance()
-            2 -> StatisticFragment.newInstance()
-            3 -> SettingsFragment.newInstance()
+            TabTitles.CALENDAR.position -> CalendarFragment.newInstance()
+            TabTitles.FRIENDS.position -> FriendsFragment.newInstance()
+            TabTitles.STATISTIC.position -> StatisticFragment.newInstance()
+            TabTitles.SETTINGS.position -> SettingsFragment.newInstance()
             else -> throw RuntimeException()
         }
     }
+}
+
+enum class TabTitles(val tabResources: Int, val position: Int) {
+    CALENDAR(R.string.tab_calendar_text, 0),
+    FRIENDS(R.string.tab_friends_text, 1),
+    STATISTIC(R.string.tab_statistic_text, 2),
+    SETTINGS(R.string.tab_settings_text, 3)
 }

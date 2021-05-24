@@ -1,5 +1,6 @@
 package com.posse.kotlin1.calendar.view.calendar
 
+import android.content.Context
 import android.content.res.TypedArray
 import android.graphics.Color
 import android.os.Bundle
@@ -9,7 +10,6 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
-import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.kizitonwose.calendarview.CalendarView
 import com.kizitonwose.calendarview.model.CalendarDay
 import com.kizitonwose.calendarview.model.CalendarMonth
@@ -25,55 +25,59 @@ import java.util.*
 
 class CalendarFragment : Fragment() {
     private var _binding: FragmentCalendarBinding? = null
-    private val mBinding get() = _binding!!
-    private lateinit var mViewModel: CalendarViewModel
-    private lateinit var mCalendarView: CalendarView
+    private val binding get() = _binding!!
+    private lateinit var calendarView: CalendarView
+    private lateinit var viewModel: CalendarViewModel
+    private lateinit var statisticSwitcher: StatisticSwitcher
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
         _binding = FragmentCalendarBinding.inflate(inflater, container, false)
-        return mBinding.root
+        return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        mCalendarView = mBinding.calendarView
+        calendarView = binding.calendarView
 
-        mViewModel = ViewModelProvider(this).get(CalendarViewModel::class.java)
-        mViewModel.getLiveData().observe(viewLifecycleOwner, { updateCalendar(it) })
-        mViewModel.refreshDrankState()
+        viewModel = ViewModelProvider(this).get(CalendarViewModel::class.java)
+        viewModel.getLiveData().observe(viewLifecycleOwner, { updateCalendar(it) })
+        viewModel.refreshDrankState()
+        setupStats()
 
-        val fab: FloatingActionButton = mBinding.fab
-        fab.setOnClickListener {
-            mCalendarView.smoothScrollToMonth(YearMonth.now())
+        binding.fab.setOnClickListener {
+            calendarView.smoothScrollToMonth(YearMonth.now())
+        }
+
+        binding.statsCard.setOnClickListener {
+            statisticSwitcher.switchToStatistic()
         }
     }
 
     private fun updateCalendar(calendarState: Set<LocalDate>) {
-        mBinding.loadingLayout.visibility = View.VISIBLE
+        binding.loadingLayout.visibility = View.VISIBLE
         val currentMonth = YearMonth.now()
         var firstMonth = YearMonth.from(Collections.min(calendarState))
         if (firstMonth.isAfter(currentMonth.minusMonths(12))) {
             firstMonth = currentMonth.minusMonths(12)
         }
-        mCalendarView.setupAsync(
+        calendarView.setupAsync(
             firstMonth,
             currentMonth.plusMonths(1),
             WeekFields.of(Locale.getDefault()).firstDayOfWeek
         ) {
-            mCalendarView.monthHeaderBinder =
-                object : MonthHeaderFooterBinder<MonthViewContainer> {
-                    override fun create(view: View) = MonthViewContainer(view)
-                    override fun bind(container: MonthViewContainer, month: CalendarMonth) {
-                        val monthName =
-                            getString(Month.values()[month.yearMonth.monthValue - 1].monthResource)
-                        ("$monthName ${month.year}")
-                            .also { container.textView.text = it }
-                    }
+            calendarView.monthHeaderBinder = object : MonthHeaderFooterBinder<MonthViewContainer> {
+                override fun create(view: View) = MonthViewContainer(view)
+                override fun bind(container: MonthViewContainer, month: CalendarMonth) {
+                    val monthName =
+                        getString(Month.values()[month.yearMonth.monthValue - 1].monthResource)
+                    ("$monthName ${month.year}")
+                        .also { container.textView.text = it }
                 }
-            mCalendarView.dayBinder = object : DayBinder<DayViewContainer> {
+            }
+            calendarView.dayBinder = object : DayBinder<DayViewContainer> {
                 override fun create(view: View) = DayViewContainer(view)
                 override fun bind(container: DayViewContainer, day: CalendarDay) {
                     container.day = day
@@ -83,9 +87,10 @@ class CalendarFragment : Fragment() {
                         textView.visibility = View.VISIBLE
                         if (day.date.isBefore(LocalDate.now()) || day.date.isEqual(LocalDate.now())) {
                             container.view.setOnClickListener {
-                                mViewModel.dayClicked(day.date)
+                                viewModel.dayClicked(day.date)
                                 changeDay(textView, day)
-                                mCalendarView.notifyDayChanged(day)
+                                calendarView.notifyDayChanged(day)
+                                setupStats()
                             }
                         } else container.view.setOnClickListener(null)
                         changeDay(textView, day)
@@ -118,9 +123,14 @@ class CalendarFragment : Fragment() {
                     textView.background = Background.getCircle(requireContext(), circleType)
                 }
             }
-            mCalendarView.scrollToMonth(currentMonth)
-            mBinding.loadingLayout.visibility = View.GONE
+            calendarView.scrollToMonth(currentMonth)
+            binding.loadingLayout.visibility = View.GONE
         }
+    }
+
+    private fun setupStats() {
+        binding.stats.yearDrinkDays.text = viewModel.getDrankDaysQuantity().toString()
+        binding.stats.yearDaysTotal.text = viewModel.getThisYearDaysQuantity().toString()
     }
 
     override fun onDestroyView() {
@@ -128,8 +138,21 @@ class CalendarFragment : Fragment() {
         _binding = null
     }
 
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        try {
+            statisticSwitcher = context as StatisticSwitcher
+        } catch (castException: ClassCastException) {
+            /** The activity does not implement the listener.  */
+        }
+    }
+
     companion object {
         @JvmStatic
         fun newInstance() = CalendarFragment()
     }
+}
+
+interface StatisticSwitcher {
+    fun switchToStatistic()
 }
