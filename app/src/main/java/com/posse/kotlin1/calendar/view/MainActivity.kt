@@ -1,4 +1,4 @@
-package com.posse.kotlin1.calendar
+package com.posse.kotlin1.calendar.view
 
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
@@ -7,28 +7,25 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
-import com.posse.kotlin1.calendar.ui.SectionsPagerAdapter
+import com.posse.kotlin1.calendar.R
+import com.posse.kotlin1.calendar.databinding.ActivityMainBinding
 
 class MainActivity : AppCompatActivity() {
+    private lateinit var binding: ActivityMainBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
+        binding = ActivityMainBinding.inflate(layoutInflater)
+        val view = binding.root
+        setContentView(view)
         val sectionsPagerAdapter = SectionsPagerAdapter(this)
-        val viewPager: ViewPager2 = findViewById(R.id.view_pager)
+        val viewPager: ViewPager2 = binding.viewPager
         viewPager.adapter = sectionsPagerAdapter
-        val tabs: TabLayout = findViewById(R.id.tabs)
+        val tabs: TabLayout = binding.tabs
 
         TabLayoutMediator(tabs, viewPager) { tab, position ->
             tab.text = sectionsPagerAdapter.tabTitles[position]
             viewPager.setCurrentItem(tab.position, true)
         }.attach()
-
-        val fab: FloatingActionButton = findViewById(R.id.fab)
-
-        fab.setOnClickListener { view ->
-            Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                .setAction("Action", null).show()
-        }
     }
 }

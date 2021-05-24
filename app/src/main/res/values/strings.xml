@@ -1,7 +1,32 @@
 <resources>
     <string name="app_name">AlcoCalendar</string>
-    <string name="tab_text_1">Calendar</string>
-    <string name="tab_text_2">Settings</string>
+    <string name="tab_calendar_text">Calendar</string>
+    <string name="tab_friends_text">Friends</string>
+    <string name="tab_statistic_text">Statistic</string>
+    <string name="tab_settings_text">Settings</string>
     <string name="hello_settings_fragment">Hello settings fragment</string>
-    <string name="somebutton">SomeButton</string>
+    <string name="hello_statistic_fragment">Hello statistic fragment</string>
+    <string name="hello_friends_fragment">Hello friends fragment</string>
+    <string name="backToDateButton">Back to current date</string>
+
+    <string name="january">January</string>
+    <string name="february">February</string>
+    <string name="march">March</string>
+    <string name="april">April</string>
+    <string name="may">May</string>
+    <string name="june">June</string>
+    <string name="july">July</string>
+    <string name="september">September</string>
+    <string name="august">August</string>
+    <string name="october">October</string>
+    <string name="november">November</string>
+    <string name="december">December</string>
+
+    <string name="monday">Mon</string>
+    <string name="tuesday">Tue</string>
+    <string name="wednesday">Wed</string>
+    <string name="thursday">Thu</string>
+    <string name="friday">Fri</string>
+    <string name="saturday">Sat</string>
+    <string name="sunday">Sun</string>
 </resources>
