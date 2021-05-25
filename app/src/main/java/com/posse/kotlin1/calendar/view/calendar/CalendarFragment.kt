@@ -26,7 +26,8 @@ import java.util.*
 class CalendarFragment : Fragment() {
     private var _binding: FragmentCalendarBinding? = null
     private val binding get() = _binding!!
-    private lateinit var calendarView: CalendarView
+    private val calendarView: CalendarView
+        get() = binding.calendarView
     private lateinit var viewModel: CalendarViewModel
     private lateinit var statisticSwitcher: StatisticSwitcher
 
@@ -40,7 +41,6 @@ class CalendarFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        calendarView = binding.calendarView
 
         viewModel = ViewModelProvider(this).get(CalendarViewModel::class.java)
         viewModel.getLiveData().observe(viewLifecycleOwner, { updateCalendar(it) })
@@ -143,7 +143,7 @@ class CalendarFragment : Fragment() {
         try {
             statisticSwitcher = context as StatisticSwitcher
         } catch (castException: ClassCastException) {
-            /** The activity does not implement the listener.  */
+            /** The activity does not implement the listener. */
         }
     }
 

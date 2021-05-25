@@ -4,8 +4,6 @@ import java.time.LocalDate
 
 interface Repository {
 
-    fun init()
-
     fun getDrankStateFromLocalStorage(): Set<LocalDate>
 
     fun changeState(date: LocalDate)

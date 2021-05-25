@@ -5,7 +5,8 @@ import java.time.Year
 import java.time.temporal.ChronoUnit
 
 class RepositoryImpl : Repository {
-    override fun init() {
+
+    init {
         CalendarState.clearAll()
         var date = LocalDate.now()
         val daysNumber = (50 + Math.random() * 100).toInt()
@@ -35,6 +36,9 @@ class RepositoryImpl : Repository {
     }
 
     override fun getThisYearDaysQuantity(): Int {
-        return (ChronoUnit.DAYS.between(LocalDate.ofYearDay(Year.now().value, 1), LocalDate.now()) + 1).toInt()
+        return (ChronoUnit.DAYS.between(
+            LocalDate.ofYearDay(Year.now().value, 1),
+            LocalDate.now()
+        ) + 1).toInt()
     }
 }
