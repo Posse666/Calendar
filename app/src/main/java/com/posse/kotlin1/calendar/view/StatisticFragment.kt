@@ -26,7 +26,6 @@ class StatisticFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         viewModel = ViewModelProvider(this).get(StatisticViewModel::class.java)
         viewModel.getLiveData().observe(viewLifecycleOwner, { updateStats() })
-        viewModel.refreshDrankState()
     }
 
     private fun updateStats() {

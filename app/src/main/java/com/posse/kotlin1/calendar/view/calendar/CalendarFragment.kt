@@ -22,6 +22,7 @@ import java.time.LocalDate
 import java.time.YearMonth
 import java.time.temporal.WeekFields
 import java.util.*
+import kotlin.collections.HashSet
 
 class CalendarFragment : Fragment() {
     private var _binding: FragmentCalendarBinding? = null
@@ -30,6 +31,7 @@ class CalendarFragment : Fragment() {
         get() = binding.calendarView
     private lateinit var viewModel: CalendarViewModel
     private lateinit var statisticSwitcher: StatisticSwitcher
+    private val drinkDates: HashSet<LocalDate> = HashSet()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -45,7 +47,6 @@ class CalendarFragment : Fragment() {
         viewModel = ViewModelProvider(this).get(CalendarViewModel::class.java)
         viewModel.getLiveData().observe(viewLifecycleOwner, { updateCalendar(it) })
         viewModel.refreshDrankState()
-        setupStats()
 
         binding.fab.setOnClickListener {
             calendarView.smoothScrollToMonth(YearMonth.now())
@@ -57,74 +58,81 @@ class CalendarFragment : Fragment() {
     }
 
     private fun updateCalendar(calendarState: Set<LocalDate>) {
-        binding.loadingLayout.visibility = View.VISIBLE
-        val currentMonth = YearMonth.now()
-        var firstMonth = YearMonth.from(Collections.min(calendarState))
-        if (firstMonth.isAfter(currentMonth.minusMonths(12))) {
-            firstMonth = currentMonth.minusMonths(12)
-        }
-        calendarView.setupAsync(
-            firstMonth,
-            currentMonth.plusMonths(1),
-            WeekFields.of(Locale.getDefault()).firstDayOfWeek
-        ) {
-            calendarView.monthHeaderBinder = object : MonthHeaderFooterBinder<MonthViewContainer> {
-                override fun create(view: View) = MonthViewContainer(view)
-                override fun bind(container: MonthViewContainer, month: CalendarMonth) {
-                    val monthName =
-                        getString(Month.values()[month.yearMonth.monthValue - 1].monthResource)
-                    ("$monthName ${month.year}")
-                        .also { container.textView.text = it }
-                }
+        if (calendarState.subtract(drinkDates).size != 1 && drinkDates.subtract(calendarState).size != 1) {
+            drinkDates.clear()
+            drinkDates.addAll(calendarState)
+            binding.loadingLayout.visibility = View.VISIBLE
+            val currentMonth = YearMonth.now()
+            var firstMonth = YearMonth.from(Collections.min(calendarState))
+            if (firstMonth.isAfter(currentMonth.minusMonths(12))) {
+                firstMonth = currentMonth.minusMonths(12)
             }
-            calendarView.dayBinder = object : DayBinder<DayViewContainer> {
-                override fun create(view: View) = DayViewContainer(view)
-                override fun bind(container: DayViewContainer, day: CalendarDay) {
-                    container.day = day
-                    val textView = container.textView
-                    textView.text = day.date.dayOfMonth.toString()
-                    if (day.owner == DayOwner.THIS_MONTH) {
-                        textView.visibility = View.VISIBLE
-                        if (day.date.isBefore(LocalDate.now()) || day.date.isEqual(LocalDate.now())) {
-                            container.view.setOnClickListener {
-                                viewModel.dayClicked(day.date)
-                                changeDay(textView, day)
-                                calendarView.notifyDayChanged(day)
-                                setupStats()
-                            }
-                        } else container.view.setOnClickListener(null)
-                        changeDay(textView, day)
-                    } else {
-                        textView.visibility = View.INVISIBLE
+            calendarView.setupAsync(
+                firstMonth,
+                currentMonth.plusMonths(1),
+                WeekFields.of(Locale.getDefault()).firstDayOfWeek
+            ) {
+                calendarView.monthHeaderBinder =
+                    object : MonthHeaderFooterBinder<MonthViewContainer> {
+                        override fun create(view: View) = MonthViewContainer(view)
+                        override fun bind(container: MonthViewContainer, month: CalendarMonth) {
+                            val monthName =
+                                getString(Month.values()[month.yearMonth.monthValue - 1].monthResource)
+                            ("$monthName ${month.year}").also { container.textView.text = it }
+                        }
                     }
-                }
+                calendarView.dayBinder = object : DayBinder<DayViewContainer> {
+                    override fun create(view: View) = DayViewContainer(view)
+                    override fun bind(container: DayViewContainer, day: CalendarDay) {
+                        container.day = day
+                        val textView = container.textView
+                        textView.text = day.date.dayOfMonth.toString()
+                        if (day.owner == DayOwner.THIS_MONTH) {
+                            textView.visibility = View.VISIBLE
+                            if (day.date.isBefore(LocalDate.now()) || day.date.isEqual(LocalDate.now())) {
+                                container.view.setOnClickListener {
+                                    viewModel.dayClicked(day.date)
+                                    changeDay(textView, day)
+                                    calendarView.notifyDayChanged(day)
+                                    setupStats()
+                                }
+                            } else container.view.setOnClickListener(null)
+                            changeDay(textView, day)
+                        } else {
+                            textView.visibility = View.INVISIBLE
+                        }
+                    }
 
-                private fun changeDay(textView: TextView, day: CalendarDay) {
-                    val circleType: CircleType
-                    val textColor: Int
-                    if (calendarState.contains(day.date)) {
-                        textColor = Color.WHITE
-                        circleType =
-                            if (day.date == LocalDate.now()) {
-                                CircleType.SELECTED_FULL
-                            } else CircleType.FULL
-                    } else {
-                        val attrs = intArrayOf(android.R.attr.textColorSecondary)
-                        val a: TypedArray? =
-                            context?.theme?.obtainStyledAttributes(attrs)
-                        textColor = a?.getColor(0, Color.BLACK) ?: Color.BLACK
-                        a?.recycle()
-                        circleType =
-                            if (day.date == LocalDate.now()) {
-                                CircleType.SELECTED_EMPTY
-                            } else CircleType.EMPTY
+                    private fun changeDay(textView: TextView, day: CalendarDay) {
+                        val circleType: CircleType
+                        val textColor: Int
+                        if (calendarState.contains(day.date)) {
+                            textColor = Color.WHITE
+                            circleType =
+                                if (day.date == LocalDate.now()) {
+                                    CircleType.SELECTED_FULL
+                                } else CircleType.FULL
+                            drinkDates.add(day.date)
+                        } else {
+                            val attrs = intArrayOf(android.R.attr.textColorSecondary)
+                            val a: TypedArray? =
+                                context?.theme?.obtainStyledAttributes(attrs)
+                            textColor = a?.getColor(0, Color.BLACK) ?: Color.BLACK
+                            a?.recycle()
+                            circleType =
+                                if (day.date == LocalDate.now()) {
+                                    CircleType.SELECTED_EMPTY
+                                } else CircleType.EMPTY
+                            drinkDates.remove(day.date)
+                        }
+                        textView.setTextColor(textColor)
+                        textView.background = Background.getCircle(requireContext(), circleType)
                     }
-                    textView.setTextColor(textColor)
-                    textView.background = Background.getCircle(requireContext(), circleType)
                 }
+                calendarView.scrollToMonth(currentMonth)
+                setupStats()
+                binding.loadingLayout.visibility = View.GONE
             }
-            calendarView.scrollToMonth(currentMonth)
-            binding.loadingLayout.visibility = View.GONE
         }
     }
 

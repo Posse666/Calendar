@@ -6,6 +6,5 @@ class CalendarViewModel : BaseStatsViewModel() {
 
     fun dayClicked(date: LocalDate) {
         repository.changeState(date)
-//        mLiveDataToObserve.value = mRepository.getDrankStateFromLocalStorage()
     }
 }
