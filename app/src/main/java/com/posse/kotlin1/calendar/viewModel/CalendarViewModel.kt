@@ -4,7 +4,5 @@ import java.time.LocalDate
 
 class CalendarViewModel : BaseStatsViewModel() {
 
-    fun dayClicked(date: LocalDate) {
-        repository.changeState(date)
-    }
+    fun dayClicked(date: LocalDate) = repository.changeState(date)
 }

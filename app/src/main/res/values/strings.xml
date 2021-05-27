@@ -29,6 +29,11 @@
     <string name="friday">Fri</string>
     <string name="saturday">Sat</string>
     <string name="sunday">Sun</string>
-    <string name="in_this_year_you_drank">In this year you drank</string>
-    <string name="days_of">days of</string>
+
+    <string name="in_this_year_you_drank">In this year you drank </string>
+    <string name="days_of"> days of </string>
+    <string name="longest_drink_marathon_in_this_year">Longest drink marathon in this year is </string>
+    <string name="days"> days</string>
+    <string name="longest_drink_marathon_all_time">Longest drink marathon for all time is </string>
+
 </resources>

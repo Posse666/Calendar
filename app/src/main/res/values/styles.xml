@@ -9,4 +9,8 @@
         <item name="cardCornerRadius">10dp</item>
         <item name="contentPadding">10dp</item>
     </style>
+
+    <style name="CardStatisticStyle" parent="CardStyle">
+        <item name="android:layout_height">wrap_content</item>
+    </style>
 </resources>

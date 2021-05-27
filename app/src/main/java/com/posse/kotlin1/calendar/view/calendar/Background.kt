@@ -36,9 +36,8 @@ object Background {
         return drawable
     }
 
-    private fun getColor(context: Context, colorResource: Int): Int {
-        return ResourcesCompat.getColor(context.resources, colorResource, null)
-    }
+    private fun getColor(context: Context, colorResource: Int) =
+        ResourcesCompat.getColor(context.resources, colorResource, null)
 }
 
 enum class CircleType {
