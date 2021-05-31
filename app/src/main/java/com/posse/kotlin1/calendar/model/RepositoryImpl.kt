@@ -1,30 +1,34 @@
 package com.posse.kotlin1.calendar.model
 
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import java.time.LocalDate
 
-class RepositoryImpl : Repository {
+object RepositoryImpl : Repository {
+
+    private val liveDataToObserve: MutableLiveData<Set<LocalDate>> = MutableLiveData()
+
     override fun init() {
         CalendarState.clearAll()
         var date = LocalDate.now()
-        val daysNumber = (10 + Math.random() * 10).toInt()
+        val daysNumber = (50 + Math.random() * 100).toInt()
         for (i in 1..daysNumber) {
-            CalendarState.addDay(date, true)
+            CalendarState.addDay(date)
             date = date.minusDays(1 + (Math.random() * 10).toLong())
         }
+        liveDataToObserve.value = CalendarState.dates
     }
 
-    override fun getDrankStateFromLocalStorage(): Map<LocalDate, Boolean> {
+    override fun getLiveData(): LiveData<Set<LocalDate>> = liveDataToObserve
+
+    override fun getDrankStateFromLocalStorage(): Set<LocalDate> {
         return CalendarState.dates
     }
 
-    override fun getState(date: LocalDate): Boolean? {
-        return CalendarState.dates[date]
-    }
-
     override fun changeState(date: LocalDate) {
-        if (CalendarState.dates[date] == true){
+        if (CalendarState.dates.contains(date)) {
             CalendarState.removeDay(date)
-        } else CalendarState.addDay(date,true)
+        } else CalendarState.addDay(date)
+        liveDataToObserve.value = CalendarState.dates
     }
-
 }

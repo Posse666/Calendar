@@ -1,14 +1,15 @@
 package com.posse.kotlin1.calendar.model
 
+import androidx.lifecycle.LiveData
 import java.time.LocalDate
 
 interface Repository {
 
     fun init()
 
-    fun getDrankStateFromLocalStorage(): Map<LocalDate, Boolean>
+    fun getLiveData(): LiveData<Set<LocalDate>>
 
-    fun getState (date: LocalDate): Boolean?
+    fun getDrankStateFromLocalStorage(): Set<LocalDate>
 
-    fun changeState (date: LocalDate)
+    fun changeState(date: LocalDate)
 }

@@ -30,4 +30,6 @@
     <string name="hello_statistic_fragment">Тут будет статистика</string>
     <string name="tab_friends_text">Друзья</string>
     <string name="hello_friends_fragment">Тут будет календарь друзей</string>
+    <string name="in_this_year_you_drank">"В этом году Вы пили "</string>
+    <string name="days_of">" дней из "</string>
 </resources>

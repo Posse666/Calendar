@@ -3,29 +3,30 @@ package com.posse.kotlin1.calendar.view
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.viewpager2.widget.ViewPager2
-import com.google.android.material.floatingactionbutton.FloatingActionButton
-import com.google.android.material.snackbar.Snackbar
-import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
-import com.posse.kotlin1.calendar.R
 import com.posse.kotlin1.calendar.databinding.ActivityMainBinding
+import com.posse.kotlin1.calendar.view.calendar.StatisticSwitcher
+import com.posse.kotlin1.calendar.view.pagerAdapter.SectionsPagerAdapter
+import com.posse.kotlin1.calendar.view.pagerAdapter.TabTitles
 
-class MainActivity : AppCompatActivity() {
-    private lateinit var binding: ActivityMainBinding
+class MainActivity : AppCompatActivity(), StatisticSwitcher {
+    private lateinit var viewPager: ViewPager2
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding = ActivityMainBinding.inflate(layoutInflater)
-        val view = binding.root
-        setContentView(view)
+        val binding = ActivityMainBinding.inflate(layoutInflater)
+        setContentView(binding.root)
         val sectionsPagerAdapter = SectionsPagerAdapter(this)
-        val viewPager: ViewPager2 = binding.viewPager
+        viewPager = binding.viewPager
         viewPager.adapter = sectionsPagerAdapter
-        val tabs: TabLayout = binding.tabs
 
-        TabLayoutMediator(tabs, viewPager) { tab, position ->
-            tab.text = sectionsPagerAdapter.tabTitles[position]
+        TabLayoutMediator(binding.tabs, viewPager) { tab, position ->
+            tab.text = getString(TabTitles.values()[position].tabResources)
             viewPager.setCurrentItem(tab.position, true)
         }.attach()
+    }
+
+    override fun switchToStatistic() {
+        viewPager.setCurrentItem(TabTitles.STATISTIC.position, true)
     }
 }
