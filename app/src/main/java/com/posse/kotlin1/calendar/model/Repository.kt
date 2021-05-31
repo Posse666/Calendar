@@ -12,4 +12,6 @@ interface Repository {
     fun getDrankStateFromLocalStorage(): Set<LocalDate>
 
     fun changeState(date: LocalDate)
+
+    fun getTemperature(): LiveData<Int>
 }

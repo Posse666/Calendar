@@ -31,6 +31,11 @@ class StatisticFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         viewModel.getLiveData().observe(viewLifecycleOwner, { updateStats() })
+        viewModel.getTemperature().observe(viewLifecycleOwner, { renderColor(it) })
+    }
+
+    private fun renderColor(temperature: Int?) {
+
     }
 
     private fun updateStats() {

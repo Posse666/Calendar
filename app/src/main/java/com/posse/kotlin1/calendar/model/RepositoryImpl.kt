@@ -7,6 +7,7 @@ import java.time.LocalDate
 object RepositoryImpl : Repository {
 
     private val liveDataToObserve: MutableLiveData<Set<LocalDate>> = MutableLiveData()
+    private val temperature: MutableLiveData<Int> = MutableLiveData()
 
     override fun removeLaterInitForTestingPurpose() {
         CalendarState.clearAll()
@@ -31,4 +32,6 @@ object RepositoryImpl : Repository {
         } else CalendarState.addDay(date)
         liveDataToObserve.value = CalendarState.dates
     }
+
+    override fun getTemperature(): LiveData<Int> = temperature
 }
