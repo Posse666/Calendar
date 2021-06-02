@@ -10,21 +10,27 @@
         android:orientation="vertical"
         tools:context=".view.StatisticFragment">
 
-        <androidx.cardview.widget.CardView style="@style/CardStatisticStyle">
+        <androidx.cardview.widget.CardView
+            android:id="@+id/cardTotal"
+            style="@style/CardStatisticStyle">
 
             <include
                 android:id="@+id/totalYearStats"
                 layout="@layout/main_stats" />
         </androidx.cardview.widget.CardView>
 
-        <androidx.cardview.widget.CardView style="@style/CardStatisticStyle">
+        <androidx.cardview.widget.CardView
+            android:id="@+id/cardThisYear"
+            style="@style/CardStatisticStyle">
 
             <include
                 android:id="@+id/longestDrinkThisYear"
                 layout="@layout/main_stats" />
         </androidx.cardview.widget.CardView>
 
-        <androidx.cardview.widget.CardView style="@style/CardStatisticStyle">
+        <androidx.cardview.widget.CardView
+            android:id="@+id/cardAllTime"
+            style="@style/CardStatisticStyle">
 
             <include
                 android:id="@+id/longestDrinkAllTime"

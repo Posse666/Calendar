@@ -1,7 +1,10 @@
 package com.posse.kotlin1.calendar.model
 
+import android.content.Context
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import com.posse.kotlin1.calendar.view.statistic.WeatherLoader
 import java.time.LocalDate
 
 object RepositoryImpl : Repository {
@@ -34,4 +37,25 @@ object RepositoryImpl : Repository {
     }
 
     override fun getTemperature(): LiveData<Int> = temperature
+
+    override fun refreshTemperature(context: Context) {
+        val onLoadListener: WeatherLoader.WeatherLoaderListener =
+            object : WeatherLoader.WeatherLoaderListener {
+
+                override fun onLoaded(weatherDTO: WeatherDTO) {
+                    temperature.value = weatherDTO.main?.temp?.toInt()
+                    OfflineData.getInstance(context).prefsData.temperature = temperature.value ?: 0
+                }
+
+                override fun onFailed(throwable: Throwable) {
+                    Log.e("error", throwable.stackTrace.toString())
+                }
+            }
+        val loader = WeatherLoader(onLoadListener, "Moscow")
+        loader.loadWeather()
+    }
+
+    override fun getStartTemperature(context: Context): Int {
+        return OfflineData.getInstance(context).prefsData.temperature
+    }
 }
