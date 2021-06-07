@@ -1,4 +1,4 @@
-package com.posse.kotlin1.calendar.model
+package com.posse.kotlin1.calendar.model.repository
 
 import android.content.Context
 import androidx.lifecycle.LiveData
@@ -16,7 +16,7 @@ interface Repository {
 
     fun getTemperature(): LiveData<Int>
 
-    fun refreshTemperature(context: Context)
+    fun refreshTemperature()
 
-    fun getStartTemperature(context: Context): Int
+    fun getStartTemperature(context: Context): Int?
 }

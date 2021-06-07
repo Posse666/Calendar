@@ -14,9 +14,9 @@ class OfflineData private constructor(context: Context) {
     companion object {
         private var single: OfflineData? = null
 
-        fun getInstance(context: Context): OfflineData {
-            if (single == null) single = OfflineData(context)
-            return single!!
+        fun getInstance(context: Context?): OfflineData? {
+            if (single == null) single = context?.let { OfflineData(it) }
+            return single
         }
     }
 }

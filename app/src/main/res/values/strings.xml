@@ -5,7 +5,6 @@
     <string name="tab_statistic_text">Statistic</string>
     <string name="tab_settings_text">Settings</string>
     <string name="hello_settings_fragment">Hello settings fragment</string>
-    <string name="hello_statistic_fragment">Hello statistic fragment</string>
     <string name="hello_friends_fragment">Hello friends fragment</string>
     <string name="backToDateButton">Back to current date</string>
 
@@ -35,5 +34,8 @@
     <string name="longest_drink_marathon_in_this_year">Longest drink marathon in this year is </string>
     <string name="days"> days</string>
     <string name="longest_drink_marathon_all_time">Longest drink marathon for all time is </string>
+    <string name="login_to_sync">Login to sync</string>
+    <string name="login">Login</string>
+    <string name="logout">Logout</string>
 
 </resources>

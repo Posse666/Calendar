@@ -1,6 +1,7 @@
 package com.posse.kotlin1.calendar.viewModel
 
 import android.content.Context
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.Transformations
 import java.time.LocalDate
 import java.time.Year
@@ -40,9 +41,9 @@ class StatisticViewModel : BaseStatsViewModel() {
         return maxDays.size
     }
 
-    fun getTemperature() = temperature
+    fun getTemperature(): LiveData<Int> = temperature
 
     fun getStartTemperature(context: Context) = repository.getStartTemperature(context)
 
-    fun refreshTemperature(context: Context) = repository.refreshTemperature(context)
+    fun refreshTemperature() = repository.refreshTemperature()
 }
