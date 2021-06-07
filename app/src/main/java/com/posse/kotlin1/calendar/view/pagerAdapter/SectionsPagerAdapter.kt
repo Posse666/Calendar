@@ -6,8 +6,8 @@ import androidx.viewpager2.adapter.FragmentStateAdapter
 import com.posse.kotlin1.calendar.R
 import com.posse.kotlin1.calendar.view.FriendsFragment
 import com.posse.kotlin1.calendar.view.SettingsFragment
-import com.posse.kotlin1.calendar.view.StatisticFragment
 import com.posse.kotlin1.calendar.view.calendar.CalendarFragment
+import com.posse.kotlin1.calendar.view.statistic.StatisticFragment
 
 class SectionsPagerAdapter(fragmentActivity: FragmentActivity) :
     FragmentStateAdapter(fragmentActivity) {

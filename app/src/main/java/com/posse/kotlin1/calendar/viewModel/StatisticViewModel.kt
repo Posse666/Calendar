@@ -1,5 +1,7 @@
 package com.posse.kotlin1.calendar.viewModel
 
+import android.content.Context
+import androidx.lifecycle.Transformations
 import java.time.LocalDate
 import java.time.Year
 
@@ -7,6 +9,8 @@ const val THIS_YEAR = true
 const val ALL_TIME = false
 
 class StatisticViewModel : BaseStatsViewModel() {
+    private val temperature = Transformations.map(repository.getTemperature()) { it }
+
     fun getDrinkMarathon(isThisYear: Boolean): Int {
         val days: ArrayList<LocalDate> = arrayListOf()
         val maxDays: ArrayList<LocalDate> = arrayListOf()
@@ -35,4 +39,10 @@ class StatisticViewModel : BaseStatsViewModel() {
         }
         return maxDays.size
     }
+
+    fun getTemperature() = temperature
+
+    fun getStartTemperature(context: Context) = repository.getStartTemperature(context)
+
+    fun refreshTemperature(context: Context) = repository.refreshTemperature(context)
 }
