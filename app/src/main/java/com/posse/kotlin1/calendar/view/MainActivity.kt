@@ -10,14 +10,13 @@ import com.posse.kotlin1.calendar.view.pagerAdapter.SectionsPagerAdapter
 import com.posse.kotlin1.calendar.view.pagerAdapter.TabTitles
 
 class MainActivity : AppCompatActivity(), StatisticSwitcher {
-    private lateinit var viewPager: ViewPager2
+    private val binding: ActivityMainBinding by lazy { ActivityMainBinding.inflate(layoutInflater) }
+    private val viewPager: ViewPager2 by lazy { binding.viewPager }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        val binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
         val sectionsPagerAdapter = SectionsPagerAdapter(this)
-        viewPager = binding.viewPager
         viewPager.adapter = sectionsPagerAdapter
 
         TabLayoutMediator(binding.tabs, viewPager) { tab, position ->

@@ -8,7 +8,7 @@ object RepositoryImpl : Repository {
 
     private val liveDataToObserve: MutableLiveData<Set<LocalDate>> = MutableLiveData()
 
-    override fun init() {
+    override fun removeLaterInitForTestingPurpose() {
         CalendarState.clearAll()
         var date = LocalDate.now()
         val daysNumber = (50 + Math.random() * 100).toInt()

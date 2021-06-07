@@ -5,7 +5,7 @@ import java.time.LocalDate
 
 interface Repository {
 
-    fun init()
+    fun removeLaterInitForTestingPurpose()
 
     fun getLiveData(): LiveData<Set<LocalDate>>
 

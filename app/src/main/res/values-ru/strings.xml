@@ -32,4 +32,7 @@
     <string name="hello_friends_fragment">Тут будет календарь друзей</string>
     <string name="in_this_year_you_drank">"В этом году Вы пили "</string>
     <string name="days_of">" дней из "</string>
+    <string name="longest_drink_marathon_in_this_year">"Самая запойная серия в этом году "</string>
+    <string name="days">" дней"</string>
+    <string name="longest_drink_marathon_all_time">"Самая запойная серия за все время "</string>
 </resources>

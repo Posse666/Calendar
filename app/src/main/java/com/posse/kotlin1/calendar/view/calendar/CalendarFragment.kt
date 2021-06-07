@@ -7,7 +7,9 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.FrameLayout
 import android.widget.TextView
+import androidx.appcompat.widget.AppCompatTextView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import com.kizitonwose.calendarview.CalendarView
@@ -16,6 +18,7 @@ import com.kizitonwose.calendarview.model.CalendarMonth
 import com.kizitonwose.calendarview.model.DayOwner
 import com.kizitonwose.calendarview.ui.DayBinder
 import com.kizitonwose.calendarview.ui.MonthHeaderFooterBinder
+import com.posse.kotlin1.calendar.R
 import com.posse.kotlin1.calendar.databinding.FragmentCalendarBinding
 import com.posse.kotlin1.calendar.viewModel.CalendarViewModel
 import java.time.LocalDate
@@ -23,15 +26,18 @@ import java.time.YearMonth
 import java.time.temporal.WeekFields
 import java.util.*
 import kotlin.collections.HashSet
+import kotlin.reflect.KFunction0
+import kotlin.reflect.KFunction2
 
 class CalendarFragment : Fragment() {
     private var _binding: FragmentCalendarBinding? = null
     private val binding get() = _binding!!
-    private val calendarView: CalendarView
-        get() = binding.calendarView
-    private lateinit var viewModel: CalendarViewModel
-    private lateinit var statisticSwitcher: StatisticSwitcher
+    private val calendarView: CalendarView by lazy { binding.calendarView }
+    private val viewModel: CalendarViewModel by lazy {
+        ViewModelProvider(this).get(CalendarViewModel::class.java)
+    }
     private val drinkDates: HashSet<LocalDate> = HashSet()
+    private lateinit var statisticSwitcher: StatisticSwitcher
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -44,7 +50,6 @@ class CalendarFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        viewModel = ViewModelProvider(this).get(CalendarViewModel::class.java)
         viewModel.getLiveData().observe(viewLifecycleOwner, { updateCalendar(it) })
         viewModel.refreshDrankState()
 
@@ -61,7 +66,7 @@ class CalendarFragment : Fragment() {
         if (calendarState.subtract(drinkDates).size != 1 && drinkDates.subtract(calendarState).size != 1) {
             drinkDates.clear()
             drinkDates.addAll(calendarState)
-            binding.loadingLayout.visibility = View.VISIBLE
+            binding.loadingLayout.show()
             val currentMonth = YearMonth.now()
             var firstMonth = YearMonth.from(Collections.min(calendarState))
             if (firstMonth.isAfter(currentMonth.minusMonths(12))) {
@@ -78,7 +83,7 @@ class CalendarFragment : Fragment() {
                         override fun bind(container: MonthViewContainer, month: CalendarMonth) {
                             val monthName =
                                 getString(Month.values()[month.yearMonth.monthValue - 1].monthResource)
-                            ("$monthName ${month.year}").also { container.textView.text = it }
+                            ("$monthName ${month.year}").also { container.textView.putText(it) }
                         }
                     }
                 calendarView.dayBinder = object : DayBinder<DayViewContainer> {
@@ -86,20 +91,21 @@ class CalendarFragment : Fragment() {
                     override fun bind(container: DayViewContainer, day: CalendarDay) {
                         container.day = day
                         val textView = container.textView
-                        textView.text = day.date.dayOfMonth.toString()
+                        textView.putText(day.date.dayOfMonth)
                         if (day.owner == DayOwner.THIS_MONTH) {
-                            textView.visibility = View.VISIBLE
+                            textView.show()
                             if (day.date.isBefore(LocalDate.now()) || day.date.isEqual(LocalDate.now())) {
-                                container.view.setOnClickListener {
-                                    viewModel.dayClicked(day.date)
-                                    changeDay(textView, day)
-                                    calendarView.notifyDayChanged(day)
-                                    setupStats()
-                                }
+                                container.setClickListener(
+                                    day,
+                                    viewModel,
+                                    this::changeDay,
+                                    calendarView,
+                                    this@CalendarFragment::setupStats
+                                )
                             } else container.view.setOnClickListener(null)
                             changeDay(textView, day)
                         } else {
-                            textView.visibility = View.INVISIBLE
+                            textView.disappear()
                         }
                     }
 
@@ -108,37 +114,44 @@ class CalendarFragment : Fragment() {
                         val textColor: Int
                         if (calendarState.contains(day.date)) {
                             textColor = Color.WHITE
-                            circleType =
-                                if (day.date == LocalDate.now()) {
-                                    CircleType.SELECTED_FULL
-                                } else CircleType.FULL
+                            circleType = circle(CircleType.SELECTED_FULL, CircleType.FULL, day.date)
                             drinkDates.add(day.date)
                         } else {
-                            val attrs = intArrayOf(android.R.attr.textColorSecondary)
-                            val a: TypedArray? =
-                                context?.theme?.obtainStyledAttributes(attrs)
-                            textColor = a?.getColor(0, Color.BLACK) ?: Color.BLACK
-                            a?.recycle()
+                            textColor = defaultColor()
                             circleType =
-                                if (day.date == LocalDate.now()) {
-                                    CircleType.SELECTED_EMPTY
-                                } else CircleType.EMPTY
+                                circle(CircleType.SELECTED_EMPTY, CircleType.EMPTY, day.date)
                             drinkDates.remove(day.date)
                         }
                         textView.setTextColor(textColor)
                         textView.background = Background.getCircle(requireContext(), circleType)
                     }
+
+                    private val defaultColor = {
+                        val attrs = intArrayOf(android.R.attr.textColorSecondary)
+                        val a: TypedArray? = context?.theme?.obtainStyledAttributes(attrs)
+                        val result = a?.getColor(0, Color.BLACK) ?: Color.BLACK
+                        a?.recycle()
+                        result
+                    }
+
+                    private val circle =
+                        { circle: CircleType, circle2: CircleType, date: LocalDate ->
+                            if (date == LocalDate.now()) circle
+                            else circle2
+                        }
                 }
                 calendarView.scrollToMonth(currentMonth)
                 setupStats()
-                binding.loadingLayout.visibility = View.GONE
+                binding.loadingLayout.hide()
             }
         }
     }
 
     private fun setupStats() {
-        binding.stats.yearDrinkDays.text = viewModel.getDrankDaysQuantity().toString()
-        binding.stats.yearDaysTotal.text = viewModel.getThisYearDaysQuantity().toString()
+        binding.stats.caption.putText(getString(R.string.in_this_year_you_drank))
+        binding.stats.firstStat.putText(viewModel.getDrankDaysQuantity())
+        binding.stats.description.putText(getString(R.string.days_of))
+        binding.stats.secondStat.putText(viewModel.getThisYearDaysQuantity())
     }
 
     override fun onDestroyView() {
@@ -159,6 +172,37 @@ class CalendarFragment : Fragment() {
         @JvmStatic
         fun newInstance() = CalendarFragment()
     }
+}
+
+private fun AppCompatTextView.putText(newValue: Any) {
+    text = newValue.toString()
+}
+
+private fun DayViewContainer.setClickListener(
+    day: CalendarDay,
+    viewModel: CalendarViewModel,
+    changeDay: KFunction2<TextView, CalendarDay, Unit>,
+    calendarView: CalendarView,
+    changeStats: KFunction0<Unit>
+) {
+    view.setOnClickListener {
+        viewModel.dayClicked(day.date)
+        changeDay(it as TextView, day)
+        calendarView.notifyDayChanged(day)
+        changeStats()
+    }
+}
+
+private fun View.show() {
+    visibility = View.VISIBLE
+}
+
+private fun FrameLayout.hide() {
+    visibility = View.GONE
+}
+
+private fun TextView.disappear() {
+    visibility = View.INVISIBLE
 }
 
 interface StatisticSwitcher {

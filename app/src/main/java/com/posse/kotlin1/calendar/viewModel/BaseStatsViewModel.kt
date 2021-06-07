@@ -11,7 +11,7 @@ import java.time.temporal.ChronoUnit
 abstract class BaseStatsViewModel : ViewModel() {
 
     protected val repository: Repository = RepositoryImpl
-    private val liveDataToObserve = Transformations.map(repository.getLiveData()) { it }
+    protected val liveDataToObserve = Transformations.map(repository.getLiveData()) { it }
 
     fun getLiveData() = liveDataToObserve
 
@@ -21,7 +21,7 @@ abstract class BaseStatsViewModel : ViewModel() {
         var result = 0
         val currentYear: LocalDate = LocalDate.ofYearDay(Year.now().value, 1)
         liveDataToObserve.value?.forEach {
-            if (it.isAfter(currentYear) || it.isEqual(currentYear)) result++
+            if (!it.isBefore(currentYear)) result++
         }
         return result
     }
@@ -34,6 +34,6 @@ abstract class BaseStatsViewModel : ViewModel() {
     }
 
     private fun getDataFromLocalSource() {
-        repository.init()
+        repository.removeLaterInitForTestingPurpose()
     }
 }
