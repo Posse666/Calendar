@@ -1,16 +1,32 @@
 package com.posse.kotlin1.calendar.model
 
+import android.content.BroadcastReceiver
 import android.content.Context
-import android.util.Log
+import android.content.Intent
+import android.content.IntentFilter
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import com.posse.kotlin1.calendar.view.statistic.WeatherLoader
+import androidx.localbroadcastmanager.content.LocalBroadcastManager
+import com.posse.kotlin1.calendar.view.statistic.CITY_EXTRA
+import com.posse.kotlin1.calendar.view.statistic.WeatherLoaderService
 import java.time.LocalDate
+
+const val DETAILS_INTENT_FILTER = "DETAILS INTENT FILTER"
+const val DETAILS_RESPONSE_SUCCESS_EXTRA = "RESPONSE SUCCESS"
+const val DETAILS_TEMP_EXTRA = "TEMPERATURE"
+private const val TEMP_INVALID = -100
 
 object RepositoryImpl : Repository {
 
     private val liveDataToObserve: MutableLiveData<Set<LocalDate>> = MutableLiveData()
     private val temperature: MutableLiveData<Int> = MutableLiveData()
+    private val loadResultsReceiver: BroadcastReceiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context, intent: Intent) {
+            temperature.value = intent.getIntExtra(DETAILS_TEMP_EXTRA, TEMP_INVALID)
+            OfflineData.getInstance(context).prefsData.temperature = temperature.value ?: 0
+        }
+    }
+
 
     override fun removeLaterInitForTestingPurpose() {
         CalendarState.clearAll()
@@ -39,20 +55,15 @@ object RepositoryImpl : Repository {
     override fun getTemperature(): LiveData<Int> = temperature
 
     override fun refreshTemperature(context: Context) {
-        val onLoadListener: WeatherLoader.WeatherLoaderListener =
-            object : WeatherLoader.WeatherLoaderListener {
-
-                override fun onLoaded(weatherDTO: WeatherDTO) {
-                    temperature.value = weatherDTO.main?.temp?.toInt()
-                    OfflineData.getInstance(context).prefsData.temperature = temperature.value ?: 0
-                }
-
-                override fun onFailed(throwable: Throwable) {
-                    Log.e("error", throwable.stackTrace.toString())
-                }
-            }
-        val loader = WeatherLoader(onLoadListener, "Moscow")
-        loader.loadWeather()
+        context.let {
+            it.startService(Intent(it, WeatherLoaderService::class.java).apply {
+                putExtra(CITY_EXTRA, "Moscow")
+            })
+        }
+        context.let {
+            LocalBroadcastManager.getInstance(it)
+                .registerReceiver(loadResultsReceiver, IntentFilter(DETAILS_INTENT_FILTER))
+        }
     }
 
     override fun getStartTemperature(context: Context): Int {
