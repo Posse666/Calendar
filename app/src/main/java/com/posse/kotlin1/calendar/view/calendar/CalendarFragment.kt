@@ -61,7 +61,8 @@ class CalendarFragment : Fragment() {
     }
 
     private fun updateCalendar(calendarState: Set<LocalDate>) {
-        if (calendarState.subtract(drinkDates).size != 1 && drinkDates.subtract(calendarState).size != 1) {
+//        if (calendarState.subtract(drinkDates).size != 1 && drinkDates.subtract(calendarState).size != 1) {
+        if (calendarState.subtract(drinkDates).isNotEmpty() || drinkDates.subtract(calendarState).isNotEmpty()) {
             drinkDates.clear()
             drinkDates.addAll(calendarState)
             binding.loadingLayout.show()
@@ -94,30 +95,53 @@ class CalendarFragment : Fragment() {
                             textView.show()
                             if (day.date.isBefore(LocalDate.now()) || day.date.isEqual(LocalDate.now())) {
                                 container.view.setOnClickListener {
+                                    switchDay(textView, day.date)
                                     viewModel.dayClicked(day.date)
-                                    changeDay(textView, day)
+    //                                    changeDay(textView, day)
                                     calendarView.notifyDayChanged(day)
                                     setupStats()
                                 }
                             } else container.view.setOnClickListener(null)
-                            changeDay(textView, day)
+                            changeDay(textView, day.date)
                         } else {
                             textView.disappear()
                         }
                     }
 
-                    private fun changeDay(textView: TextView, day: CalendarDay) {
+                    private fun switchDay(textView: TextView, date: LocalDate) {
                         val circleType: CircleType
                         val textColor: Int
-                        if (calendarState.contains(day.date)) {
+                        if (drinkDates.contains(date)) {
+                            textColor = defaultColor()
+                            circleType =
+                                circle(CircleType.SELECTED_EMPTY, CircleType.EMPTY, date)
+//                            textColor = Color.WHITE
+//                            circleType = circle(CircleType.SELECTED_FULL, CircleType.FULL, day.date)
+                            drinkDates.remove(date)
+                        } else {
                             textColor = Color.WHITE
-                            circleType = circle(CircleType.SELECTED_FULL, CircleType.FULL, day.date)
-                            drinkDates.add(day.date)
+                            circleType = circle(CircleType.SELECTED_FULL, CircleType.FULL, date)
+//                            textColor = defaultColor()
+//                            circleType =
+//                                circle(CircleType.SELECTED_EMPTY, CircleType.EMPTY, day.date)
+                            drinkDates.add(date)
+                        }
+                        textView.setTextColor(textColor)
+                        textView.background = Background.getCircle(requireContext(), circleType)
+                    }
+
+                    private fun changeDay(textView: TextView, date: LocalDate) {
+                        val circleType: CircleType
+                        val textColor: Int
+                        if (calendarState.contains(date)) {
+                            textColor = Color.WHITE
+                            circleType = circle(CircleType.SELECTED_FULL, CircleType.FULL, date)
+//                            drinkDates.add(day.date)
                         } else {
                             textColor = defaultColor()
                             circleType =
-                                circle(CircleType.SELECTED_EMPTY, CircleType.EMPTY, day.date)
-                            drinkDates.remove(day.date)
+                                circle(CircleType.SELECTED_EMPTY, CircleType.EMPTY, date)
+//                            drinkDates.remove(day.date)
                         }
                         textView.setTextColor(textColor)
                         textView.background = Background.getCircle(requireContext(), circleType)

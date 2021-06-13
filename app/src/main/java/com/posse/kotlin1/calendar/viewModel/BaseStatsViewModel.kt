@@ -11,7 +11,7 @@ import java.time.temporal.ChronoUnit
 
 abstract class BaseStatsViewModel : ViewModel() {
 
-    protected val repository: Repository = RepositoryImpl
+    protected val repository: Repository = RepositoryImpl()
     protected val liveDataToObserve: LiveData<Set<LocalDate>> = Transformations.map(repository.getLiveData()) { it }
 
     fun getLiveData() = liveDataToObserve
