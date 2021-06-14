@@ -31,7 +31,6 @@ class StatisticFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         viewModel.getLiveData().observe(viewLifecycleOwner, { updateStats() })
-        updateStats()
     }
 
     private fun updateStats() {

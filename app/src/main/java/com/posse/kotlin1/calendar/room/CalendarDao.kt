@@ -1,8 +1,6 @@
 package com.posse.kotlin1.calendar.room
 
-import android.database.Cursor
 import androidx.room.*
-import java.time.LocalDate
 
 @Dao
 interface CalendarDao {

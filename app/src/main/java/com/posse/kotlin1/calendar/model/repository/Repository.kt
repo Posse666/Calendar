@@ -9,7 +9,5 @@ interface Repository {
 
     fun getLiveData(): LiveData<Set<LocalDate>>
 
-    fun getDrankStateFromLocalStorage(): Set<LocalDate>
-
     fun changeState(date: LocalDate)
 }

@@ -27,9 +27,7 @@ class App : Application() {
                             appInstance!!.applicationContext,
                             CalendarDataBase::class.java,
                             DB_NAME
-                        )
-                            .allowMainThreadQueries()
-                            .build()
+                        ).build()
                     }
                 }
             }

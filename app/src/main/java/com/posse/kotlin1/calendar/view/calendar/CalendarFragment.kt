@@ -61,8 +61,10 @@ class CalendarFragment : Fragment() {
     }
 
     private fun updateCalendar(calendarState: Set<LocalDate>) {
-//        if (calendarState.subtract(drinkDates).size != 1 && drinkDates.subtract(calendarState).size != 1) {
-        if (calendarState.subtract(drinkDates).isNotEmpty() || drinkDates.subtract(calendarState).isNotEmpty()) {
+        setupStats()
+        if (calendarState.subtract(drinkDates).isNotEmpty()
+            || drinkDates.subtract(calendarState).isNotEmpty()
+        ) {
             drinkDates.clear()
             drinkDates.addAll(calendarState)
             binding.loadingLayout.show()
@@ -95,56 +97,45 @@ class CalendarFragment : Fragment() {
                             textView.show()
                             if (day.date.isBefore(LocalDate.now()) || day.date.isEqual(LocalDate.now())) {
                                 container.view.setOnClickListener {
-                                    switchDay(textView, day.date)
-                                    viewModel.dayClicked(day.date)
-    //                                    changeDay(textView, day)
+                                    changeDay(true, textView, day.date)
                                     calendarView.notifyDayChanged(day)
-                                    setupStats()
+                                    viewModel.dayClicked(day.date)
                                 }
                             } else container.view.setOnClickListener(null)
-                            changeDay(textView, day.date)
+                            changeDay(false, textView, day.date)
                         } else {
                             textView.disappear()
                         }
                     }
 
-                    private fun switchDay(textView: TextView, date: LocalDate) {
+                    private fun changeDay(isClicked: Boolean, textView: TextView, date: LocalDate) {
                         val circleType: CircleType
                         val textColor: Int
                         if (drinkDates.contains(date)) {
-                            textColor = defaultColor()
-                            circleType =
-                                circle(CircleType.SELECTED_EMPTY, CircleType.EMPTY, date)
-//                            textColor = Color.WHITE
-//                            circleType = circle(CircleType.SELECTED_FULL, CircleType.FULL, day.date)
-                            drinkDates.remove(date)
+                            textColor = getTextColor(isClicked)
+                            circleType = getCircleType(isClicked, date)
+                            if (isClicked) drinkDates.remove(date)
                         } else {
-                            textColor = Color.WHITE
-                            circleType = circle(CircleType.SELECTED_FULL, CircleType.FULL, date)
-//                            textColor = defaultColor()
-//                            circleType =
-//                                circle(CircleType.SELECTED_EMPTY, CircleType.EMPTY, day.date)
-                            drinkDates.add(date)
+                            textColor = getTextColor(!isClicked)
+                            circleType = getCircleType(!isClicked, date)
+                            if (isClicked) drinkDates.add(date)
                         }
                         textView.setTextColor(textColor)
                         textView.background = Background.getCircle(requireContext(), circleType)
                     }
 
-                    private fun changeDay(textView: TextView, date: LocalDate) {
-                        val circleType: CircleType
-                        val textColor: Int
-                        if (calendarState.contains(date)) {
-                            textColor = Color.WHITE
-                            circleType = circle(CircleType.SELECTED_FULL, CircleType.FULL, date)
-//                            drinkDates.add(day.date)
-                        } else {
-                            textColor = defaultColor()
-                            circleType =
-                                circle(CircleType.SELECTED_EMPTY, CircleType.EMPTY, date)
-//                            drinkDates.remove(day.date)
-                        }
-                        textView.setTextColor(textColor)
-                        textView.background = Background.getCircle(requireContext(), circleType)
+                    private fun getCircleType(clicked: Boolean, date: LocalDate): CircleType {
+                        if (clicked) return circle(
+                            CircleType.SELECTED_EMPTY,
+                            CircleType.EMPTY,
+                            date
+                        )
+                        return circle(CircleType.SELECTED_FULL, CircleType.FULL, date)
+                    }
+
+                    private fun getTextColor(clicked: Boolean): Int {
+                        if (clicked) return defaultColor()
+                        return Color.WHITE
                     }
 
                     private val defaultColor = {
@@ -162,7 +153,6 @@ class CalendarFragment : Fragment() {
                         }
                 }
                 calendarView.scrollToMonth(currentMonth)
-                setupStats()
                 binding.loadingLayout.hide()
             }
         }
@@ -185,7 +175,7 @@ class CalendarFragment : Fragment() {
         try {
             statisticSwitcher = context as StatisticSwitcher
         } catch (castException: ClassCastException) {
-            /** The activity does not implement the listener. */
+            throw RuntimeException("The activity does not implement the listener")
         }
     }
 
