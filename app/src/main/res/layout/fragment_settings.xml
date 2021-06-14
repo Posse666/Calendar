@@ -64,5 +64,28 @@
             </androidx.appcompat.widget.LinearLayoutCompat>
 
         </androidx.cardview.widget.CardView>
+
+        <androidx.cardview.widget.CardView style="@style/CardStatisticStyle">
+
+            <androidx.appcompat.widget.LinearLayoutCompat
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/shareButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/share_calendar"
+                    app:icon="@android:drawable/ic_menu_share" />
+
+                <androidx.fragment.app.FragmentContainerView
+                    android:id="@+id/shareFragment"
+                    android:layout_width="match_parent"
+                    android:layout_height="500dp"
+                    android:visibility="gone" />
+            </androidx.appcompat.widget.LinearLayoutCompat>
+
+        </androidx.cardview.widget.CardView>
     </androidx.appcompat.widget.LinearLayoutCompat>
 </ScrollView>

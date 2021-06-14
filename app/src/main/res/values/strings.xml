@@ -37,5 +37,6 @@
     <string name="login_to_sync">Login to sync</string>
     <string name="login">Login</string>
     <string name="logout">Logout</string>
+    <string name="share_calendar">Share Calendar</string>
 
 </resources>

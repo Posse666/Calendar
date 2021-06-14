@@ -69,6 +69,15 @@ class SettingsFragment : Fragment() {
             googleSignInClient.signOut()
             viewModel.getSettingsState(requireActivity())
         }
+        binding.shareButton.setOnClickListener {
+            requireActivity().supportFragmentManager.apply {
+                beginTransaction()
+                    .replace(R.id.shareFragment, ContactsFragment.newInstance())
+                    .addToBackStack("")
+                    .commit()
+            }
+            binding.shareFragment.visibility = View.VISIBLE
+        }
     }
 
     private fun renderSettings(settingsState: SettingsState) {

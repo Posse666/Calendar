@@ -37,4 +37,5 @@
     <string name="login_to_sync">Войдите для синхронизации</string>
     <string name="login">Войти</string>
     <string name="logout">Выйти</string>
+    <string name="share_calendar">Поделиться Календарем</string>
 </resources>
