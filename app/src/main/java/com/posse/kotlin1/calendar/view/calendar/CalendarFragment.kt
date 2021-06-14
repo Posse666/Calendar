@@ -26,8 +26,6 @@ import java.time.YearMonth
 import java.time.temporal.WeekFields
 import java.util.*
 import kotlin.collections.HashSet
-import kotlin.reflect.KFunction0
-import kotlin.reflect.KFunction2
 
 class CalendarFragment : Fragment() {
     private var _binding: FragmentCalendarBinding? = null
@@ -95,13 +93,12 @@ class CalendarFragment : Fragment() {
                         if (day.owner == DayOwner.THIS_MONTH) {
                             textView.show()
                             if (day.date.isBefore(LocalDate.now()) || day.date.isEqual(LocalDate.now())) {
-                                container.setClickListener(
-                                    day,
-                                    viewModel,
-                                    this::changeDay,
-                                    calendarView,
-                                    this@CalendarFragment::setupStats
-                                )
+                                container.view.setOnClickListener {
+                                    viewModel.dayClicked(day.date)
+                                    changeDay(textView, day)
+                                    calendarView.notifyDayChanged(day)
+                                    setupStats()
+                                }
                             } else container.view.setOnClickListener(null)
                             changeDay(textView, day)
                         } else {
@@ -176,21 +173,6 @@ class CalendarFragment : Fragment() {
 
 private fun AppCompatTextView.putText(newValue: Any) {
     text = newValue.toString()
-}
-
-private fun DayViewContainer.setClickListener(
-    day: CalendarDay,
-    viewModel: CalendarViewModel,
-    changeDay: KFunction2<TextView, CalendarDay, Unit>,
-    calendarView: CalendarView,
-    changeStats: KFunction0<Unit>
-) {
-    view.setOnClickListener {
-        viewModel.dayClicked(day.date)
-        changeDay(it as TextView, day)
-        calendarView.notifyDayChanged(day)
-        changeStats()
-    }
 }
 
 private fun View.show() {

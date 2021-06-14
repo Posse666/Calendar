@@ -1,9 +1,10 @@
 package com.posse.kotlin1.calendar.viewModel
 
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.Transformations
 import androidx.lifecycle.ViewModel
-import com.posse.kotlin1.calendar.model.Repository
-import com.posse.kotlin1.calendar.model.RepositoryImpl
+import com.posse.kotlin1.calendar.model.repository.Repository
+import com.posse.kotlin1.calendar.model.repository.RepositoryImpl
 import java.time.LocalDate
 import java.time.Year
 import java.time.temporal.ChronoUnit
@@ -11,7 +12,7 @@ import java.time.temporal.ChronoUnit
 abstract class BaseStatsViewModel : ViewModel() {
 
     protected val repository: Repository = RepositoryImpl
-    protected val liveDataToObserve = Transformations.map(repository.getLiveData()) { it }
+    protected val liveDataToObserve: LiveData<Set<LocalDate>> = Transformations.map(repository.getLiveData()) { it }
 
     fun getLiveData() = liveDataToObserve
 

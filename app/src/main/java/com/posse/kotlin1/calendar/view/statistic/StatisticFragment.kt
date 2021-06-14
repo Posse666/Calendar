@@ -31,7 +31,7 @@ class StatisticFragment : Fragment() {
         )
     }
     private val startTemperature: Int by lazy {
-        viewModel.getStartTemperature(requireContext()) + 40
+        (viewModel.getStartTemperature(requireContext()) ?: 0) + 40
     }
 
     override fun onCreateView(
@@ -47,7 +47,7 @@ class StatisticFragment : Fragment() {
         setBackgroundColor(startTemperature)
         viewModel.getLiveData().observe(viewLifecycleOwner, { updateStats() })
         viewModel.getTemperature().observe(viewLifecycleOwner, { updateColor(it) })
-        viewModel.refreshTemperature(requireContext())
+        viewModel.refreshTemperature()
     }
 
     private fun setBackgroundColor(temperature: Int) {
