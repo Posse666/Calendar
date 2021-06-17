@@ -1,10 +1,8 @@
 <resources>
-    <string name="app_name">AlcoCalendar</string>
     <string name="tab_calendar_text">Calendar</string>
     <string name="tab_friends_text">Friends</string>
     <string name="tab_statistic_text">Statistic</string>
     <string name="tab_settings_text">Settings</string>
-    <string name="hello_settings_fragment">Hello settings fragment</string>
     <string name="hello_friends_fragment">Hello friends fragment</string>
     <string name="backToDateButton">Back to current date</string>
 
@@ -38,5 +36,12 @@
     <string name="login">Login</string>
     <string name="logout">Logout</string>
     <string name="share_calendar">Share Calendar</string>
+    <string name="contacts_dialog_cancel">Cancel</string>
+    <string name="contacts_dialog_save">Save</string>
+    <string name="contact_access_description">Contact access</string>
+    <string name="contact_access_message">Need access to contacts to share with your calendar</string>
+    <string name="allow_access">Allow</string>
+    <string name="no_thanks">No, thanks</string>
+    <string name="close">Close</string>
 
 </resources>

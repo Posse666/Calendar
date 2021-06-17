@@ -1,8 +1,7 @@
-package com.posse.kotlin1.calendar.view
+package com.posse.kotlin1.calendar.view.settings.share
 
 import android.Manifest
 import android.content.ContentResolver
-import android.content.Context
 import android.content.pm.PackageManager
 import android.database.Cursor
 import android.os.Bundle
@@ -11,29 +10,32 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.app.AlertDialog
-import androidx.appcompat.widget.AppCompatTextView
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
-import com.posse.kotlin1.calendar.databinding.FragmentContactsBinding
-import com.posse.kotlin1.calendar.databinding.FragmentSettingsBinding
+import com.posse.kotlin1.calendar.R
+import com.posse.kotlin1.calendar.databinding.FragmentShareBinding
 
 const val REQUEST_CODE = 66
 
-class ContactsFragment : Fragment() {
-    private var _binding: FragmentContactsBinding? = null
+class ShareFragment : Fragment() {
+
+    private var _binding: FragmentShareBinding? = null
     private val binding get() = _binding!!
+    private val contactsWithEmail: ArrayList<Contact> = arrayListOf()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        _binding = FragmentContactsBinding.inflate(inflater, container, false)
+        _binding = FragmentShareBinding.inflate(inflater, container, false)
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        checkPermission()
+        binding.shareButton.setOnClickListener {
+            checkPermission()
+        }
     }
 
     override fun onRequestPermissionsResult(
@@ -48,9 +50,11 @@ class ContactsFragment : Fragment() {
                 } else {
                     context?.let {
                         AlertDialog.Builder(it)
-                            .setTitle("Доступ к контактам")
-                            .setMessage("Необходим доступ к контактам, чтобы можно было поделиться с друзьями своим календарем")
-                            .setNegativeButton("Закрыть") { dialog, _ -> dialog.dismiss() }
+                            .setTitle(getString(R.string.contact_access_description))
+                            .setMessage(getString(R.string.contact_access_message))
+                            .setNegativeButton(getString(R.string.close)) { dialog, _ ->
+                                dialog.dismiss()
+                            }
                             .create()
                             .show()
                     }
@@ -69,12 +73,14 @@ class ContactsFragment : Fragment() {
                 }
                 shouldShowRequestPermissionRationale(Manifest.permission.READ_CONTACTS) -> {
                     AlertDialog.Builder(it)
-                        .setTitle("Доступ к контактам")
-                        .setMessage("Необходим доступ к контактам, чтобы можно было поделиться с друзьями своим календарем")
-                        .setPositiveButton("Предоставить доступ") { _, _ ->
+                        .setTitle(getString(R.string.contact_access_description))
+                        .setMessage(getString(R.string.contact_access_message))
+                        .setPositiveButton(getString(R.string.allow_access)) { _, _ ->
                             requestPermission()
                         }
-                        .setNegativeButton("Не надо") { dialog, _ -> dialog.dismiss() }
+                        .setNegativeButton(getString(R.string.no_thanks)) { dialog, _ ->
+                            dialog.dismiss()
+                        }
                         .create()
                         .show()
                 }
@@ -90,6 +96,7 @@ class ContactsFragment : Fragment() {
     }
 
     private fun getContacts() {
+        contactsWithEmail.clear()
         context?.let {
             val contentResolver: ContentResolver = it.contentResolver
             val cursorWithContacts: Cursor? = contentResolver.query(
@@ -103,20 +110,35 @@ class ContactsFragment : Fragment() {
             cursorWithContacts?.let { cursor ->
                 for (i in 0..cursor.count) {
                     if (cursor.moveToPosition(i)) {
-                        val name =
-                            cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME))
-                        addView(it, name)
+                        val id =
+                            cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts._ID))
+                        val cursorWithIDs: Cursor? = contentResolver.query(
+                            ContactsContract.CommonDataKinds.Email.CONTENT_URI,
+                            null,
+                            ContactsContract.CommonDataKinds.Email.CONTACT_ID + " = ?",
+                            arrayOf(id),
+                            null
+                        )
+
+                        cursorWithIDs?.let { cursor2 ->
+                            for (j in 0..cursor2.count) {
+                                if (cursor2.moveToPosition(j)) {
+                                    val name =
+                                        cursor2.getString(cursor2.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME))
+                                    val email =
+                                        cursor2.getString(cursor2.getColumnIndex(ContactsContract.CommonDataKinds.Email.DATA))
+                                    if (email != null) contactsWithEmail.add(Contact(name, email))
+                                }
+                            }
+                        }
+                        cursorWithIDs?.close()
                     }
                 }
             }
             cursorWithContacts?.close()
         }
-    }
-
-    private fun addView(context: Context, textToShow: String) {
-        binding.containerForContacts.addView(AppCompatTextView(context).apply {
-            text = textToShow
-        })
+        ContactsFragment.newInstance(contactsWithEmail)
+            .show(requireActivity().supportFragmentManager, null)
     }
 
     override fun onDestroyView() {
@@ -127,6 +149,6 @@ class ContactsFragment : Fragment() {
     companion object {
 
         @JvmStatic
-        fun newInstance() = ContactsFragment()
+        fun newInstance() = ShareFragment()
     }
 }

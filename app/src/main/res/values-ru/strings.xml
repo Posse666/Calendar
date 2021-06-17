@@ -1,10 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Алко Календарь</string>
     <string name="tab_calendar_text">Календарь</string>
     <string name="tab_statistic_text">Статистика</string>
     <string name="tab_settings_text">Настройки</string>
-    <string name="hello_settings_fragment">Тут будут настройки</string>
+    <string name="tab_friends_text">Друзья</string>
     <string name="backToDateButton">Вернуться на текущую дату</string>
 
     <string name="january">Январь</string>
@@ -27,7 +26,6 @@
     <string name="friday">Пт.</string>
     <string name="saturday">Сб.</string>
     <string name="sunday">Вс.</string>
-    <string name="tab_friends_text">Друзья</string>
     <string name="hello_friends_fragment">Тут будет календарь друзей</string>
     <string name="in_this_year_you_drank">"В этом году Вы пили "</string>
     <string name="days_of">" дней из "</string>
@@ -38,4 +36,11 @@
     <string name="login">Войти</string>
     <string name="logout">Выйти</string>
     <string name="share_calendar">Поделиться Календарем</string>
+    <string name="contacts_dialog_cancel">Отмена</string>
+    <string name="contacts_dialog_save">Сохранить</string>
+    <string name="contact_access_description">Доступ к контактам</string>
+    <string name="contact_access_message">Необходим доступ к контактам, чтобы можно было поделиться с друзьями своим календарем</string>
+    <string name="allow_access">Предоставить доступ</string>
+    <string name="no_thanks">Не надо</string>
+    <string name="close">Закрыть</string>
 </resources>
