@@ -8,7 +8,7 @@ interface CalendarDao {
     @Query("SELECT * FROM CalendarEntity")
     fun all(): List<CalendarEntity>
 
-    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insert(entity: CalendarEntity)
 
     @Query("SELECT * FROM CalendarEntity WHERE date LIKE :date")

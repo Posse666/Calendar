@@ -1,5 +1,6 @@
 package com.posse.kotlin1.calendar.model.repository
 
+import com.posse.kotlin1.calendar.room.CalendarEntity
 import java.time.LocalDate
 
 interface LocalRepository {
@@ -8,4 +9,6 @@ interface LocalRepository {
     fun deleteDate(date: LocalDate)
     fun deleteAll()
     fun checkDate(date: LocalDate): Boolean
+    fun updateEntity(date: LocalDate, longitude:Double, latitude: Double)
+    fun getEntity(date: LocalDate): CalendarEntity?
 }

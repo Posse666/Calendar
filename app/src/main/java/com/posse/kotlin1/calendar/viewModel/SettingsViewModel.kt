@@ -1,6 +1,5 @@
 package com.posse.kotlin1.calendar.viewModel
 
-import android.content.Context
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.posse.kotlin1.calendar.model.repository.SettingsRepo
@@ -12,7 +11,7 @@ class SettingsViewModel : ViewModel() {
 
     fun getLiveData() = liveData
 
-    fun getSettingsState(context: Context) {
-        liveData.value = settingsRepo.getSettingsState(context)
+    fun getSettingsState() {
+        liveData.value = settingsRepo.getSettingsState()
     }
 }

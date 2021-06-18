@@ -13,6 +13,6 @@ fun convertLocalDateToEntity(date: LocalDate): CalendarEntity {
     return CalendarEntity(0, date.toEpochDay())
 }
 
-fun convertLocalDateToLong(date: LocalDate): Long{
+fun convertLocalDateToLong(date: LocalDate): Long {
     return date.toEpochDay()
 }

@@ -2,20 +2,20 @@ package com.posse.kotlin1.calendar.view.settings.share
 
 import android.Manifest
 import android.content.ContentResolver
-import android.content.pm.PackageManager
 import android.database.Cursor
 import android.os.Bundle
 import android.provider.ContactsContract
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.appcompat.app.AlertDialog
-import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import com.posse.kotlin1.calendar.R
 import com.posse.kotlin1.calendar.databinding.FragmentShareBinding
+import com.posse.kotlin1.calendar.utils.Permission
+import com.posse.kotlin1.calendar.utils.checkPermission
+import com.posse.kotlin1.calendar.utils.checkPermissionsResult
 
-const val REQUEST_CODE = 66
+private const val REQUEST_CODE = 66
 
 class ShareFragment : Fragment() {
 
@@ -34,65 +34,44 @@ class ShareFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         binding.shareButton.setOnClickListener {
-            checkPermission()
+            requirePermission()
         }
     }
 
     override fun onRequestPermissionsResult(
-        requestCode: Int,
-        permissions: Array<String>, grantResults: IntArray
+        requestCode: Int, permissions: Array<String>, grantResults: IntArray
     ) {
         when (requestCode) {
             REQUEST_CODE -> {
-                if ((grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED)
-                ) {
-                    getContacts()
-                } else {
-                    context?.let {
-                        AlertDialog.Builder(it)
-                            .setTitle(getString(R.string.contact_access_description))
-                            .setMessage(getString(R.string.contact_access_message))
-                            .setNegativeButton(getString(R.string.close)) { dialog, _ ->
-                                dialog.dismiss()
-                            }
-                            .create()
-                            .show()
+                when (checkPermissionsResult(
+                    this,
+                    grantResults,
+                    getString(R.string.contact_access_description),
+                    getString(R.string.contact_access_message),
+                    getString(R.string.close)
+                )) {
+                    Permission.GRANTED -> getContacts()
+                    Permission.NOT_GRANTED -> {
                     }
                 }
-                return
             }
         }
     }
 
-    private fun checkPermission() {
-        context?.let {
-            when {
-                ContextCompat.checkSelfPermission(it, Manifest.permission.READ_CONTACTS) ==
-                        PackageManager.PERMISSION_GRANTED -> {
-                    getContacts()
-                }
-                shouldShowRequestPermissionRationale(Manifest.permission.READ_CONTACTS) -> {
-                    AlertDialog.Builder(it)
-                        .setTitle(getString(R.string.contact_access_description))
-                        .setMessage(getString(R.string.contact_access_message))
-                        .setPositiveButton(getString(R.string.allow_access)) { _, _ ->
-                            requestPermission()
-                        }
-                        .setNegativeButton(getString(R.string.no_thanks)) { dialog, _ ->
-                            dialog.dismiss()
-                        }
-                        .create()
-                        .show()
-                }
-                else -> {
-                    requestPermission()
-                }
+    private fun requirePermission() {
+        when (checkPermission(
+            REQUEST_CODE,
+            this,
+            Manifest.permission.READ_CONTACTS,
+            getString(R.string.contact_access_description),
+            getString(R.string.contact_access_message),
+            getString(R.string.allow_access),
+            getString(R.string.no_thanks)
+        )) {
+            Permission.GRANTED -> getContacts()
+            Permission.NOT_GRANTED -> {
             }
         }
-    }
-
-    private fun requestPermission() {
-        requestPermissions(arrayOf(Manifest.permission.READ_CONTACTS), REQUEST_CODE)
     }
 
     private fun getContacts() {

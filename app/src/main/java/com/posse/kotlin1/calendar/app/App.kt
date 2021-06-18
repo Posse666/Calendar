@@ -14,7 +14,7 @@ class App : Application() {
 
     companion object {
 
-        private var appInstance: App? = null
+        var appInstance: App? = null
         private var db: CalendarDataBase? = null
         private const val DB_NAME = "Calendar.db"
 
