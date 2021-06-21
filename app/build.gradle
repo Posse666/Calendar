@@ -3,6 +3,7 @@ plugins {
     id 'kotlin-android'
     id 'kotlin-kapt'
     id 'kotlin-parcelize'
+    id 'com.google.gms.google-services'
 }
 android {
     compileSdkVersion 30
@@ -43,6 +44,7 @@ dependencies {
 
     implementation 'com.google.android.gms:play-services-maps:17.0.1'
     implementation 'androidx.room:room-runtime:2.3.0'
+    implementation 'com.google.firebase:firebase-messaging-ktx:22.0.0'
     kapt 'androidx.room:room-compiler:2.3.0'
     implementation 'com.google.android.gms:play-services-auth:19.0.0'
     implementation 'com.squareup.picasso:picasso:2.71828'

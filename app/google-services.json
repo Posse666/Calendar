@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "929390260810",
+    "project_id": "alcocalendar",
+    "storage_bucket": "alcocalendar.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:929390260810:android:780e217dbad6d245262cb3",
+        "android_client_info": {
+          "package_name": "com.posse.kotlin1.calendar"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "929390260810-tljvk0njajnhlgvjj0cr6v700ug5alnj.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB7N9tVBo9HJZ4OEY8iUKX-8mHNRfN2czE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "929390260810-tljvk0njajnhlgvjj0cr6v700ug5alnj.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
