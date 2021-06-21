@@ -42,10 +42,13 @@ object RepositoryImpl : Repository {
     override fun updateSate(date: LocalDate, longitude: Double, latitude: Double) {
         Thread {
             localRepository.updateEntity(date, longitude, latitude)
-        }
+        }.start()
     }
 
-    override fun getLocation(date: LocalDate): CalendarEntity? {
-        return localRepository.getEntity(date)
+    override fun getLocation(date: LocalDate, callback: (CalendarEntity?) -> Any?) {
+        Thread {
+            val entity = localRepository.getEntity(date)
+            callback.invoke(entity)
+        }.start()
     }
 }

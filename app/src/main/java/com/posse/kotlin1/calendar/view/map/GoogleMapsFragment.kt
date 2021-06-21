@@ -35,7 +35,7 @@ class GoogleMapsFragment : DialogFragment() {
         map = googleMap
         val initialPlace = LatLng(latitude, longitude)
         googleMap.addMarker(MarkerOptions().position(initialPlace).title(date))
-        googleMap.moveCamera(CameraUpdateFactory.newLatLng(initialPlace))
+        googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(initialPlace, 13f))
         activateMyLocation(googleMap)
     }
 
@@ -58,6 +58,9 @@ class GoogleMapsFragment : DialogFragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        binding.btnClose.setOnClickListener {
+            dismiss()
+        }
         setWindowSize(this)
         val mapFragment = childFragmentManager.findFragmentById(R.id.map) as SupportMapFragment?
         mapFragment?.getMapAsync(callback)
@@ -76,7 +79,6 @@ class GoogleMapsFragment : DialogFragment() {
             googleMap.isMyLocationEnabled = isPermissionGranted
             googleMap.uiSettings.isMyLocationButtonEnabled = isPermissionGranted
         }
-        //Получить разрешение, если его нет
     }
 
     companion object {

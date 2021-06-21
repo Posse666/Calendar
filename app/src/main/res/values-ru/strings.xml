@@ -46,4 +46,7 @@
     <string name="location_access_description">Доступ к местоположению</string>
     <string name="location_access_message">Необходим доступ к местоположению, чтобы показывать на карте то место, где Вы напились</string>
     <string name="app_name">АлкоКалендарь</string>
+    <string name="dialog_close">Закрыть</string>
+    <string name="no_location">Не было сохранено местоположение</string>
+    <string name="no_saved_data">Этот день не отмечен</string>
 </resources>

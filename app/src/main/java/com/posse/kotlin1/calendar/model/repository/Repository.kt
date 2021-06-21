@@ -14,5 +14,5 @@ interface Repository {
 
     fun updateSate(date: LocalDate, longitude: Double, latitude: Double)
 
-    fun getLocation(date: LocalDate): CalendarEntity?
+    fun getLocation(date: LocalDate, callback: (CalendarEntity?) -> Any?)
 }

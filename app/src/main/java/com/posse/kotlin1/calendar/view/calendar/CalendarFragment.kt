@@ -8,11 +8,14 @@ import android.graphics.Color
 import android.location.LocationListener
 import android.location.LocationManager
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
 import android.widget.TextView
+import android.widget.Toast
 import androidx.appcompat.widget.AppCompatTextView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
@@ -24,6 +27,7 @@ import com.kizitonwose.calendarview.ui.DayBinder
 import com.kizitonwose.calendarview.ui.MonthHeaderFooterBinder
 import com.posse.kotlin1.calendar.R
 import com.posse.kotlin1.calendar.databinding.FragmentCalendarBinding
+import com.posse.kotlin1.calendar.room.CalendarEntity
 import com.posse.kotlin1.calendar.utils.Permission
 import com.posse.kotlin1.calendar.utils.checkPermission
 import com.posse.kotlin1.calendar.utils.checkPermissionsResult
@@ -141,9 +145,11 @@ class CalendarFragment : Fragment() {
                                     }
                                 }
                                 container.view.setOnLongClickListener {
-                                    if (!drinkDates.contains(day.date)) {
+                                    if (drinkDates.contains(day.date)) {
                                         lastPressedDate = day.date
                                         requirePermission(Location.GET_LOCATION)
+                                    }else{
+                                        Toast.makeText(context, R.string.no_saved_data, Toast.LENGTH_LONG).show()
                                     }
                                     true
                                 }
@@ -181,12 +187,25 @@ class CalendarFragment : Fragment() {
                     }
 
                     private fun getLocation() {
-                        val day = viewModel.getLocation(lastPressedDate)
-                        day?.let {
-                            GoogleMapsFragment
-                                .newInstance(LocalDate.of(it.date), it.latitude, it.longitude)
-                                .show(requireActivity().supportFragmentManager, null)
+                        val handler = Handler(Looper.getMainLooper())
+                        val callback = { day: CalendarEntity? ->
+                            day?.let {
+                                if (it.latitude == 0.0 && it.longitude == 0.0) {
+                                    handler.post {
+                                        Toast.makeText(context, R.string.no_location, Toast.LENGTH_LONG).show()
+                                    }
+                                } else {
+                                    GoogleMapsFragment
+                                        .newInstance(
+                                            LocalDate.ofEpochDay(it.date),
+                                            it.latitude,
+                                            it.longitude
+                                        )
+                                        .show(requireActivity().supportFragmentManager, null)
+                                }
+                            }
                         }
+                        viewModel.getLocation(lastPressedDate, callback)
                     }
 
                     private val locationListener: LocationListener = object : LocationListener {

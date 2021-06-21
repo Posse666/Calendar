@@ -10,7 +10,7 @@ class CalendarViewModel : BaseStatsViewModel() {
     fun setLocation(date: LocalDate, longitude: Double = 0.0, latitude: Double = 0.0) =
         repository.updateSate(date, longitude, latitude)
 
-    fun getLocation(date: LocalDate): CalendarEntity? {
-        return repository.getLocation(date)
+    fun getLocation(date: LocalDate, callback: (CalendarEntity?) -> Any?) {
+        repository.getLocation(date, callback)
     }
 }
