@@ -9,6 +9,18 @@ android {
     compileSdkVersion 30
     buildToolsVersion "30.0.3"
 
+    signingConfigs {
+        debug {
+            Properties properties = new Properties()
+            properties.load(project.rootProject.file("signingKey.properties").newDataInputStream())
+
+            storeFile file(properties.getProperty("path_to_store_file", ""))
+            storePassword properties.getProperty("store_password", "")
+            keyAlias properties.getProperty("key_alias", "")
+            keyPassword properties.getProperty("key_password", "")
+        }
+    }
+
     defaultConfig {
         applicationId "com.posse.kotlin1.calendar"
         minSdkVersion 26
@@ -28,6 +40,24 @@ android {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
+
+        debug {
+            versionNameSuffix "-debug"
+            buildConfigField "String", "TYPE", '"DEBUG"'
+        }
+    }
+
+    flavorDimensions 'version'
+
+    productFlavors {
+        free {
+            dimension 'version'
+            versionNameSuffix '.free'
+        }
+        paid {
+            dimension 'version'
+            versionNameSuffix '.paid'
+        }
     }
 
     compileOptions {
@@ -44,7 +74,7 @@ dependencies {
 
     implementation 'com.google.android.gms:play-services-maps:17.0.1'
     implementation 'androidx.room:room-runtime:2.3.0'
-    implementation 'com.google.firebase:firebase-messaging-ktx:22.0.0'
+    paidImplementation 'com.google.firebase:firebase-messaging-ktx:22.0.0'
     kapt 'androidx.room:room-compiler:2.3.0'
     implementation 'com.google.android.gms:play-services-auth:19.0.0'
     implementation 'com.squareup.picasso:picasso:2.71828'
