@@ -5,5 +5,5 @@ import com.posse.kotlin1.calendar.viewModel.SettingsState
 
 interface SettingsRepo {
 
-    fun getSettingsState(context: Context): SettingsState
+    fun getSettingsState(): SettingsState
 }

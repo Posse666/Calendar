@@ -36,11 +36,17 @@
     <string name="login">Войти</string>
     <string name="logout">Выйти</string>
     <string name="share_calendar">Поделиться Календарем</string>
-    <string name="contacts_dialog_cancel">Отмена</string>
-    <string name="contacts_dialog_save">Сохранить</string>
+    <string name="dialog_cancel">Отмена</string>
+    <string name="dialog_save">Сохранить</string>
     <string name="contact_access_description">Доступ к контактам</string>
     <string name="contact_access_message">Необходим доступ к контактам, чтобы можно было поделиться с друзьями своим календарем</string>
     <string name="allow_access">Предоставить доступ</string>
     <string name="no_thanks">Не надо</string>
     <string name="close">Закрыть</string>
+    <string name="location_access_description">Доступ к местоположению</string>
+    <string name="location_access_message">Необходим доступ к местоположению, чтобы показывать на карте то место, где Вы напились</string>
+    <string name="app_name">АлкоКалендарь</string>
+    <string name="dialog_close">Закрыть</string>
+    <string name="no_location">Не было сохранено местоположение</string>
+    <string name="no_saved_data">Этот день не отмечен</string>
 </resources>

@@ -5,11 +5,11 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.view.WindowManager
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.fragment.app.DialogFragment
 import com.posse.kotlin1.calendar.databinding.FragmentContactsBinding
+import com.posse.kotlin1.calendar.utils.setWindowSize
 
 private const val ARG_CONTACTS = "contacts"
 
@@ -35,7 +35,7 @@ class ContactsFragment : DialogFragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        setWindowSize()
+        setWindowSize(this)
         isCancelable = true
         binding.btnSave.setOnClickListener {
             dismiss()
@@ -50,17 +50,6 @@ class ContactsFragment : DialogFragment() {
         contacts?.forEach {
             binding.containerForContacts.add(requireContext(), it.name)
             binding.containerForContacts.add(requireContext(), it.email)
-        }
-    }
-
-    private fun setWindowSize() {
-        val dialogWindow = dialog?.window
-        val params = dialogWindow?.attributes
-        if (params != null) {
-            params.width = WindowManager.LayoutParams.MATCH_PARENT
-            params.height = WindowManager.LayoutParams.MATCH_PARENT
-            dialogWindow.attributes = params
-            dialogWindow.setBackgroundDrawableResource(android.R.color.transparent)
         }
     }
 

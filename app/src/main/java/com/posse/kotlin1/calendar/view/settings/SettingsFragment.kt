@@ -47,7 +47,7 @@ class SettingsFragment : Fragment() {
             } catch (e: ApiException) {
                 Log.w("login", "signInResult:failed code=" + e.statusCode)
             }
-            viewModel.getSettingsState(requireActivity())
+            viewModel.getSettingsState()
         }
     }
 
@@ -67,13 +67,13 @@ class SettingsFragment : Fragment() {
                 .commit()
         }
         viewModel.getLiveData().observe(viewLifecycleOwner, { renderSettings(it) })
-        viewModel.getSettingsState(requireActivity())
+        viewModel.getSettingsState()
         binding.loginButton.setOnClickListener {
             startLogin.launch(googleSignInClient.signInIntent)
         }
         binding.logoutButton.setOnClickListener {
             googleSignInClient.signOut()
-            viewModel.getSettingsState(requireActivity())
+            viewModel.getSettingsState()
         }
     }
 

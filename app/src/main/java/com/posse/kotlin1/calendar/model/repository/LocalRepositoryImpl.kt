@@ -1,6 +1,7 @@
 package com.posse.kotlin1.calendar.model.repository
 
 import com.posse.kotlin1.calendar.room.CalendarDao
+import com.posse.kotlin1.calendar.room.CalendarEntity
 import com.posse.kotlin1.calendar.utils.convertEntityToLocalDate
 import com.posse.kotlin1.calendar.utils.convertLocalDateToEntity
 import com.posse.kotlin1.calendar.utils.convertLocalDateToLong
@@ -25,5 +26,16 @@ class LocalRepositoryImpl(private val localDataSource: CalendarDao) : LocalRepos
 
     override fun checkDate(date: LocalDate): Boolean {
         return localDataSource.getDataByDate(convertLocalDateToLong(date))?.date != null
+    }
+
+    override fun updateEntity(date: LocalDate, longitude: Double, latitude: Double) {
+        val tempEntity = localDataSource.getDataByDate(convertLocalDateToLong(date))
+        tempEntity?.longitude = longitude
+        tempEntity?.latitude = latitude
+        tempEntity?.let { localDataSource.update(it) }
+    }
+
+    override fun getEntity(date: LocalDate): CalendarEntity? {
+        return localDataSource.getDataByDate(convertLocalDateToLong(date))
     }
 }

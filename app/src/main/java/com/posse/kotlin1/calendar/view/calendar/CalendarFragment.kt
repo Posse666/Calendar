@@ -1,14 +1,21 @@
 package com.posse.kotlin1.calendar.view.calendar
 
+import android.Manifest
+import android.annotation.SuppressLint
 import android.content.Context
 import android.content.res.TypedArray
 import android.graphics.Color
+import android.location.LocationListener
+import android.location.LocationManager
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
 import android.widget.TextView
+import android.widget.Toast
 import androidx.appcompat.widget.AppCompatTextView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
@@ -20,12 +27,19 @@ import com.kizitonwose.calendarview.ui.DayBinder
 import com.kizitonwose.calendarview.ui.MonthHeaderFooterBinder
 import com.posse.kotlin1.calendar.R
 import com.posse.kotlin1.calendar.databinding.FragmentCalendarBinding
+import com.posse.kotlin1.calendar.room.CalendarEntity
+import com.posse.kotlin1.calendar.utils.Permission
+import com.posse.kotlin1.calendar.utils.checkPermission
+import com.posse.kotlin1.calendar.utils.checkPermissionsResult
+import com.posse.kotlin1.calendar.view.map.GoogleMapsFragment
 import com.posse.kotlin1.calendar.viewModel.CalendarViewModel
 import java.time.LocalDate
 import java.time.YearMonth
 import java.time.temporal.WeekFields
 import java.util.*
 import kotlin.collections.HashSet
+
+private const val REQUEST_CODE = 55
 
 class CalendarFragment : Fragment() {
     private var _binding: FragmentCalendarBinding? = null
@@ -34,8 +48,12 @@ class CalendarFragment : Fragment() {
     private val viewModel: CalendarViewModel by lazy {
         ViewModelProvider(this).get(CalendarViewModel::class.java)
     }
+    private val locationManager: LocationManager? by lazy {
+        requireActivity().getSystemService(Context.LOCATION_SERVICE) as LocationManager?
+    }
     private val drinkDates: HashSet<LocalDate> = HashSet()
     private lateinit var statisticSwitcher: StatisticSwitcher
+    private var lastPressedDate: LocalDate = LocalDate.now()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -57,6 +75,27 @@ class CalendarFragment : Fragment() {
 
         binding.statsCard.setOnClickListener {
             statisticSwitcher.switchToStatistic()
+        }
+    }
+
+    override fun onRequestPermissionsResult(
+        requestCode: Int, permissions: Array<String>, grantResults: IntArray
+    ) {
+        when (requestCode) {
+            REQUEST_CODE -> {
+                when (checkPermissionsResult(
+                    this,
+                    grantResults,
+                    getString(R.string.location_access_description),
+                    getString(R.string.location_access_message),
+                    getString(R.string.close)
+                )) {
+                    Permission.GRANTED -> {
+                    }
+                    Permission.NOT_GRANTED -> {
+                    }
+                }
+            }
         }
     }
 
@@ -100,12 +139,113 @@ class CalendarFragment : Fragment() {
                                     changeDay(true, textView, day.date)
                                     calendarView.notifyDayChanged(day)
                                     viewModel.dayClicked(day.date)
+                                    if (drinkDates.contains(day.date)) {
+                                        lastPressedDate = day.date
+                                        requirePermission(Location.SET_LOCATION)
+                                    }
                                 }
-                            } else container.view.setOnClickListener(null)
+                                container.view.setOnLongClickListener {
+                                    if (drinkDates.contains(day.date)) {
+                                        lastPressedDate = day.date
+                                        requirePermission(Location.GET_LOCATION)
+                                    }else{
+                                        Toast.makeText(context, R.string.no_saved_data, Toast.LENGTH_LONG).show()
+                                    }
+                                    true
+                                }
+                            } else {
+                                container.view.setOnClickListener(null)
+                                container.view.setOnLongClickListener(null)
+                            }
                             changeDay(false, textView, day.date)
                         } else {
                             textView.disappear()
                         }
+                    }
+
+                    private fun requirePermission(location: Location) {
+                        when (checkPermission(
+                            REQUEST_CODE,
+                            this@CalendarFragment,
+                            Manifest.permission.ACCESS_FINE_LOCATION,
+                            getString(R.string.location_access_description),
+                            getString(R.string.location_access_message),
+                            getString(R.string.allow_access),
+                            getString(R.string.no_thanks)
+                        )) {
+                            Permission.GRANTED -> {
+                                when (location) {
+                                    Location.GET_LOCATION -> {
+                                        getLocation()
+                                    }
+                                    Location.SET_LOCATION -> setLocation()
+                                }
+                            }
+                            Permission.NOT_GRANTED -> {
+                            }
+                        }
+                    }
+
+                    private fun getLocation() {
+                        val handler = Handler(Looper.getMainLooper())
+                        val callback = { day: CalendarEntity? ->
+                            day?.let {
+                                if (it.latitude == 0.0 && it.longitude == 0.0) {
+                                    handler.post {
+                                        Toast.makeText(context, R.string.no_location, Toast.LENGTH_LONG).show()
+                                    }
+                                } else {
+                                    GoogleMapsFragment
+                                        .newInstance(
+                                            LocalDate.ofEpochDay(it.date),
+                                            it.latitude,
+                                            it.longitude
+                                        )
+                                        .show(requireActivity().supportFragmentManager, null)
+                                }
+                            }
+                        }
+                        viewModel.getLocation(lastPressedDate, callback)
+                    }
+
+                    private val locationListener: LocationListener = object : LocationListener {
+                        override fun onLocationChanged(location: android.location.Location) {
+                            viewModel.setLocation(
+                                lastPressedDate,
+                                location.longitude,
+                                location.latitude
+                            )
+                            locationManager?.removeUpdates(this)
+                        }
+
+                        override fun onStatusChanged(
+                            provider: String,
+                            status: Int,
+                            extras: Bundle
+                        ) {
+                        }
+
+                        override fun onProviderEnabled(provider: String) {}
+                        override fun onProviderDisabled(provider: String) {}
+                    }
+
+                    @SuppressLint("MissingPermission")
+                    private fun setLocation() {
+                        val lastLocation =
+                            locationManager?.getLastKnownLocation(LocationManager.NETWORK_PROVIDER)
+                        lastLocation?.let {
+                            viewModel.setLocation(
+                                lastPressedDate,
+                                lastLocation.longitude,
+                                lastLocation.latitude
+                            )
+                        }
+                        locationManager?.requestLocationUpdates(
+                            LocationManager.NETWORK_PROVIDER,
+                            0L,
+                            0f,
+                            locationListener
+                        )
                     }
 
                     private fun changeDay(isClicked: Boolean, textView: TextView, date: LocalDate) {
@@ -203,4 +343,9 @@ private fun TextView.disappear() {
 
 interface StatisticSwitcher {
     fun switchToStatistic()
+}
+
+private enum class Location {
+    GET_LOCATION,
+    SET_LOCATION
 }
