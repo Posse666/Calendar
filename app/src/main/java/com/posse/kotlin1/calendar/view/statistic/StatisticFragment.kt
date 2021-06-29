@@ -1,16 +1,12 @@
 package com.posse.kotlin1.calendar.view.statistic
 
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.widget.AppCompatTextView
-import androidx.cardview.widget.CardView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
-import com.google.android.material.animation.ArgbEvaluatorCompat
 import com.posse.kotlin1.calendar.R
 import com.posse.kotlin1.calendar.databinding.FragmentStatisticBinding
 import com.posse.kotlin1.calendar.viewModel.ALL_TIME
@@ -23,16 +19,6 @@ class StatisticFragment : Fragment() {
     private val viewModel: StatisticViewModel by lazy {
         ViewModelProvider(this).get(StatisticViewModel::class.java)
     }
-    private val cards: Set<CardView> by lazy {
-        setOf(
-            binding.cardTotal,
-            binding.cardThisYear,
-            binding.cardAllTime
-        )
-    }
-    private val startTemperature: Int by lazy {
-        (viewModel.getStartTemperature(requireContext()) ?: 0) + 40
-    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -44,44 +30,7 @@ class StatisticFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        setBackgroundColor(startTemperature)
         viewModel.getLiveData().observe(viewLifecycleOwner, { updateStats() })
-        viewModel.getTemperature().observe(viewLifecycleOwner, { updateColor(it) })
-        viewModel.refreshTemperature()
-    }
-
-    private fun setBackgroundColor(temperature: Int) {
-        cards.forEach {
-            it.setCardBackgroundColor(getColorFromTemperature(temperature))
-        }
-    }
-
-    private fun getColorFromTemperature(temperature: Int): Int {
-        return ArgbEvaluatorCompat.getInstance()
-            .evaluate(
-                temperature / 100f,
-                context?.resources?.getColor(android.R.color.holo_blue_dark, null),
-                context?.resources?.getColor(android.R.color.holo_red_dark, null)
-            )
-    }
-
-    private fun updateColor(temperature: Int) {
-        val handler = Handler(Looper.getMainLooper())
-        Thread {
-            if ((temperature + 40) > startTemperature) {
-                for (i in startTemperature + 1..temperature + 40) {
-                    handler.post {
-                        setBackgroundColor(i)
-                    }
-                    Thread.sleep(100)
-                }
-            } else for (i in startTemperature - 1 downTo temperature + 40) {
-                handler.post {
-                    setBackgroundColor(i)
-                }
-                Thread.sleep(100)
-            }
-        }.start()
     }
 
     private fun updateStats() {

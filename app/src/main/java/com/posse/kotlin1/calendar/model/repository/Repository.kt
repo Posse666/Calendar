@@ -1,6 +1,5 @@
 package com.posse.kotlin1.calendar.model.repository
 
-import android.content.Context
 import androidx.lifecycle.LiveData
 import java.time.LocalDate
 
@@ -10,13 +9,5 @@ interface Repository {
 
     fun getLiveData(): LiveData<Set<LocalDate>>
 
-    fun getDrankStateFromLocalStorage(): Set<LocalDate>
-
     fun changeState(date: LocalDate)
-
-    fun getTemperature(): LiveData<Int>
-
-    fun refreshTemperature()
-
-    fun getStartTemperature(context: Context): Int?
 }
