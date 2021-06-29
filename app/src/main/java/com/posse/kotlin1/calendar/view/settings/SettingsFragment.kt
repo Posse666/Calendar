@@ -1,4 +1,4 @@
-package com.posse.kotlin1.calendar.view
+package com.posse.kotlin1.calendar.view.settings
 
 import android.app.Activity
 import android.os.Bundle
@@ -17,6 +17,7 @@ import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.common.api.ApiException
 import com.posse.kotlin1.calendar.R
 import com.posse.kotlin1.calendar.databinding.FragmentSettingsBinding
+import com.posse.kotlin1.calendar.view.settings.share.ShareFragment
 import com.posse.kotlin1.calendar.viewModel.SettingsState
 import com.posse.kotlin1.calendar.viewModel.SettingsViewModel
 import com.squareup.picasso.Picasso
@@ -60,6 +61,11 @@ class SettingsFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        childFragmentManager.apply {
+            this.beginTransaction()
+                .replace(R.id.shareFragmentContainer, ShareFragment.newInstance())
+                .commit()
+        }
         viewModel.getLiveData().observe(viewLifecycleOwner, { renderSettings(it) })
         viewModel.getSettingsState(requireActivity())
         binding.loginButton.setOnClickListener {
