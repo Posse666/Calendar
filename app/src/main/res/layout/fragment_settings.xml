@@ -9,6 +9,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
+        android:paddingBottom="?android:attr/actionBarSize"
         tools:context=".view.SettingsFragment">
 
         <androidx.cardview.widget.CardView style="@style/CardStatisticStyle">

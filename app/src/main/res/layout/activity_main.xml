@@ -6,21 +6,28 @@
     android:layout_height="match_parent"
     tools:context=".view.MainActivity">
 
-    <com.google.android.material.appbar.AppBarLayout
+    <androidx.viewpager2.widget.ViewPager2
+        android:id="@+id/view_pager"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior" />
+
+    <com.google.android.material.bottomappbar.BottomAppBar
+        android:id="@+id/bottomAppBar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:theme="@style/Theme.AlcoCalendar.AppBarOverlay">
+        android:layout_gravity="bottom"
+        android:backgroundTint="?attr/colorPrimary"
+        android:theme="@style/Theme.AlcoCalendar.AppBarOverlay"
+        app:contentInsetStart="0dp"
+        app:elevation="100dp"
+        app:layout_anchorGravity="center">
 
         <com.google.android.material.tabs.TabLayout
             android:id="@+id/tabs"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="?attr/colorPrimary" />
-    </com.google.android.material.appbar.AppBarLayout>
+    </com.google.android.material.bottomappbar.BottomAppBar>
 
-    <androidx.viewpager2.widget.ViewPager2
-        android:id="@+id/view_pager"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior" />
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

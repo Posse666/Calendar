@@ -34,6 +34,6 @@ class StatisticViewModel : BaseStatsViewModel() {
                 days.add(it)
             }
         }
-        return maxDays.size
+        return maxDays.size.coerceAtLeast(days.size)
     }
 }

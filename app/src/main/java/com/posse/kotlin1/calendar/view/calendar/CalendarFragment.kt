@@ -1,6 +1,5 @@
 package com.posse.kotlin1.calendar.view.calendar
 
-import android.content.Context
 import android.content.res.TypedArray
 import android.graphics.Color
 import android.os.Bundle
@@ -10,8 +9,10 @@ import android.view.ViewGroup
 import android.widget.FrameLayout
 import android.widget.TextView
 import androidx.appcompat.widget.AppCompatTextView
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
+import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.kizitonwose.calendarview.CalendarView
 import com.kizitonwose.calendarview.model.CalendarDay
 import com.kizitonwose.calendarview.model.CalendarMonth
@@ -20,6 +21,7 @@ import com.kizitonwose.calendarview.ui.DayBinder
 import com.kizitonwose.calendarview.ui.MonthHeaderFooterBinder
 import com.posse.kotlin1.calendar.R
 import com.posse.kotlin1.calendar.databinding.FragmentCalendarBinding
+import com.posse.kotlin1.calendar.view.statistic.StatisticFragment
 import com.posse.kotlin1.calendar.viewModel.CalendarViewModel
 import java.time.LocalDate
 import java.time.YearMonth
@@ -27,15 +29,18 @@ import java.time.temporal.WeekFields
 import java.util.*
 import kotlin.collections.HashSet
 
+private const val MULTIPLY = 5
+
 class CalendarFragment : Fragment() {
     private var _binding: FragmentCalendarBinding? = null
     private val binding get() = _binding!!
+    private lateinit var bottomSheetBehavior: BottomSheetBehavior<ConstraintLayout>
     private val calendarView: CalendarView by lazy { binding.calendarView }
     private val viewModel: CalendarViewModel by lazy {
         ViewModelProvider(this).get(CalendarViewModel::class.java)
     }
     private val drinkDates: HashSet<LocalDate> = HashSet()
-    private lateinit var statisticSwitcher: StatisticSwitcher
+    private var isInitCompleted: Boolean = false
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -47,24 +52,60 @@ class CalendarFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
+        binding.calendarLayout.setPadding(0, 0, 0, getActionBarSize() + getTextSize() * MULTIPLY)
+        setupStatistic()
+        setupFAB()
         viewModel.getLiveData().observe(viewLifecycleOwner, { updateCalendar(it) })
+    }
+
+    private fun setupStatistic() {
+        val statisticFragment = StatisticFragment.newInstance()
+        requireActivity()
+            .supportFragmentManager
+            .beginTransaction()
+            .setReorderingAllowed(true)
+            .replace(R.id.statsContainer, statisticFragment)
+            .runOnCommit {
+                statisticFragment.view?.let { setBottomSheetBehavior(it.findViewById(R.id.bottom_sheet_container)) }
+            }
+            .commit()
+    }
+
+    private fun setBottomSheetBehavior(bottomSheet: ConstraintLayout) {
+        bottomSheetBehavior = BottomSheetBehavior.from(bottomSheet)
+        bottomSheetBehavior.peekHeight = getActionBarSize() + getTextSize() * MULTIPLY
+        bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
+    }
+
+    private fun setupFAB() {
+        val layoutParams = binding.fab.layoutParams as ViewGroup.MarginLayoutParams
+        layoutParams.bottomMargin =
+            resources.getDimension(R.dimen.fab_margin)
+                .toInt() + getActionBarSize() + getTextSize() * MULTIPLY
 
         binding.fab.setOnClickListener {
             calendarView.smoothScrollToMonth(YearMonth.now())
         }
+    }
 
-        binding.statsCard.setOnClickListener {
-            statisticSwitcher.switchToStatistic()
-        }
+    private fun getActionBarSize(): Int {
+        val actionBarSizeAttr = intArrayOf(android.R.attr.actionBarSize)
+        val a: TypedArray? = context?.obtainStyledAttributes(actionBarSizeAttr)
+        val actionBarSize = a?.getDimensionPixelSize(0, 100) ?: 100
+        a?.recycle()
+        return actionBarSize
+    }
+
+    private fun getTextSize(): Int {
+        return resources.getDimension(R.dimen.stats_text_size).toInt()
     }
 
     private fun updateCalendar(calendarState: Set<LocalDate>) {
-        setupStats()
         if ((calendarState.subtract(drinkDates).isNotEmpty()
                     || drinkDates.subtract(calendarState).isNotEmpty())
-            || calendarState.isEmpty()
+            || (!isInitCompleted && calendarState.isEmpty())
         ) {
+            binding.loadingLayout.show()
             drinkDates.clear()
             drinkDates.addAll(calendarState)
             val currentMonth = YearMonth.now()
@@ -79,7 +120,7 @@ class CalendarFragment : Fragment() {
             calendarView.setupAsync(
                 firstMonth,
                 currentMonth.plusMonths(1),
-                WeekFields.of(Locale.getDefault()).firstDayOfWeek
+                WeekFields.of(Locale.GERMAN).firstDayOfWeek
             ) {
                 calendarView.monthHeaderBinder =
                     object : MonthHeaderFooterBinder<MonthViewContainer> {
@@ -158,30 +199,15 @@ class CalendarFragment : Fragment() {
                         }
                 }
                 calendarView.scrollToMonth(currentMonth)
+                isInitCompleted = true
                 binding.loadingLayout.hide()
             }
         }
     }
 
-    private fun setupStats() {
-        binding.stats.caption.putText(getString(R.string.in_this_year_you_drank))
-        binding.stats.firstStat.putText(viewModel.getDrankDaysQuantity())
-        binding.stats.description.putText(getString(R.string.days_of))
-        binding.stats.secondStat.putText(viewModel.getThisYearDaysQuantity())
-    }
-
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
-    }
-
-    override fun onAttach(context: Context) {
-        super.onAttach(context)
-        try {
-            statisticSwitcher = context as StatisticSwitcher
-        } catch (castException: ClassCastException) {
-            throw RuntimeException("The activity does not implement the listener")
-        }
     }
 
     companion object {
@@ -204,8 +230,4 @@ private fun FrameLayout.hide() {
 
 private fun TextView.disappear() {
     visibility = View.INVISIBLE
-}
-
-interface StatisticSwitcher {
-    fun switchToStatistic()
 }

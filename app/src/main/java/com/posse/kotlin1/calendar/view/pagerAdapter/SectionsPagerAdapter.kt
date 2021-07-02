@@ -20,7 +20,6 @@ class SectionsPagerAdapter(fragmentActivity: FragmentActivity) :
         return when (position) {
             TabTitles.CALENDAR.position -> CalendarFragment.newInstance()
             TabTitles.FRIENDS.position -> FriendsFragment.newInstance()
-            TabTitles.STATISTIC.position -> StatisticFragment.newInstance()
             TabTitles.SETTINGS.position -> SettingsFragment.newInstance()
             else -> throw RuntimeException()
         }
@@ -30,6 +29,5 @@ class SectionsPagerAdapter(fragmentActivity: FragmentActivity) :
 enum class TabTitles(val tabResources: Int, val position: Int) {
     CALENDAR(R.string.tab_calendar_text, 0),
     FRIENDS(R.string.tab_friends_text, 1),
-    STATISTIC(R.string.tab_statistic_text, 2),
-    SETTINGS(R.string.tab_settings_text, 3)
+    SETTINGS(R.string.tab_settings_text, 2)
 }

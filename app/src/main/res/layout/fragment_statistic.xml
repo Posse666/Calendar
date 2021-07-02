@@ -1,40 +1,63 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <androidx.appcompat.widget.LinearLayoutCompat
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/bottom_sheet_container"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        tools:context=".view.StatisticFragment">
+        android:layout_height="match_parent"
+        android:background="#f6f6fa"
+        android:paddingBottom="?android:attr/actionBarSize"
+        android:visibility="visible"
+        app:behavior_hideable="true"
+        app:behavior_peekHeight="100dp"
+        app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior"
+        tools:visibility="visible">
 
-        <androidx.cardview.widget.CardView
-            android:id="@+id/cardTotal"
-            style="@style/CardStatisticStyle">
+        <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="parent">
 
-            <include
-                android:id="@+id/totalYearStats"
-                layout="@layout/main_stats" />
-        </androidx.cardview.widget.CardView>
+            <androidx.appcompat.widget.LinearLayoutCompat
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:paddingBottom="?android:attr/actionBarSize"
+                tools:context=".view.StatisticFragment">
 
-        <androidx.cardview.widget.CardView
-            android:id="@+id/cardThisYear"
-            style="@style/CardStatisticStyle">
+                <androidx.cardview.widget.CardView
+                    android:id="@+id/cardTotal"
+                    style="@style/CardStatisticStyle">
 
-            <include
-                android:id="@+id/longestDrinkThisYear"
-                layout="@layout/main_stats" />
-        </androidx.cardview.widget.CardView>
+                    <include
+                        android:id="@+id/totalYearStats"
+                        layout="@layout/main_stats" />
+                </androidx.cardview.widget.CardView>
 
-        <androidx.cardview.widget.CardView
-            android:id="@+id/cardAllTime"
-            style="@style/CardStatisticStyle">
+                <androidx.cardview.widget.CardView
+                    android:id="@+id/cardThisYear"
+                    style="@style/CardStatisticStyle">
 
-            <include
-                android:id="@+id/longestDrinkAllTime"
-                layout="@layout/main_stats" />
-        </androidx.cardview.widget.CardView>
-    </androidx.appcompat.widget.LinearLayoutCompat>
-</ScrollView>
+                    <include
+                        android:id="@+id/longestDrinkThisYear"
+                        layout="@layout/main_stats" />
+                </androidx.cardview.widget.CardView>
+
+                <androidx.cardview.widget.CardView
+                    android:id="@+id/cardAllTime"
+                    style="@style/CardStatisticStyle">
+
+                    <include
+                        android:id="@+id/longestDrinkAllTime"
+                        layout="@layout/main_stats" />
+                </androidx.cardview.widget.CardView>
+            </androidx.appcompat.widget.LinearLayoutCompat>
+        </ScrollView>
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</androidx.coordinatorlayout.widget.CoordinatorLayout>
