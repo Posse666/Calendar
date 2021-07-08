@@ -31,32 +31,35 @@
                 android:paddingBottom="?android:attr/actionBarSize"
                 tools:context=".view.StatisticFragment">
 
-                <androidx.cardview.widget.CardView
+                <com.google.android.material.card.MaterialCardView
                     android:id="@+id/cardTotal"
-                    style="@style/CardStatisticStyle">
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
 
                     <include
                         android:id="@+id/totalYearStats"
                         layout="@layout/main_stats" />
-                </androidx.cardview.widget.CardView>
+                </com.google.android.material.card.MaterialCardView>
 
-                <androidx.cardview.widget.CardView
+                <com.google.android.material.card.MaterialCardView
                     android:id="@+id/cardThisYear"
-                    style="@style/CardStatisticStyle">
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
 
                     <include
                         android:id="@+id/longestDrinkThisYear"
                         layout="@layout/main_stats" />
-                </androidx.cardview.widget.CardView>
+                </com.google.android.material.card.MaterialCardView>
 
-                <androidx.cardview.widget.CardView
+                <com.google.android.material.card.MaterialCardView
                     android:id="@+id/cardAllTime"
-                    style="@style/CardStatisticStyle">
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
 
                     <include
                         android:id="@+id/longestDrinkAllTime"
                         layout="@layout/main_stats" />
-                </androidx.cardview.widget.CardView>
+                </com.google.android.material.card.MaterialCardView>
             </androidx.appcompat.widget.LinearLayoutCompat>
         </ScrollView>
     </androidx.constraintlayout.widget.ConstraintLayout>

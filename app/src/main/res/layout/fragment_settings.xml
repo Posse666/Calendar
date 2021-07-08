@@ -12,7 +12,9 @@
         android:paddingBottom="?android:attr/actionBarSize"
         tools:context=".view.SettingsFragment">
 
-        <androidx.cardview.widget.CardView style="@style/CardStatisticStyle">
+        <com.google.android.material.card.MaterialCardView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
 
             <androidx.appcompat.widget.LinearLayoutCompat
                 android:layout_width="match_parent"
@@ -63,15 +65,17 @@
 
             </androidx.appcompat.widget.LinearLayoutCompat>
 
-        </androidx.cardview.widget.CardView>
+        </com.google.android.material.card.MaterialCardView>
 
-        <androidx.cardview.widget.CardView style="@style/CardStatisticStyle">
+        <com.google.android.material.card.MaterialCardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
 
             <androidx.fragment.app.FragmentContainerView
                 android:id="@+id/shareFragmentContainer"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content" />
 
-        </androidx.cardview.widget.CardView>
+        </com.google.android.material.card.MaterialCardView>
     </androidx.appcompat.widget.LinearLayoutCompat>
 </ScrollView>

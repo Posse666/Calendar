@@ -16,7 +16,9 @@
             android:orientation="vertical"
             android:paddingBottom="?android:attr/actionBarSize">
 
-            <androidx.cardview.widget.CardView style="@style/CardStyle">
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
 
                 <com.kizitonwose.calendarview.CalendarView
                     android:id="@+id/calendarView"
@@ -25,7 +27,7 @@
                     app:cv_dayViewResource="@layout/calendar_day_layout"
                     app:cv_monthHeaderResource="@layout/calendar_month_header_layout" />
 
-            </androidx.cardview.widget.CardView>
+            </com.google.android.material.card.MaterialCardView>
         </androidx.appcompat.widget.LinearLayoutCompat>
 
         <androidx.fragment.app.FragmentContainerView
