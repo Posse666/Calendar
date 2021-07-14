@@ -16,9 +16,7 @@
             android:orientation="vertical"
             android:paddingBottom="?android:attr/actionBarSize">
 
-            <com.google.android.material.card.MaterialCardView
-                android:layout_width="match_parent"
-                android:layout_height="match_parent">
+            <com.google.android.material.card.MaterialCardView style="@style/CardLayoutStyle">
 
                 <com.kizitonwose.calendarview.CalendarView
                     android:id="@+id/calendarView"

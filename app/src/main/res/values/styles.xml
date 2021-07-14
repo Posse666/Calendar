@@ -1,10 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <style name="CardStyle"  parent="Widget.MaterialComponents.CardView">
-        <item name="android:layout_margin">10dp</item>
+    <style name="CardStyle" parent="Widget.MaterialComponents.CardView">
         <item name="cardElevation">10dp</item>
         <item name="cardCornerRadius">10dp</item>
         <item name="contentPadding">10dp</item>
+    </style>
+
+    <style name="CardLayoutStyle">
+        <item name="android:layout_margin">10dp</item>
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">match_parent</item>
     </style>
 </resources>

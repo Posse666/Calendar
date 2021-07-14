@@ -47,5 +47,9 @@
     <string name="allow_access">Предоставить доступ</string>
     <string name="no_thanks">Не надо</string>
     <string name="close">Закрыть</string>
+    <string name="auto_theme_switch">Системная</string>
+    <string name="app_theme">Тема приложения:</string>
+    <string name="day">Дневная</string>
+    <string name="night">Ночная</string>
 
 </resources>

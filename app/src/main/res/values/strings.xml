@@ -46,5 +46,9 @@
     <string name="allow_access">Allow</string>
     <string name="no_thanks">No, thanks</string>
     <string name="close">Close</string>
+    <string name="auto_theme_switch">System</string>
+    <string name="app_theme">App theme:</string>
+    <string name="day">Day</string>
+    <string name="night">Night</string>
 
 </resources>

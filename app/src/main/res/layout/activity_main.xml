@@ -18,7 +18,6 @@
         android:layout_height="wrap_content"
         android:layout_gravity="bottom"
         android:backgroundTint="?attr/colorPrimary"
-        android:theme="@style/Theme.AlcoCalendar.AppBarOverlay"
         app:contentInsetStart="0dp"
         app:elevation="100dp"
         app:layout_anchorGravity="center">
