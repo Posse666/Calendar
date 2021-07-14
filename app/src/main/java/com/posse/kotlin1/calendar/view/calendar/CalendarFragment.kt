@@ -50,7 +50,7 @@ class CalendarFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        binding.calendarLayout.setPadding(0, 0, 0, getActionBarSize() + getTextSize() * MULTIPLY)
+        binding.calendarLayout.setPadding(0, 0, 0, getTextSize() * MULTIPLY)
         setupStatistic()
         setupFAB()
         viewModel.getLiveData()
@@ -71,7 +71,7 @@ class CalendarFragment : Fragment() {
 
     private fun setBottomSheetBehavior(bottomSheet: ConstraintLayout) {
         bottomSheetBehavior = BottomSheetBehavior.from(bottomSheet)
-        bottomSheetBehavior.peekHeight = getActionBarSize() + getTextSize() * MULTIPLY
+        bottomSheetBehavior.peekHeight = getTextSize() * MULTIPLY
         bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
     }
 
@@ -79,19 +79,11 @@ class CalendarFragment : Fragment() {
         val layoutParams = binding.fab.layoutParams as ViewGroup.MarginLayoutParams
         layoutParams.bottomMargin =
             resources.getDimension(R.dimen.fab_margin)
-                .toInt() + getActionBarSize() + getTextSize() * MULTIPLY
+                .toInt() + getTextSize() * MULTIPLY
 
         binding.fab.setOnClickListener {
             calendarView.smoothScrollToMonth(YearMonth.now())
         }
-    }
-
-    private fun getActionBarSize(): Int {
-        val actionBarSizeAttr = intArrayOf(android.R.attr.actionBarSize)
-        val a: TypedArray? = context?.obtainStyledAttributes(actionBarSizeAttr)
-        val actionBarSize = a?.getDimensionPixelSize(0, 100) ?: 100
-        a?.recycle()
-        return actionBarSize
     }
 
     private fun getTextSize(): Int {

@@ -2,10 +2,6 @@
     <resources>
     <string name="app_name">АлкоКалендарь</string>
 
-    <string name="tab_calendar_text">Календарь</string>
-    <string name="tab_statistic_text">Статистика</string>
-    <string name="tab_settings_text">Настройки</string>
-    <string name="tab_friends_text">Друзья</string>
     <string name="backToDateButton">Вернуться на текущую дату</string>
 
     <string name="january">Январь</string>
@@ -51,5 +47,8 @@
     <string name="app_theme">Тема приложения:</string>
     <string name="day">Дневная</string>
     <string name="night">Ночная</string>
+    <string name="calendar_bottom">Календарь</string>
+    <string name="friends_bottom">Друзья</string>
+    <string name="settings_bottom">Настройки</string>
 
 </resources>
