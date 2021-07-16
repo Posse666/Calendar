@@ -20,8 +20,11 @@ import com.kizitonwose.calendarview.model.DayOwner
 import com.kizitonwose.calendarview.ui.DayBinder
 import com.kizitonwose.calendarview.ui.MonthHeaderFooterBinder
 import com.posse.kotlin1.calendar.R
+import com.posse.kotlin1.calendar.app.App
 import com.posse.kotlin1.calendar.databinding.FragmentCalendarBinding
+import com.posse.kotlin1.calendar.utils.statsUsed
 import com.posse.kotlin1.calendar.view.statistic.StatisticFragment
+import com.posse.kotlin1.calendar.view.statistic.StatisticListener
 import com.posse.kotlin1.calendar.viewModel.CalendarViewModel
 import java.time.LocalDate
 import java.time.YearMonth
@@ -29,9 +32,9 @@ import java.time.temporal.WeekFields
 import java.util.*
 import kotlin.collections.HashSet
 
-private const val MULTIPLY = 5
+private const val MULTIPLY = 3.5
 
-class CalendarFragment : Fragment() {
+class CalendarFragment : Fragment(), StatisticListener {
     private var _binding: FragmentCalendarBinding? = null
     private val binding get() = _binding!!
     private lateinit var bottomSheetBehavior: BottomSheetBehavior<ConstraintLayout>
@@ -39,6 +42,7 @@ class CalendarFragment : Fragment() {
     private val viewModel: CalendarViewModel by activityViewModels()
     private val drinkDates: HashSet<LocalDate> = HashSet()
     private var isInitCompleted: Boolean = false
+    private var isStatsUsed = App.sharedPreferences?.statsUsed ?: false
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -50,7 +54,7 @@ class CalendarFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        binding.calendarLayout.setPadding(0, 0, 0, getTextSize() * MULTIPLY)
+        binding.calendarLayout.setPadding(0, 0, 0, (getTextSize() * MULTIPLY).toInt())
         setupStatistic()
         setupFAB()
         viewModel.getLiveData()
@@ -59,27 +63,62 @@ class CalendarFragment : Fragment() {
 
     private fun setupStatistic() {
         val statisticFragment = StatisticFragment.newInstance()
+        statisticFragment.setListener(this)
         childFragmentManager
             .beginTransaction()
             .setReorderingAllowed(true)
             .replace(R.id.statsContainer, statisticFragment)
             .runOnCommit {
-                statisticFragment.view?.let { setBottomSheetBehavior(it.findViewById(R.id.bottom_sheet_container)) }
+                statisticFragment.view?.let {
+                    setBottomSheetBehavior(it.findViewById(R.id.bottom_sheet_container))
+                    if (!isStatsUsed) setBottomSheetAnimation()
+                }
             }
             .commit()
     }
 
     private fun setBottomSheetBehavior(bottomSheet: ConstraintLayout) {
         bottomSheetBehavior = BottomSheetBehavior.from(bottomSheet)
-        bottomSheetBehavior.peekHeight = getTextSize() * MULTIPLY
+        bottomSheetBehavior.peekHeight = (getTextSize() * MULTIPLY).toInt()
         bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
+        if (!isStatsUsed) {
+            val callback = object : BottomSheetBehavior.BottomSheetCallback() {
+                override fun onStateChanged(bottomSheet: View, newState: Int) {
+                    if (bottomSheetBehavior.state == BottomSheetBehavior.STATE_EXPANDED) {
+                        isStatsUsed = true
+                        App.sharedPreferences?.statsUsed = true
+                    }
+                }
+
+                override fun onSlide(bottomSheet: View, slideOffset: Float) {
+                    //not needed
+                }
+            }
+            bottomSheetBehavior.addBottomSheetCallback(callback)
+        }
+    }
+
+    private fun setBottomSheetAnimation() {
+        Thread {
+            while (this@CalendarFragment.isAdded && !isStatsUsed) {
+                Thread.sleep(30000)
+                if (bottomSheetBehavior.state == BottomSheetBehavior.STATE_COLLAPSED
+                    && this@CalendarFragment.isAdded && !isStatsUsed
+                ) {
+                    bottomSheetBehavior
+                        .setPeekHeight(((getTextSize() * MULTIPLY) * 1.3).toInt(), true)
+                    Thread.sleep(200)
+                    bottomSheetBehavior.setPeekHeight((getTextSize() * MULTIPLY).toInt(), true)
+                }
+            }
+        }.start()
     }
 
     private fun setupFAB() {
         val layoutParams = binding.fab.layoutParams as ViewGroup.MarginLayoutParams
         layoutParams.bottomMargin =
-            resources.getDimension(R.dimen.fab_margin)
-                .toInt() + getTextSize() * MULTIPLY
+            (resources.getDimension(R.dimen.fab_margin)
+                .toInt() + getTextSize() * MULTIPLY).toInt()
 
         binding.fab.setOnClickListener {
             calendarView.smoothScrollToMonth(YearMonth.now())
@@ -136,7 +175,7 @@ class CalendarFragment : Fragment() {
                         }
                         changeDay(false, textView, day.date)
                     } else {
-                        textView.disappear()
+                        textView.hide()
                     }
                 }
 
@@ -186,7 +225,7 @@ class CalendarFragment : Fragment() {
             }
             calendarView.scrollToMonth(currentMonth)
             isInitCompleted = true
-            binding.loadingLayout.hide()
+            binding.loadingLayout.disappear()
         }
     }
 
@@ -199,6 +238,15 @@ class CalendarFragment : Fragment() {
         @JvmStatic
         fun newInstance() = CalendarFragment()
     }
+
+    override fun cardStatsPressed(date: LocalDate) {
+        scrollToDate(date)
+    }
+
+    private fun scrollToDate(date: LocalDate) {
+        bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
+        calendarView.smoothScrollToMonth(YearMonth.from(date))
+    }
 }
 
 private fun AppCompatTextView.putText(newValue: Any) {
@@ -209,10 +257,10 @@ private fun View.show() {
     visibility = View.VISIBLE
 }
 
-private fun FrameLayout.hide() {
+private fun FrameLayout.disappear() {
     visibility = View.GONE
 }
 
-private fun TextView.disappear() {
+private fun TextView.hide() {
     visibility = View.INVISIBLE
 }
