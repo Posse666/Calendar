@@ -34,6 +34,7 @@
     <string name="longest_drink_marathon_in_this_year">Longest drink marathon in this year is </string>
     <string name="days"> days</string>
     <string name="longest_drink_marathon_all_time">Longest drink marathon for all time is </string>
+
     <string name="login_to_sync">Login to sync</string>
     <string name="login">Login</string>
     <string name="logout">Logout</string>
@@ -45,10 +46,5 @@
     <string name="allow_access">Allow</string>
     <string name="no_thanks">No, thanks</string>
     <string name="close">Close</string>
-    <string name="location_access_description">Location access</string>
-    <string name="location_access_message">Need access to location to show on map where you have drunk</string>
-    <string name="dialog_close">Close</string>
-    <string name="no_location">No location was saved</string>
-    <string name="no_saved_data">This day didn\'t marked</string>
 
 </resources>

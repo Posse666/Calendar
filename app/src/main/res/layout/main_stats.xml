@@ -10,32 +10,31 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_weight="1"
-        android:textSize="18sp"
         android:maxLines="5"
+        android:textSize="@dimen/stats_text_size"
         tools:text="@string/in_this_year_you_drank" />
 
     <androidx.appcompat.widget.AppCompatTextView
         android:id="@+id/firstStat"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textColor="@color/fillColor"
-        android:textSize="18sp"
         android:layout_gravity="center"
-        />
+        android:textColor="@color/fillColor"
+        android:textSize="@dimen/stats_text_size" />
 
     <androidx.appcompat.widget.AppCompatTextView
         android:id="@+id/description"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:textSize="18sp"
+        android:textSize="@dimen/stats_text_size"
         tools:text="@string/days_of" />
 
     <androidx.appcompat.widget.AppCompatTextView
         android:id="@+id/secondStat"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textSize="18sp"
-        android:layout_gravity="center"/>
+        android:layout_gravity="center"
+        android:textSize="@dimen/stats_text_size" />
 
 </androidx.appcompat.widget.LinearLayoutCompat>

@@ -4,19 +4,18 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.Transformations
 import androidx.lifecycle.ViewModel
 import com.posse.kotlin1.calendar.model.repository.Repository
-import com.posse.kotlin1.calendar.model.repository.RepositoryImpl
+import com.posse.kotlin1.calendar.model.repository.RepositoryFirestoreImpl
 import java.time.LocalDate
 import java.time.Year
 import java.time.temporal.ChronoUnit
 
 abstract class BaseStatsViewModel : ViewModel() {
 
-    protected val repository: Repository = RepositoryImpl
-    protected val liveDataToObserve: LiveData<Set<LocalDate>> = Transformations.map(repository.getLiveData()) { it }
+    protected val repository: Repository = RepositoryFirestoreImpl("")
+    protected val liveDataToObserve: LiveData<Set<LocalDate>> =
+        Transformations.map(repository.getLiveData()) { it }
 
     fun getLiveData() = liveDataToObserve
-
-    fun refreshDrankState() = getDataFromLocalSource()
 
     fun getDrankDaysQuantity(): Int {
         var result = 0
@@ -32,9 +31,5 @@ abstract class BaseStatsViewModel : ViewModel() {
             LocalDate.ofYearDay(Year.now().value, 1),
             LocalDate.now()
         ) + 1).toInt()
-    }
-
-    private fun getDataFromLocalSource() {
-        repository.removeLaterInitForTestingPurpose()
     }
 }
