@@ -34,7 +34,7 @@
     <string name="login_to_sync">Login to sync</string>
     <string name="login">Login</string>
     <string name="logout">Logout</string>
-    <string name="share_calendar">Share Calendar</string>
+    <string name="share_calendar">Share</string>
     <string name="dialog_cancel">Cancel</string>
     <string name="dialog_save">Save</string>
     <string name="contact_access_description">Contact access</string>
@@ -50,5 +50,6 @@
     <string name="calendar_bottom">Calendar</string>
     <string name="friends_bottom">Friends</string>
     <string name="settings_bottom">Settings</string>
+    <string name="back_again_to_exit">Press \"Back\" again to exit</string>
 
 </resources>
