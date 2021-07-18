@@ -1,6 +1,7 @@
 package com.posse.kotlin1.calendar.viewModel
 
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Transformations
 import androidx.lifecycle.ViewModel
 import com.posse.kotlin1.calendar.model.repository.Repository
@@ -16,9 +17,11 @@ class CalendarViewModel : ViewModel() {
 
     private val repository: Repository = RepositoryFirestoreImpl("")
     private val liveDataToObserve: LiveData<Set<LocalDate>> =
-        Transformations.map(repository.getLiveData()) { it }
-    private val liveStatisticToObserve: LiveData<Map<STATISTIC, Set<LocalDate>>> =
-        Transformations.map(repository.getLiveData()) { getSats(it) }
+        Transformations.map(repository.getLiveData()) {
+            liveStatisticToObserve.value = getSats(it)
+            it
+        }
+    private val liveStatisticToObserve: MutableLiveData<Map<STATISTIC, Set<LocalDate>>> = MutableLiveData()
 
     private fun getSats(dates: Set<LocalDate>?): Map<STATISTIC, Set<LocalDate>> {
         val result = HashMap<STATISTIC, Set<LocalDate>>()

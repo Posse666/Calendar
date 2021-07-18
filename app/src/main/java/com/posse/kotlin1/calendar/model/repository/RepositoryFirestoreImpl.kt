@@ -20,15 +20,13 @@ private const val FIELD_USER_EMAIL = "UserEmail"
 
 class RepositoryFirestoreImpl (private var userEmail: String ) : Repository {
 
-    override fun getLiveData(): LiveData<Set<LocalDate>> = liveDataToObserve
-
+    private val liveDataToObserve: MutableLiveData<Set<LocalDate>> = MutableLiveData()
     private var collection: CollectionReference? = null
     private val data: HashSet<CalendarDayData> = hashSetOf()
     private val auth = FirebaseAuth.getInstance()
     private val user = auth.currentUser
 
-    @Volatile
-    private var deleteAll = false
+    override fun getLiveData(): LiveData<Set<LocalDate>> = liveDataToObserve
 
     init {
         FirebaseFirestore.getInstance().firestoreSettings = FirebaseFirestoreSettings
@@ -141,7 +139,7 @@ class RepositoryFirestoreImpl (private var userEmail: String ) : Repository {
         calendarDayData?.let {
             collection?.document(it.id)?.delete()
             data.remove(it)
-            if (!deleteAll) liveDataToObserve.postValue(getAll())
+            liveDataToObserve.postValue(getAll())
         }
     }
 
@@ -152,9 +150,5 @@ class RepositoryFirestoreImpl (private var userEmail: String ) : Repository {
             }
         }
         return false
-    }
-
-    companion object {
-        private val liveDataToObserve: MutableLiveData<Set<LocalDate>> = MutableLiveData()
     }
 }

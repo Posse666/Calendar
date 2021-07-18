@@ -40,7 +40,7 @@ class CalendarFragment : Fragment(), StatisticListener {
     private lateinit var bottomSheetBehavior: BottomSheetBehavior<ConstraintLayout>
     private val calendarView: CalendarView by lazy { binding.calendarView }
     private val viewModel: CalendarViewModel by activityViewModels()
-    private val drinkDates: HashSet<LocalDate> = HashSet()
+    private val clickedDates: HashMap<CalendarDay, TextView> = hashMapOf()
     private var isInitCompleted: Boolean = false
     private var isStatsUsed = App.sharedPreferences?.statsUsed ?: false
 
@@ -58,7 +58,29 @@ class CalendarFragment : Fragment(), StatisticListener {
         setupStatistic()
         setupFAB()
         viewModel.getLiveData()
-            .observe(viewLifecycleOwner, { if (!isInitCompleted) updateCalendar(it) })
+            .observe(viewLifecycleOwner, {
+                if (!isInitCompleted) updateCalendar(it)
+                confirmDayChange(it)
+            })
+    }
+
+    private fun confirmDayChange(days: Set<LocalDate>?) {
+        days?.let {
+            val keys = clickedDates.keys.map { it.date }
+            val intersected = keys.intersect(days)
+            val calendarDays: HashSet<CalendarDay> = hashSetOf()
+            clickedDates.keys.forEach {
+                if (intersected.contains(it.date)) calendarDays.add(it)
+            }
+            if (calendarDays.isNotEmpty()) {
+                calendarDays.forEach {
+                    clickedDates[it]?.let { view -> changeDay(intersected, view, it.date) }
+                }
+            }
+            val subtracted = clickedDates.keys.subtract(days)
+
+        }
+        calendarView.notifyDayChanged(day)
     }
 
     private fun setupStatistic() {
@@ -131,8 +153,6 @@ class CalendarFragment : Fragment(), StatisticListener {
 
     private fun updateCalendar(calendarState: Set<LocalDate>) {
         binding.loadingLayout.show()
-        drinkDates.clear()
-        drinkDates.addAll(calendarState)
         val currentMonth = YearMonth.now()
 
         var firstMonth = currentMonth.minusMonths(12)
@@ -166,68 +186,64 @@ class CalendarFragment : Fragment(), StatisticListener {
                         textView.show()
                         if (day.date.isBefore(LocalDate.now()) || day.date.isEqual(LocalDate.now())) {
                             container.view.setOnClickListener {
-                                changeDay(true, textView, day.date)
-                                calendarView.notifyDayChanged(day)
+                                clickedDates[day] = textView
                                 viewModel.dayClicked(day.date)
+                                animateButton(textView, day.date)
                             }
                         } else {
                             container.view.setOnClickListener(null)
                         }
-                        changeDay(false, textView, day.date)
+                        changeDay(calendarState, textView, day.date)
                     } else {
                         textView.hide()
                     }
                 }
 
-                private fun changeDay(isClicked: Boolean, textView: TextView, date: LocalDate) {
-                    val circleType: CircleType
-                    val textColor: Int
-                    if (drinkDates.contains(date)) {
-                        textColor = getTextColor(isClicked)
-                        circleType = getCircleType(isClicked, date)
-                        if (isClicked) drinkDates.remove(date)
-                    } else {
-                        textColor = getTextColor(!isClicked)
-                        circleType = getCircleType(!isClicked, date)
-                        if (isClicked) drinkDates.add(date)
-                    }
-                    textView.setTextColor(textColor)
-                    textView.background = Background.getCircle(requireContext(), circleType)
+                private fun animateButton(textView: AppCompatTextView, date: LocalDate) {
+                    TODO("Not yet implemented")
                 }
-
-                private fun getCircleType(clicked: Boolean, date: LocalDate): CircleType {
-                    if (clicked) return circle(
-                        CircleType.SELECTED_EMPTY,
-                        CircleType.EMPTY,
-                        date
-                    )
-                    return circle(CircleType.SELECTED_FULL, CircleType.FULL, date)
-                }
-
-                private fun getTextColor(clicked: Boolean): Int {
-                    if (clicked) return defaultColor()
-                    return Color.WHITE
-                }
-
-                private val defaultColor = {
-                    val attrs = intArrayOf(android.R.attr.textColorSecondary)
-                    val a: TypedArray? = context?.theme?.obtainStyledAttributes(attrs)
-                    val result = a?.getColor(0, Color.BLACK) ?: Color.BLACK
-                    a?.recycle()
-                    result
-                }
-
-                private val circle =
-                    { circle: CircleType, circle2: CircleType, date: LocalDate ->
-                        if (date == LocalDate.now()) circle
-                        else circle2
-                    }
             }
             calendarView.scrollToMonth(currentMonth)
             isInitCompleted = true
             binding.loadingLayout.disappear()
         }
     }
+
+    private fun changeDay(dates: Set<LocalDate>, textView: TextView, date: LocalDate) {
+        val textColor: Int = getTextColor(dates.contains(date))
+        val circleType: CircleType = getCircleType(dates.contains(date), date)
+        textView.setTextColor(textColor)
+        textView.background = Background.getCircle(requireContext(), circleType)
+    }
+
+    private fun getCircleType(clicked: Boolean, date: LocalDate): CircleType {
+        if (clicked) return circle(
+            CircleType.SELECTED_EMPTY,
+            CircleType.EMPTY,
+            date
+        )
+        return circle(CircleType.SELECTED_FULL, CircleType.FULL, date)
+    }
+
+    private fun getTextColor(clicked: Boolean): Int {
+        if (clicked) return defaultColor
+        return Color.WHITE
+    }
+
+    private val defaultColor: Int
+        get() {
+            val attrs = intArrayOf(android.R.attr.textColorSecondary)
+            val a: TypedArray? = context?.theme?.obtainStyledAttributes(attrs)
+            val result = a?.getColor(0, Color.BLACK) ?: Color.BLACK
+            a?.recycle()
+            return result
+        }
+
+    private val circle =
+        { circle: CircleType, circle2: CircleType, date: LocalDate ->
+            if (date == LocalDate.now()) circle
+            else circle2
+        }
 
     override fun onDestroyView() {
         super.onDestroyView()
