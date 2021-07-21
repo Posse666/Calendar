@@ -35,7 +35,7 @@
     <string name="login_to_sync">Войдите для синхронизации</string>
     <string name="login">Войти</string>
     <string name="logout">Выйти</string>
-    <string name="share_calendar">Поделиться Календарем</string>
+    <string name="share_calendar">Поделиться</string>
     <string name="dialog_cancel">Отмена</string>
     <string name="dialog_save">Сохранить</string>
     <string name="contact_access_description">Доступ к контактам</string>
@@ -50,5 +50,6 @@
     <string name="calendar_bottom">Календарь</string>
     <string name="friends_bottom">Друзья</string>
     <string name="settings_bottom">Настройки</string>
+    <string name="back_again_to_exit">Нажмите \"Назад\" еще раз для выхода</string>
 
 </resources>

@@ -34,6 +34,7 @@ class SettingsFragment : Fragment() {
     private var _binding: FragmentSettingsBinding? = null
     private val binding get() = _binding!!
     private var isInitCompleted = false
+    private var isLoginPressed = false
     private val viewModel: SettingsViewModel by lazy {
         ViewModelProvider(this).get(SettingsViewModel::class.java)
     }
@@ -93,12 +94,14 @@ class SettingsFragment : Fragment() {
 
     private fun setupLoginButton() {
         binding.loginButton.setOnClickListener {
+            isLoginPressed = true
             startLogin.launch(googleSignInClient.signInIntent)
         }
     }
 
     private fun setupLogoutButton() {
         binding.logoutButton.setOnClickListener {
+            isLoginPressed = true
             googleSignInClient.signOut()
             viewModel.getSettingsState()
         }
@@ -152,12 +155,15 @@ class SettingsFragment : Fragment() {
                         defaultPicture?.intrinsicHeight ?: 0
                     )
                     .into(binding.userLogo)
+                if (isLoginPressed) binding.motionSettings.transitionToEnd()
+                else binding.motionSettings.progress = 1f
             }
             SettingsState.LoggedOut -> {
                 binding.loginButton.show()
                 binding.logoutButton.hide()
                 binding.userEmail.text = getString(R.string.login_to_sync)
                 binding.userLogo.setImageDrawable(defaultPicture)
+                if (isLoginPressed) binding.motionSettings.transitionToStart()
             }
         }
     }

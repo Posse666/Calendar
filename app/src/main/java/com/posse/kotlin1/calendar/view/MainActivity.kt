@@ -1,6 +1,9 @@
 package com.posse.kotlin1.calendar.view
 
 import android.os.Bundle
+import android.os.PersistableBundle
+import android.widget.Toast
+import androidx.annotation.IdRes
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentTransaction
@@ -9,9 +12,15 @@ import com.posse.kotlin1.calendar.databinding.ActivityMainBinding
 import com.posse.kotlin1.calendar.utils.getAppTheme
 import com.posse.kotlin1.calendar.view.calendar.CalendarFragment
 import com.posse.kotlin1.calendar.view.settings.SettingsFragment
+import kotlin.system.exitProcess
+
+private const val KEY_SELECTED = "Selected item"
+private const val BACK_BUTTON_EXIT_DELAY = 3000
 
 class MainActivity : AppCompatActivity() {
     private val binding: ActivityMainBinding by lazy { ActivityMainBinding.inflate(layoutInflater) }
+    private var isBackShown = false
+    private var lastTimeBackPressed: Long = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -28,7 +37,9 @@ class MainActivity : AppCompatActivity() {
             true
         }
 
-        binding.bottomNavigation.selectedItemId = R.id.bottomCalendar
+        @IdRes
+        val startPage: Int = savedInstanceState?.getInt(KEY_SELECTED) ?: R.id.bottomCalendar
+        binding.bottomNavigation.selectedItemId = startPage
     }
 
     private fun replaceFragment(fragment: Fragment) {
@@ -37,13 +48,29 @@ class MainActivity : AppCompatActivity() {
             .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE)
             .replace(R.id.mainContainer, fragment)
             .commit()
+
+        isBackShown = false
+    }
+
+    override fun onSaveInstanceState(outState: Bundle, outPersistentState: PersistableBundle) {
+        super.onSaveInstanceState(outState, outPersistentState)
+        outState.putInt(KEY_SELECTED, binding.bottomNavigation.selectedItemId)
     }
 
     override fun onBackPressed() {
         if (binding.bottomNavigation.selectedItemId == R.id.bottomCalendar) {
-            super.onBackPressed()
+            checkExit()
         } else {
             binding.bottomNavigation.selectedItemId = R.id.bottomCalendar
         }
+        lastTimeBackPressed = System.currentTimeMillis()
+    }
+
+    private fun checkExit() {
+        Toast.makeText(this, getString(R.string.back_again_to_exit), Toast.LENGTH_SHORT).show()
+        if (System.currentTimeMillis() - lastTimeBackPressed < BACK_BUTTON_EXIT_DELAY && isBackShown) {
+            exitProcess(0)
+        }
+        isBackShown = true
     }
 }
