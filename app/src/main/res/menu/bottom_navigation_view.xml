@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:id="@+id/bottomCalendar"
+        android:icon="@android:drawable/ic_menu_month"
+        android:title="@string/calendar_bottom"/>
+
+    <item android:id="@+id/bottomFriends"
+        android:icon="@android:drawable/ic_menu_my_calendar"
+        android:title="@string/friends_bottom"/>
+
+    <item android:id="@+id/bottomSettings"
+        android:icon="@android:drawable/ic_menu_preferences"
+        android:title="@string/settings_bottom"/>
+</menu>

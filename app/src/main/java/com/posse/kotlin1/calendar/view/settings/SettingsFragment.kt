@@ -1,6 +1,8 @@
 package com.posse.kotlin1.calendar.view.settings
 
 import android.app.Activity
+import android.content.res.Configuration
+import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -16,15 +18,22 @@ import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.common.api.ApiException
 import com.posse.kotlin1.calendar.R
+import com.posse.kotlin1.calendar.app.App
 import com.posse.kotlin1.calendar.databinding.FragmentSettingsBinding
+import com.posse.kotlin1.calendar.utils.THEME
+import com.posse.kotlin1.calendar.utils.lightTheme
+import com.posse.kotlin1.calendar.utils.themeSwitch
 import com.posse.kotlin1.calendar.view.settings.share.ShareFragment
 import com.posse.kotlin1.calendar.viewModel.SettingsState
 import com.posse.kotlin1.calendar.viewModel.SettingsViewModel
 import com.squareup.picasso.Picasso
 
+const val NIGHT_THEME_SDK = 29
+
 class SettingsFragment : Fragment() {
     private var _binding: FragmentSettingsBinding? = null
     private val binding get() = _binding!!
+    private var isInitCompleted = false
     private val viewModel: SettingsViewModel by lazy {
         ViewModelProvider(this).get(SettingsViewModel::class.java)
     }
@@ -61,19 +70,68 @@ class SettingsFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        setupShareFragment()
+        viewModel.getLiveData().observe(viewLifecycleOwner, { renderSettings(it) })
+        viewModel.getLastTheme()
+            .observe(viewLifecycleOwner, {
+                if (isInitCompleted) requireActivity().recreate()
+                else isInitCompleted = true
+            })
+        viewModel.getSettingsState()
+        setupLoginButton()
+        setupLogoutButton()
+        setupThemeSwitch()
+    }
+
+    private fun setupShareFragment() {
         childFragmentManager.apply {
             this.beginTransaction()
                 .replace(R.id.shareFragmentContainer, ShareFragment.newInstance())
                 .commit()
         }
-        viewModel.getLiveData().observe(viewLifecycleOwner, { renderSettings(it) })
-        viewModel.getSettingsState()
+    }
+
+    private fun setupLoginButton() {
         binding.loginButton.setOnClickListener {
             startLogin.launch(googleSignInClient.signInIntent)
         }
+    }
+
+    private fun setupLogoutButton() {
         binding.logoutButton.setOnClickListener {
             googleSignInClient.signOut()
             viewModel.getSettingsState()
+        }
+    }
+
+    private fun setupThemeSwitch() {
+        val themeSwitch = App.sharedPreferences?.themeSwitch ?: true
+        if (Build.VERSION.SDK_INT >= NIGHT_THEME_SDK) {
+            binding.switchTheme.isChecked = themeSwitch
+            binding.switchTheme.setOnCheckedChangeListener { _, isChecked ->
+                binding.chipDay.isEnabled = !isChecked
+                binding.chipNight.isEnabled = !isChecked
+                viewModel.switchState = isChecked
+                if (isChecked) {
+                    when (context?.resources?.configuration?.uiMode?.and(Configuration.UI_MODE_NIGHT_MASK)) {
+                        Configuration.UI_MODE_NIGHT_NO -> binding.themeChips.check(THEME.DAY.resID)
+                        Configuration.UI_MODE_NIGHT_YES -> binding.themeChips.check(THEME.NIGHT.resID)
+                    }
+                }
+            }
+        } else binding.switchTheme.visibility = View.GONE
+
+        binding.chipDay.isEnabled = !themeSwitch
+        binding.chipNight.isEnabled = !themeSwitch
+
+        if (App.sharedPreferences?.lightTheme == true) binding.themeChips.check(THEME.DAY.resID)
+        else binding.themeChips.check(THEME.NIGHT.resID)
+
+        binding.themeChips.setOnCheckedChangeListener { _, checkedId ->
+            when (checkedId) {
+                THEME.DAY.resID -> viewModel.lightTheme = true
+                THEME.NIGHT.resID -> viewModel.lightTheme = false
+            }
         }
     }
 
