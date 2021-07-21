@@ -9,31 +9,33 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.*
 import com.posse.kotlin1.calendar.app.App
 import com.posse.kotlin1.calendar.model.CalendarDayData
-import com.posse.kotlin1.calendar.model.DATE
 import com.posse.kotlin1.calendar.utils.convertLocalDateToLong
 import com.posse.kotlin1.calendar.utils.convertLongToLocalDale
 import java.time.LocalDate
 import java.util.*
 
+private const val DATE = "Date"
 private const val COLLECTION = "Dates"
 private const val FIELD_USER_EMAIL = "UserEmail"
 
-class RepositoryFirestoreImpl (private var userEmail: String ) : Repository {
+class RepositoryFirestoreImpl(private var userEmail: String) : Repository {
 
-    private val liveDataToObserve: MutableLiveData<Set<LocalDate>> = MutableLiveData()
+    private val liveDataToObserve: MutableLiveData<HashMap<LocalDate, CalendarDayData>> =
+        MutableLiveData()
+    private val firestore: FirebaseFirestore = FirebaseFirestore.getInstance()
     private var collection: CollectionReference? = null
-    private val data: HashSet<CalendarDayData> = hashSetOf()
+    private val data: HashMap<LocalDate, CalendarDayData> = hashMapOf()
     private val auth = FirebaseAuth.getInstance()
     private val user = auth.currentUser
 
-    override fun getLiveData(): LiveData<Set<LocalDate>> = liveDataToObserve
+    override fun getLiveData(): LiveData<HashMap<LocalDate, CalendarDayData>> = liveDataToObserve
 
     init {
-        FirebaseFirestore.getInstance().firestoreSettings = FirebaseFirestoreSettings
+        firestore.firestoreSettings = FirebaseFirestoreSettings
             .Builder()
             .setCacheSizeBytes(FirebaseFirestoreSettings.CACHE_SIZE_UNLIMITED)
             .build()
-        collection = FirebaseFirestore.getInstance().collection(COLLECTION)
+        collection = firestore.collection(COLLECTION)
 
         if (user == null) {
             auth.signInAnonymously().addOnCompleteListener {
@@ -78,48 +80,32 @@ class RepositoryFirestoreImpl (private var userEmail: String ) : Repository {
         task: Task<QuerySnapshot>
     ) {
         if (task.isSuccessful) {
-            val tempData: LinkedList<CalendarDayData> = LinkedList<CalendarDayData>()
             task.result?.forEach { document ->
-                tempData.add(
-                    CalendarDayData(
-                        document.id,
-                        userEmail,
-                        document.getLong(DATE) ?: 0,
-                    )
-                )
+                val dateLong = document.getLong(DATE) ?: return@forEach
+                val date = convertLongToLocalDale(dateLong)
+                data[date] = (CalendarDayData(document.id, userEmail, dateLong))
             }
-            data.clear()
-            data.addAll(tempData)
-            tempData.clear()
-            liveDataToObserve.value = getAll()
+            liveDataToObserve.value = data
         }
-    }
-
-    private fun getAll(): Set<LocalDate> {
-        val resultSet: HashSet<LocalDate> = hashSetOf()
-        data.forEach {
-            resultSet.add(convertLongToLocalDale(it.date))
-        }
-        return Collections.unmodifiableSet(resultSet)
     }
 
     override fun changeState(date: LocalDate) {
         if (!checkDate(date))
             collection?.let {
                 it.add(getFields(getCalendarDayData(date)))
-                    .addOnSuccessListener { documentReference: DocumentReference ->
-                        data.add(
-                            CalendarDayData(
-                                documentReference.id,
-                                userEmail,
-                                convertLocalDateToLong(date)
-                            )
-                        )
-                        liveDataToObserve.postValue(getAll())
-                    }
+                data[date] = (CalendarDayData(it.id, userEmail, convertLocalDateToLong(date)))
+                liveDataToObserve.value = data
             }
         else {
             deleteDate(date)
+        }
+    }
+
+    private fun deleteDate(date: LocalDate) {
+        data[date]?.let {
+            collection?.document(it.id)?.delete()
+            data.remove(date)
+            liveDataToObserve.value = data
         }
     }
 
@@ -134,21 +120,7 @@ class RepositoryFirestoreImpl (private var userEmail: String ) : Repository {
         return Collections.unmodifiableMap(fields)
     }
 
-    private fun deleteDate(date: LocalDate) {
-        val calendarDayData = data.find { it.date == convertLocalDateToLong(date) }
-        calendarDayData?.let {
-            collection?.document(it.id)?.delete()
-            data.remove(it)
-            liveDataToObserve.postValue(getAll())
-        }
-    }
-
     private fun checkDate(date: LocalDate): Boolean {
-        for (calendarDayData in data) {
-            if (calendarDayData.date == convertLocalDateToLong(date)) {
-                return true
-            }
-        }
-        return false
+        return data.containsKey(date)
     }
 }

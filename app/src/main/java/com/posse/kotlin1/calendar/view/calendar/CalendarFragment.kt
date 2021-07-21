@@ -1,11 +1,15 @@
 package com.posse.kotlin1.calendar.view.calendar
 
+import android.animation.Animator
+import android.animation.AnimatorListenerAdapter
 import android.content.res.TypedArray
 import android.graphics.Color
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.animation.AccelerateInterpolator
+import android.view.animation.DecelerateInterpolator
 import android.widget.FrameLayout
 import android.widget.TextView
 import androidx.appcompat.widget.AppCompatTextView
@@ -30,9 +34,9 @@ import java.time.LocalDate
 import java.time.YearMonth
 import java.time.temporal.WeekFields
 import java.util.*
-import kotlin.collections.HashSet
 
-private const val MULTIPLY = 3.5
+private const val MULTIPLY: Double = 3.5
+private const val BOTTOM_ANIMATION_INTERVAL: Long = 20000
 
 class CalendarFragment : Fragment(), StatisticListener {
     private var _binding: FragmentCalendarBinding? = null
@@ -40,9 +44,24 @@ class CalendarFragment : Fragment(), StatisticListener {
     private lateinit var bottomSheetBehavior: BottomSheetBehavior<ConstraintLayout>
     private val calendarView: CalendarView by lazy { binding.calendarView }
     private val viewModel: CalendarViewModel by activityViewModels()
-    private val clickedDates: HashMap<CalendarDay, TextView> = hashMapOf()
+    private val allAvailableDates: HashMap<LocalDate, TextView> = hashMapOf()
+    private val clickedDates: HashMap<LocalDate, TextView> = hashMapOf()
+    private var actualState: Set<LocalDate> = emptySet()
     private var isInitCompleted: Boolean = false
     private var isStatsUsed = App.sharedPreferences?.statsUsed ?: false
+    private val defaultColor: Int
+        get() {
+            val attrs = intArrayOf(android.R.attr.textColorSecondary)
+            val a: TypedArray? = context?.theme?.obtainStyledAttributes(attrs)
+            val result = a?.getColor(0, Color.BLACK) ?: Color.BLACK
+            a?.recycle()
+            return result
+        }
+    private val circle =
+        { circle: CircleType, circle2: CircleType, date: LocalDate ->
+            if (date == LocalDate.now()) circle
+            else circle2
+        }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -59,28 +78,9 @@ class CalendarFragment : Fragment(), StatisticListener {
         setupFAB()
         viewModel.getLiveData()
             .observe(viewLifecycleOwner, {
-                if (!isInitCompleted) updateCalendar(it)
-                confirmDayChange(it)
+                actualState = it
+                if (!isInitCompleted) updateCalendar()
             })
-    }
-
-    private fun confirmDayChange(days: Set<LocalDate>?) {
-        days?.let {
-            val keys = clickedDates.keys.map { it.date }
-            val intersected = keys.intersect(days)
-            val calendarDays: HashSet<CalendarDay> = hashSetOf()
-            clickedDates.keys.forEach {
-                if (intersected.contains(it.date)) calendarDays.add(it)
-            }
-            if (calendarDays.isNotEmpty()) {
-                calendarDays.forEach {
-                    clickedDates[it]?.let { view -> changeDay(intersected, view, it.date) }
-                }
-            }
-            val subtracted = clickedDates.keys.subtract(days)
-
-        }
-        calendarView.notifyDayChanged(day)
     }
 
     private fun setupStatistic() {
@@ -123,7 +123,7 @@ class CalendarFragment : Fragment(), StatisticListener {
     private fun setBottomSheetAnimation() {
         Thread {
             while (this@CalendarFragment.isAdded && !isStatsUsed) {
-                Thread.sleep(30000)
+                Thread.sleep(BOTTOM_ANIMATION_INTERVAL)
                 if (bottomSheetBehavior.state == BottomSheetBehavior.STATE_COLLAPSED
                     && this@CalendarFragment.isAdded && !isStatsUsed
                 ) {
@@ -151,17 +151,18 @@ class CalendarFragment : Fragment(), StatisticListener {
         return resources.getDimension(R.dimen.stats_text_size).toInt()
     }
 
-    private fun updateCalendar(calendarState: Set<LocalDate>) {
+    private fun updateCalendar() {
         binding.loadingLayout.show()
         val currentMonth = YearMonth.now()
 
         var firstMonth = currentMonth.minusMonths(12)
-        if (calendarState.isNotEmpty()) {
-            val minMonth = YearMonth.from(Collections.min(calendarState))
+        if (actualState.isNotEmpty()) {
+            val minMonth = YearMonth.from(Collections.min(actualState))
             if (minMonth.isBefore(firstMonth)) {
                 firstMonth = minMonth
             }
         }
+
         calendarView.setupAsync(
             firstMonth,
             currentMonth.plusMonths(1),
@@ -186,27 +187,52 @@ class CalendarFragment : Fragment(), StatisticListener {
                         textView.show()
                         if (day.date.isBefore(LocalDate.now()) || day.date.isEqual(LocalDate.now())) {
                             container.view.setOnClickListener {
-                                clickedDates[day] = textView
-                                viewModel.dayClicked(day.date)
-                                animateButton(textView, day.date)
+                                if (!clickedDates.containsKey(day.date)) {
+                                    clickedDates[day.date] = textView
+                                    animateButton(it)
+                                    viewModel.dayClicked(day.date)
+                                }
                             }
                         } else {
                             container.view.setOnClickListener(null)
                         }
-                        changeDay(calendarState, textView, day.date)
+                        allAvailableDates[day.date] = textView
+                        if (!clickedDates.containsKey(day.date)) {
+                            changeDay(actualState, textView, day.date)
+                        }
                     } else {
                         textView.hide()
                     }
-                }
-
-                private fun animateButton(textView: AppCompatTextView, date: LocalDate) {
-                    TODO("Not yet implemented")
                 }
             }
             calendarView.scrollToMonth(currentMonth)
             isInitCompleted = true
             binding.loadingLayout.disappear()
         }
+    }
+
+    private fun animateButton(view: View) {
+        view
+            .animate()
+            .setDuration(200)
+            .scaleX(0.2f)
+            .scaleY(0.2f)
+            .setInterpolator(DecelerateInterpolator())
+            .setListener(object : AnimatorListenerAdapter() {
+                override fun onAnimationEnd(animation: Animator?) {
+                    view
+                        .animate()
+                        .setDuration(200)
+                        .scaleX(1f)
+                        .scaleY(1f)
+                        .setInterpolator(AccelerateInterpolator())
+                        .setListener(object : AnimatorListenerAdapter() {
+                            override fun onAnimationEnd(animation: Animator?) {
+                                confirmDayChange()
+                            }
+                        })
+                }
+            })
     }
 
     private fun changeDay(dates: Set<LocalDate>, textView: TextView, date: LocalDate) {
@@ -216,8 +242,34 @@ class CalendarFragment : Fragment(), StatisticListener {
         textView.background = Background.getCircle(requireContext(), circleType)
     }
 
-    private fun getCircleType(clicked: Boolean, date: LocalDate): CircleType {
-        if (clicked) return circle(
+    private fun confirmDayChange() {
+        val intersected = clickedDates.keys.intersect(actualState)
+        if (intersected.isNotEmpty()) switchDayState(intersected, true)
+        else switchDayState(clickedDates.keys.subtract(actualState), false)
+    }
+
+    private fun switchDayState(set: Set<LocalDate>, isSelected: Boolean) {
+        if (set.isNotEmpty()) {
+            set.forEach {
+                allAvailableDates[it]?.let { textView ->
+                    var daysSet = set
+                    val date = when {
+                        isSelected -> it
+                        it == LocalDate.now() -> {
+                            daysSet = set.minusElement(it)
+                            it
+                        }
+                        else -> LocalDate.now().plusDays(1)
+                    }
+                    changeDay(daysSet, textView, date)
+                    clickedDates.remove(it)
+                }
+            }
+        }
+    }
+
+    private fun getCircleType(selected: Boolean, date: LocalDate): CircleType {
+        if (!selected) return circle(
             CircleType.SELECTED_EMPTY,
             CircleType.EMPTY,
             date
@@ -225,25 +277,10 @@ class CalendarFragment : Fragment(), StatisticListener {
         return circle(CircleType.SELECTED_FULL, CircleType.FULL, date)
     }
 
-    private fun getTextColor(clicked: Boolean): Int {
-        if (clicked) return defaultColor
-        return Color.WHITE
+    private fun getTextColor(selected: Boolean): Int {
+        if (selected) return Color.WHITE
+        return defaultColor
     }
-
-    private val defaultColor: Int
-        get() {
-            val attrs = intArrayOf(android.R.attr.textColorSecondary)
-            val a: TypedArray? = context?.theme?.obtainStyledAttributes(attrs)
-            val result = a?.getColor(0, Color.BLACK) ?: Color.BLACK
-            a?.recycle()
-            return result
-        }
-
-    private val circle =
-        { circle: CircleType, circle2: CircleType, date: LocalDate ->
-            if (date == LocalDate.now()) circle
-            else circle2
-        }
 
     override fun onDestroyView() {
         super.onDestroyView()

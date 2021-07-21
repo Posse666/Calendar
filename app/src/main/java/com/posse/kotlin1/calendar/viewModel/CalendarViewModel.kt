@@ -18,10 +18,11 @@ class CalendarViewModel : ViewModel() {
     private val repository: Repository = RepositoryFirestoreImpl("")
     private val liveDataToObserve: LiveData<Set<LocalDate>> =
         Transformations.map(repository.getLiveData()) {
-            liveStatisticToObserve.value = getSats(it)
-            it
+            liveStatisticToObserve.value = getSats(it.keys)
+            it.keys
         }
-    private val liveStatisticToObserve: MutableLiveData<Map<STATISTIC, Set<LocalDate>>> = MutableLiveData()
+    private val liveStatisticToObserve: MutableLiveData<Map<STATISTIC, Set<LocalDate>>> =
+        MutableLiveData()
 
     private fun getSats(dates: Set<LocalDate>?): Map<STATISTIC, Set<LocalDate>> {
         val result = HashMap<STATISTIC, Set<LocalDate>>()
