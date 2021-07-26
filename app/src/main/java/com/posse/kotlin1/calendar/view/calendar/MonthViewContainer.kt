@@ -8,6 +8,7 @@ import androidx.appcompat.widget.LinearLayoutCompat
 import com.kizitonwose.calendarview.ui.ViewContainer
 import com.posse.kotlin1.calendar.R
 import com.posse.kotlin1.calendar.databinding.CalendarMonthHeaderLayoutBinding
+import com.posse.kotlin1.calendar.utils.putText
 
 class MonthViewContainer(view: View) : ViewContainer(view) {
     val textView = CalendarMonthHeaderLayoutBinding.bind(view).headerTextView
@@ -25,7 +26,7 @@ class MonthViewContainer(view: View) : ViewContainer(view) {
                 )
             dayText.gravity = Gravity.CENTER
             dayText.textSize = 20f
-            dayText.text = context.getString(it.dayResource)
+            dayText.putText(context.getString(it.dayResource))
             daysLayout.addView(dayText)
         }
     }

@@ -12,7 +12,7 @@
             android:id="@+id/friendName"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Tap here to select friend" />
+            android:text="@string/login_to_see_friends_calendars" />
     </com.google.android.material.card.MaterialCardView>
 
     <androidx.fragment.app.FragmentContainerView

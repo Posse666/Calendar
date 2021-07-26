@@ -25,11 +25,15 @@
             android:id="@+id/editNameField"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:background="null"
+            android:background="@android:color/transparent"
+            android:focusable="false"
+            android:focusableInTouchMode="false"
+            android:clickable="false"
             android:maxLines="1"
             android:singleLine="true"
             android:textSize="20sp"
             app:layout_constraintBottom_toTopOf="@id/friendEmail"
+            app:layout_constraintEnd_toStartOf="@+id/editFriend"
             app:layout_constraintStart_toEndOf="@id/friendChecked"
             app:layout_constraintTop_toTopOf="parent"
             tools:text="Friend" />
@@ -41,10 +45,29 @@
             android:maxLines="1"
             android:singleLine="true"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toStartOf="@id/dragHandleFriend"
+            app:layout_constraintEnd_toStartOf="@id/editFriend"
             app:layout_constraintStart_toEndOf="@id/friendChecked"
             app:layout_constraintTop_toBottomOf="@id/editNameField"
             tools:text="e-mail" />
+
+        <androidx.appcompat.widget.AppCompatImageView
+            android:id="@+id/editFriend"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/dragHandleFriend"
+            app:layout_constraintTop_toTopOf="parent"
+            app:srcCompat="@android:drawable/ic_menu_edit" />
+
+        <androidx.appcompat.widget.AppCompatImageView
+            android:id="@+id/saveFriend"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:visibility="invisible"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/dragHandleFriend"
+            app:layout_constraintTop_toTopOf="parent"
+            app:srcCompat="@android:drawable/ic_menu_save" />
 
         <androidx.appcompat.widget.AppCompatImageView
             android:id="@+id/dragHandleFriend"

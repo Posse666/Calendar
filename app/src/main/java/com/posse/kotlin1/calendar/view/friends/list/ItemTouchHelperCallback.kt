@@ -7,7 +7,7 @@ class ItemTouchHelperCallback(private val adapter: FriendListRecyclerAdapter) :
     ItemTouchHelper.Callback() {
 
     override fun isLongPressDragEnabled(): Boolean {
-        return true
+        return false
     }
 
     override fun isItemViewSwipeEnabled(): Boolean {

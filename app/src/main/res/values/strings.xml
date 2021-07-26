@@ -50,6 +50,7 @@
     <string name="friends_bottom">Friends</string>
     <string name="settings_bottom">Settings</string>
     <string name="back_again_to_exit">Press \"Back\" again to exit</string>
+    <string name="login_to_see_friends_calendars">Login to see friends calendars</string>
 
     <plurals name="days">
         <item quantity="one">day</item>

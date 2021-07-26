@@ -4,11 +4,11 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.appcompat.widget.AppCompatTextView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import com.posse.kotlin1.calendar.R
 import com.posse.kotlin1.calendar.databinding.FragmentStatisticBinding
+import com.posse.kotlin1.calendar.utils.putText
 import com.posse.kotlin1.calendar.viewModel.CalendarViewModel
 import com.posse.kotlin1.calendar.viewModel.STATISTIC
 import java.time.LocalDate
@@ -98,8 +98,4 @@ class StatisticFragment : Fragment() {
 
 interface StatisticListener {
     fun cardStatsPressed(date: LocalDate)
-}
-
-private fun AppCompatTextView.putText(newValue: Any) {
-    text = newValue.toString()
 }

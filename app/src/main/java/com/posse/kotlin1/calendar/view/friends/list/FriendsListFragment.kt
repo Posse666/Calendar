@@ -40,13 +40,15 @@ class FriendsListFragment : Fragment() {
                 override fun onStartDrag(viewHolder: RecyclerView.ViewHolder) {
                     itemTouchHelper.startDrag(viewHolder)
                 }
-            }
+            },
+            requireActivity()
         )
 
         binding.friendsRecyclerView.adapter = adapter
         itemTouchHelper = ItemTouchHelper(ItemTouchHelperCallback(adapter))
         itemTouchHelper.attachToRecyclerView(binding.friendsRecyclerView)
 
+        viewModel.getFriendsList()
     }
 
     private fun refreshAdapterData(friends: MutableList<Friend>) {

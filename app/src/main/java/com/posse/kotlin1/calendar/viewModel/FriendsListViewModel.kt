@@ -11,4 +11,8 @@ class FriendsListViewModel : ViewModel() {
     private val liveDataToObserve: MutableLiveData<Set<Friend>> = MutableLiveData()
 
     fun getLiveData() = liveDataToObserve
+
+    fun getFriendsList(){
+        liveDataToObserve.value = repository.getListOfFriends()
+    }
 }
