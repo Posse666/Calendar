@@ -15,7 +15,7 @@ import com.posse.kotlin1.calendar.model.Friend
 import com.posse.kotlin1.calendar.utils.*
 
 class FriendViewHolder(
-    private val friendBinding: FriendLayoutBinding,
+    val friendBinding: FriendLayoutBinding,
     private val dragListener: OnStartDragListener,
     private val activity: Activity,
     private val listener: ItemClickListener
@@ -31,6 +31,7 @@ class FriendViewHolder(
     @SuppressLint("ClickableViewAccessibility")
     fun bind(friend: Friend) {
         setTouchResponse(null, null)
+        switchElements(friendBinding.saveFriend, friendBinding.editFriend)
 
         friendBinding.editNameField.putText(friend.name)
         friendBinding.friendEmail.putText(friend.email)
@@ -63,6 +64,7 @@ class FriendViewHolder(
         }
 
         friendBinding.friendCardView.setOnClickListener {
+            hideKeyboard(it)
             listener.onItemClicked(friend)
         }
     }
