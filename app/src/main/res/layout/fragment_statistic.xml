@@ -27,44 +27,17 @@
                 android:orientation="vertical"
                 android:paddingBottom="?android:attr/actionBarSize">
 
-                <com.google.android.material.card.MaterialCardView
+                <include
                     android:id="@+id/cardTotalYears"
-                    style="@style/CardLayoutStyle"
-                    android:layout_height="wrap_content">
+                    layout="@layout/statistic_card" />
 
-                    <com.google.android.material.textview.MaterialTextView
-                        android:id="@+id/totalYearStats"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:textSize="@dimen/stats_text_size"
-                        tools:text="@string/in_this_year_you_drank"/>
-                </com.google.android.material.card.MaterialCardView>
-
-                <com.google.android.material.card.MaterialCardView
+                <include
                     android:id="@+id/cardThisYear"
-                    style="@style/CardLayoutStyle"
-                    android:layout_height="wrap_content">
+                    layout="@layout/statistic_card" />
 
-                    <com.google.android.material.textview.MaterialTextView
-                        android:id="@+id/longestDrinkThisYear"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:textSize="@dimen/stats_text_size"
-                        tools:text="@string/longest_drink_marathon_in_this_year"/>
-                </com.google.android.material.card.MaterialCardView>
-
-                <com.google.android.material.card.MaterialCardView
+                <include
                     android:id="@+id/cardAllTime"
-                    style="@style/CardLayoutStyle"
-                    android:layout_height="wrap_content">
-
-                    <com.google.android.material.textview.MaterialTextView
-                        android:id="@+id/longestDrinkAllTime"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:textSize="@dimen/stats_text_size"
-                        tools:text="@string/longest_drink_marathon_all_time"/>
-                </com.google.android.material.card.MaterialCardView>
+                    layout="@layout/statistic_card" />
             </androidx.appcompat.widget.LinearLayoutCompat>
         </androidx.core.widget.NestedScrollView>
     </androidx.constraintlayout.widget.ConstraintLayout>

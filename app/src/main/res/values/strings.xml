@@ -1,7 +1,6 @@
 <resources>
     <string name="app_name">AlcoCalendar</string>
 
-    <string name="hello_friends_fragment">Hello friends fragment</string>
     <string name="backToDateButton">Back to current date</string>
 
     <string name="january">January</string>
@@ -26,7 +25,6 @@
     <string name="sunday">Sun</string>
 
     <string name="in_this_year_you_drank">In this year you drank </string>
-    <string name="of"> of </string>
     <string name="longest_drink_marathon_in_this_year">Longest drink marathon in this year is </string>
     <string name="longest_drink_marathon_all_time">Longest drink marathon for all time is </string>
 
@@ -53,10 +51,5 @@
     <string name="login_to_see_friends_calendars">Login to see friends calendars</string>
     <string name="days_plural" translatable="false">days</string>
     <string name="day_plural" translatable="false">day</string>
-
-    <plurals name="days">
-        <item quantity="one">@string/day_plural</item>
-        <item quantity="other">@string/days_plural</item>
-    </plurals>
 
 </resources>

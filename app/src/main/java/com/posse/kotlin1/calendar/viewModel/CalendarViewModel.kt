@@ -8,7 +8,6 @@ import com.posse.kotlin1.calendar.model.repository.Repository
 import com.posse.kotlin1.calendar.model.repository.RepositoryFirestoreImpl
 import java.time.LocalDate
 import java.time.Year
-import java.time.temporal.ChronoUnit
 
 private const val THIS_YEAR = true
 private const val ALL_TIME = false
@@ -26,7 +25,6 @@ class CalendarViewModel : ViewModel() {
 
     private fun getSats(dates: Set<LocalDate>?): Map<STATISTIC, Set<LocalDate>> {
         val result = HashMap<STATISTIC, Set<LocalDate>>()
-        result[STATISTIC.DAYS_THIS_YEAR] = getThisYearDaysQuantity()
         result[STATISTIC.DRINK_DAYS_THIS_YEAR] = getDrankDaysQuantity(dates)
         result[STATISTIC.DRINK_MAX_ROW_THIS_YEAR] = getDrinkMarathon(dates, THIS_YEAR)
         result[STATISTIC.DRINK_MAX_ROW_TOTAL] = getDrinkMarathon(dates, ALL_TIME)
@@ -44,18 +42,6 @@ class CalendarViewModel : ViewModel() {
         val currentYear: LocalDate = LocalDate.ofYearDay(Year.now().value, 1)
         dates?.forEach {
             if (!it.isBefore(currentYear)) result.add(it)
-        }
-        return result
-    }
-
-    private fun getThisYearDaysQuantity(): Set<LocalDate> {
-        val result = HashSet<LocalDate>()
-        val days = (ChronoUnit.DAYS.between(
-            LocalDate.ofYearDay(Year.now().value, 1),
-            LocalDate.now()
-        ) + 1).toInt()
-        for (i in 1..days) {
-            result.add(LocalDate.now().plusDays(i.toLong()))
         }
         return result
     }
@@ -95,7 +81,6 @@ class CalendarViewModel : ViewModel() {
 }
 
 enum class STATISTIC {
-    DAYS_THIS_YEAR,
     DRINK_DAYS_THIS_YEAR,
     DRINK_MAX_ROW_THIS_YEAR,
     DRINK_MAX_ROW_TOTAL
