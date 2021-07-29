@@ -3,6 +3,6 @@
     <Transition
         motion:constraintSetEnd="@layout/fragment_settings_end"
         motion:constraintSetStart="@layout/fragment_settings"
-        motion:duration="1000"
+        motion:duration="200"
         motion:motionInterpolator="linear" />
 </MotionScene>
