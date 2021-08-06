@@ -8,6 +8,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentTransaction
 import com.posse.kotlin1.calendar.R
 import com.posse.kotlin1.calendar.databinding.FragmentFriendsBinding
+import com.posse.kotlin1.calendar.view.calendar.CalendarFragment
 import com.posse.kotlin1.calendar.view.friends.list.FriendsListFragment
 
 class FriendsFragment : Fragment() {
@@ -24,7 +25,7 @@ class FriendsFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-//        swapFragment(FriendCalendar)
+        swapFragment(CalendarFragment.newInstance("friend", false))
 
         binding.friendName.setOnClickListener {
             swapFragment(FriendsListFragment.newInstance())

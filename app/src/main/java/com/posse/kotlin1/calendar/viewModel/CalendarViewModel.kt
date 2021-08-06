@@ -37,6 +37,10 @@ class CalendarViewModel : ViewModel() {
 
     fun dayClicked(date: LocalDate) = repository.changeState(date)
 
+    fun setEmail(email: String?) {
+
+    }
+
     private fun getDrankDaysQuantity(dates: Set<LocalDate>?): Set<LocalDate> {
         val result = HashSet<LocalDate>()
         val currentYear: LocalDate = LocalDate.ofYearDay(Year.now().value, 1)

@@ -24,7 +24,7 @@
     <string name="saturday">Sat</string>
     <string name="sunday">Sun</string>
 
-    <string name="in_this_year_you_drank">In this year you drank </string>
+    <string name="in_this_year_you_drank">Days that you drunk in this year</string>
     <string name="longest_drink_marathon_in_this_year">Longest drink marathon in this year is </string>
     <string name="longest_drink_marathon_all_time">Longest drink marathon for all time is </string>
 
@@ -51,5 +51,7 @@
     <string name="login_to_see_friends_calendars">Login to see friends calendars</string>
     <string name="days_plural" translatable="false">days</string>
     <string name="day_plural" translatable="false">day</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 
 </resources>

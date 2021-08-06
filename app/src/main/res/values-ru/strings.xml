@@ -25,9 +25,9 @@
     <string name="saturday">Сб.</string>
     <string name="sunday">Вс.</string>
 
-    <string name="in_this_year_you_drank">"В этом году Вы пили "</string>
-    <string name="longest_drink_marathon_in_this_year">"Самая запойная серия в этом году "</string>
-    <string name="longest_drink_marathon_all_time">"Самая запойная серия за все время "</string>
+    <string name="in_this_year_you_drank">"Пропитые дни в этом году </string>
+    <string name="longest_drink_marathon_in_this_year">"Самая запойная серия в этом году"</string>
+    <string name="longest_drink_marathon_all_time">"Самая запойная серия за все время"</string>
 
     <string name="login_to_sync">Войдите для синхронизации</string>
     <string name="login">Войти</string>

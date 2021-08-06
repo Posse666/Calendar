@@ -33,6 +33,8 @@ import java.time.YearMonth
 import java.time.temporal.WeekFields
 import java.util.*
 
+private const val ARG_MY_CALENDAR = "My calendar"
+private const val ARG_MAIL = "eMail"
 private const val MULTIPLY: Double = 3.5
 private const val BOTTOM_ANIMATION_INTERVAL: Long = 20000
 
@@ -46,6 +48,8 @@ class CalendarFragment : Fragment(), StatisticListener {
     private val clickedDates: HashMap<LocalDate, TextView> = hashMapOf()
     private var actualState: Set<LocalDate> = emptySet()
     private var isInitCompleted: Boolean = false
+    private var email: String? = null
+    private var isMyCalendar = false
     private var isStatsUsed = App.sharedPreferences?.statsUsed ?: false
     private val defaultColor: Int
         get() {
@@ -61,6 +65,14 @@ class CalendarFragment : Fragment(), StatisticListener {
             else circle2
         }
 
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        arguments?.let {
+            email = it.getString(ARG_MAIL)
+            isMyCalendar = it.getBoolean(ARG_MY_CALENDAR)
+        }
+    }
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -74,6 +86,7 @@ class CalendarFragment : Fragment(), StatisticListener {
         binding.calendarLayout.setPadding(0, 0, 0, (getTextSize() * MULTIPLY).toInt())
         setupStatistic()
         setupFAB()
+        viewModel.setEmail(email)
         viewModel.getLiveData()
             .observe(viewLifecycleOwner, {
                 actualState = it
@@ -183,7 +196,7 @@ class CalendarFragment : Fragment(), StatisticListener {
                     textView.putText(day.date.dayOfMonth)
                     if (day.owner == DayOwner.THIS_MONTH) {
                         textView.show()
-                        if (day.date.isBefore(LocalDate.now()) || day.date.isEqual(LocalDate.now())) {
+                        if (isMyCalendar && day.date.isBefore(LocalDate.now()) || day.date.isEqual(LocalDate.now())) {
                             container.view.setOnClickListener {
                                 if (!clickedDates.containsKey(day.date)) {
                                     clickedDates[day.date] = textView
@@ -287,7 +300,12 @@ class CalendarFragment : Fragment(), StatisticListener {
 
     companion object {
         @JvmStatic
-        fun newInstance() = CalendarFragment()
+        fun newInstance(email: String, isMyCalendar: Boolean) = CalendarFragment().apply {
+            arguments = Bundle().apply {
+                putString(ARG_MAIL, email)
+                putBoolean(ARG_MY_CALENDAR, isMyCalendar)
+            }
+        }
     }
 
     override fun cardStatsPressed(date: LocalDate) {

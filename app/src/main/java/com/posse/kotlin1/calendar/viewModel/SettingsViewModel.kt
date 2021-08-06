@@ -4,15 +4,11 @@ import androidx.annotation.StyleRes
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.posse.kotlin1.calendar.app.App
-import com.posse.kotlin1.calendar.model.repository.SettingsRepo
-import com.posse.kotlin1.calendar.model.repository.SettingsRepoImpl
 import com.posse.kotlin1.calendar.utils.THEME
 import com.posse.kotlin1.calendar.utils.lightTheme
 import com.posse.kotlin1.calendar.utils.themeSwitch
 
 class SettingsViewModel : ViewModel() {
-    private val liveData: MutableLiveData<SettingsState> = MutableLiveData()
-    private val settingsRepo: SettingsRepo = SettingsRepoImpl()
     private val lastTheme: MutableLiveData<Int> = MutableLiveData(
         if (App.sharedPreferences?.lightTheme == true) {
             THEME.DAY.themeID
@@ -34,13 +30,7 @@ class SettingsViewModel : ViewModel() {
             switchTheme()
         }
 
-    fun getLiveData() = liveData
-
     fun getLastTheme() = lastTheme
-
-    fun getSettingsState() {
-        liveData.value = settingsRepo.getSettingsState()
-    }
 
     private fun switchTheme() {
         if (App.sharedPreferences?.lightTheme == true) changeTheme(THEME.DAY.themeID)

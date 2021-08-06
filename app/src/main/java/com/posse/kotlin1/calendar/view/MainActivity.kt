@@ -10,8 +10,8 @@ import androidx.fragment.app.FragmentTransaction
 import com.posse.kotlin1.calendar.R
 import com.posse.kotlin1.calendar.databinding.ActivityMainBinding
 import com.posse.kotlin1.calendar.utils.getAppTheme
-import com.posse.kotlin1.calendar.view.calendar.CalendarFragment
 import com.posse.kotlin1.calendar.view.friends.FriendsFragment
+import com.posse.kotlin1.calendar.view.myCalendar.MyCalendarFragment
 import com.posse.kotlin1.calendar.view.settings.SettingsFragment
 import kotlin.system.exitProcess
 
@@ -30,10 +30,10 @@ class MainActivity : AppCompatActivity() {
 
         binding.bottomNavigation.setOnItemSelectedListener { item ->
             when (item.itemId) {
-                R.id.bottomCalendar -> replaceFragment(CalendarFragment.newInstance())
+                R.id.bottomCalendar -> replaceFragment(MyCalendarFragment.newInstance())
                 R.id.bottomFriends -> replaceFragment(FriendsFragment.newInstance())
                 R.id.bottomSettings -> replaceFragment(SettingsFragment.newInstance())
-                else -> replaceFragment(CalendarFragment.newInstance())
+                else -> replaceFragment(MyCalendarFragment.newInstance())
             }
             true
         }
