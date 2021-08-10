@@ -1,13 +1,10 @@
 package com.posse.kotlin1.calendar.model.repository
 
 import android.util.Log
-import android.widget.Toast
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.google.android.gms.tasks.Task
-import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.*
-import com.posse.kotlin1.calendar.app.App
 import com.posse.kotlin1.calendar.model.CalendarDayData
 import com.posse.kotlin1.calendar.utils.convertLocalDateToLong
 import com.posse.kotlin1.calendar.utils.convertLongToLocalDale
@@ -18,48 +15,60 @@ private const val DATE = "Date"
 private const val COLLECTION = "Dates"
 private const val FIELD_USER_EMAIL = "UserEmail"
 
-class RepositoryFirestoreImpl(private var userEmail: String) : Repository {
+object RepositoryFirestoreImpl : Repository {
 
     private val liveDataToObserve: MutableLiveData<HashMap<LocalDate, CalendarDayData>> =
         MutableLiveData()
-    private val firestore: FirebaseFirestore = FirebaseFirestore.getInstance()
+    private val readyData: MutableLiveData<Boolean> = MutableLiveData(false)
     private var collection: CollectionReference? = null
     private val data: HashMap<LocalDate, CalendarDayData> = hashMapOf()
-    private val auth = FirebaseAuth.getInstance()
-    private val user = auth.currentUser
-
-    override fun getLiveData(): LiveData<HashMap<LocalDate, CalendarDayData>> = liveDataToObserve
+    private lateinit var userEmail: String
 
     init {
-        firestore.firestoreSettings = FirebaseFirestoreSettings
+        FirebaseFirestore.getInstance().firestoreSettings = FirebaseFirestoreSettings
             .Builder()
             .setCacheSizeBytes(FirebaseFirestoreSettings.CACHE_SIZE_UNLIMITED)
             .build()
-        collection = firestore.collection(COLLECTION)
+        collection = FirebaseFirestore.getInstance().collection(COLLECTION)
+    }
 
-        if (user == null) {
-            auth.signInAnonymously().addOnCompleteListener {
-                if (it.isSuccessful) {
-                    Log.d("TAG", "signInAnonymously:success")
-                    Toast.makeText(
-                        App.appInstance,
-                        "Authentication successful.",
-                        Toast.LENGTH_SHORT
-                    )
-                        .show()
-                    updateBD(userEmail)
-                } else {
-                    Log.w("TAG", "signInAnonymously:failure", it.exception)
-                    Toast.makeText(App.appInstance, "Authentication failed.", Toast.LENGTH_SHORT)
-                        .show()
+    override fun getLiveData(): LiveData<HashMap<LocalDate, CalendarDayData>> = liveDataToObserve
+
+    override fun isDataReady(): LiveData<Boolean> = readyData
+
+    override fun changeEmail(oldMail: String, newMail: String) {
+        collection?.let { collection ->
+            collection.whereEqualTo(FIELD_USER_EMAIL, oldMail)
+                .orderBy(DATE, Query.Direction.ASCENDING).get()
+                .addOnCompleteListener {
+                    onFetchComplete(it, newMail)
                 }
-            }
-        } else {
-            user.email?.let { updateBD(it) }
+                .addOnFailureListener {
+                    onFetchFailed(it)
+                }
         }
     }
 
-    private fun updateBD(userEmail: String) {
+    private fun onFetchComplete(
+        task: Task<QuerySnapshot>,
+        newMail: String
+    ) {
+        if (task.isSuccessful) {
+            task.result?.forEach { document ->
+                document.reference.update(FIELD_USER_EMAIL, newMail)
+            }
+            updateEmail(newMail)
+        }
+    }
+
+    override fun updateEmail(email: String) {
+        readyData.value = false
+        data.clear()
+        userEmail = email
+        updateDB(email)
+    }
+
+    private fun updateDB(userEmail: String) {
         collection?.let { collection ->
             collection.whereEqualTo(FIELD_USER_EMAIL, userEmail)
                 .orderBy(DATE, Query.Direction.ASCENDING).get()
@@ -83,9 +92,11 @@ class RepositoryFirestoreImpl(private var userEmail: String) : Repository {
             task.result?.forEach { document ->
                 val dateLong = document.getLong(DATE) ?: return@forEach
                 val date = convertLongToLocalDale(dateLong)
+                if (data.containsKey(date)) deleteDate(date)
                 data[date] = (CalendarDayData(document.id, userEmail, dateLong))
             }
             liveDataToObserve.value = data
+            readyData.value = true
         }
     }
 

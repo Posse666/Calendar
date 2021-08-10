@@ -1,11 +1,14 @@
 package com.posse.kotlin1.calendar.view.settings
 
+import android.content.Intent
 import android.content.res.Configuration
 import android.os.Build
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat.getDrawable
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
@@ -29,6 +32,9 @@ class SettingsFragment : Fragment() {
     private val viewModel: SettingsViewModel by lazy {
         ViewModelProvider(this).get(SettingsViewModel::class.java)
     }
+    private val startLogin: ActivityResultLauncher<Intent> = registerForActivityResult(
+        ActivityResultContracts.StartActivityForResult()
+    ) { Account.setAuthResult(it) }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -64,7 +70,7 @@ class SettingsFragment : Fragment() {
     private fun setupLoginButton() {
         binding.loginButton.setOnClickListener {
             isLoginPressed = true
-            account.login(this)
+            account.login(this, startLogin)
         }
     }
 

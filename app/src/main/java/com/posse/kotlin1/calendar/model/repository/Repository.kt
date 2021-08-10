@@ -7,7 +7,13 @@ import java.util.HashMap
 
 interface Repository {
 
+    fun changeEmail(oldMail: String, newMail: String)
+
+    fun updateEmail(email: String)
+
     fun getLiveData(): LiveData<HashMap<LocalDate, CalendarDayData>>
+
+    fun isDataReady(): LiveData<Boolean>
 
     fun changeState(date: LocalDate)
 }

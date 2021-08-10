@@ -14,7 +14,7 @@ private const val ALL_TIME = false
 
 class CalendarViewModel : ViewModel() {
 
-    private val repository: Repository = RepositoryFirestoreImpl("")
+    private val repository: Repository = RepositoryFirestoreImpl
     private val liveDataToObserve: LiveData<Set<LocalDate>> =
         Transformations.map(repository.getLiveData()) {
             liveStatisticToObserve.value = getSats(it.keys)
@@ -22,6 +22,7 @@ class CalendarViewModel : ViewModel() {
         }
     private val liveStatisticToObserve: MutableLiveData<Map<STATISTIC, Set<LocalDate>>> =
         MutableLiveData()
+    private val readyData: LiveData<Boolean> = Transformations.map(repository.isDataReady()) { it }
 
     private fun getSats(dates: Set<LocalDate>?): Map<STATISTIC, Set<LocalDate>> {
         val result = HashMap<STATISTIC, Set<LocalDate>>()
@@ -33,12 +34,14 @@ class CalendarViewModel : ViewModel() {
 
     fun getLiveData() = liveDataToObserve
 
+    fun isDataReady() = readyData
+
     fun getLiveStats() = liveStatisticToObserve
 
     fun dayClicked(date: LocalDate) = repository.changeState(date)
 
-    fun setEmail(email: String?) {
-
+    fun setEmail(email: String) {
+        repository.updateEmail(email)
     }
 
     private fun getDrankDaysQuantity(dates: Set<LocalDate>?): Set<LocalDate> {

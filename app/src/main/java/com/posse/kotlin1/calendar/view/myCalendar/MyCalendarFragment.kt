@@ -13,7 +13,6 @@ import com.posse.kotlin1.calendar.view.calendar.CalendarFragment
 class MyCalendarFragment : Fragment() {
     private var _binding: FragmentMyCalendarBinding? = null
     private val binding get() = _binding!!
-    private var email = ""
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -25,12 +24,13 @@ class MyCalendarFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        email = Account.getEmail()
-        childFragmentManager
-            .beginTransaction()
-            .setReorderingAllowed(true)
-            .replace(R.id.myCalendarContainer, CalendarFragment.newInstance(email, true))
-            .commit()
+        Account.getEmail { email: String ->
+            childFragmentManager
+                .beginTransaction()
+                .setReorderingAllowed(true)
+                .replace(R.id.myCalendarContainer, CalendarFragment.newInstance(email, true))
+                .commit()
+        }
     }
 
     override fun onDestroyView() {

@@ -49,9 +49,6 @@
     <string name="settings_bottom">Settings</string>
     <string name="back_again_to_exit">Press \"Back\" again to exit</string>
     <string name="login_to_see_friends_calendars">Login to see friends calendars</string>
-    <string name="days_plural" translatable="false">days</string>
-    <string name="day_plural" translatable="false">day</string>
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="authentication_failed">Authentication failed. Please restart Application</string>
 
 </resources>

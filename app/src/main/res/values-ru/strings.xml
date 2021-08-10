@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-    <resources xmlns:tools="http://schemas.android.com/tools">
+<resources>
     <string name="app_name">АлкоКалендарь</string>
 
     <string name="backToDateButton">Вернуться на текущую дату</string>
@@ -49,5 +49,6 @@
     <string name="settings_bottom">Настройки</string>
     <string name="back_again_to_exit">Нажмите \"Назад\" еще раз для выхода</string>
     <string name="login_to_see_friends_calendars">Войдите чтобы увидеть календари друзей</string>
+    <string name="authentication_failed">Ошибка входа! Перезапустите приложение!</string>
 
 </resources>
