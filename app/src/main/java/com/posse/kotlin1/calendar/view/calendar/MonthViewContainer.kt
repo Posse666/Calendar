@@ -26,6 +26,9 @@ class MonthViewContainer(view: View) : ViewContainer(view) {
                 )
             dayText.gravity = Gravity.CENTER
             dayText.textSize = 20f
+            if (it == Days.SATURDAY || it == Days.SUNDAY) {
+                dayText.setTextColor(context.getColor(R.color.fillColor))
+            }
             dayText.putText(context.getString(it.dayResource))
             daysLayout.addView(dayText)
         }

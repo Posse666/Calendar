@@ -143,7 +143,7 @@ class SettingsFragment : Fragment() {
         )
         when (settingsState) {
             is SettingsState.LoggedIn -> {
-                binding.loginButton.hide()
+                binding.loginButton.disappear()
                 binding.logoutButton.show()
                 settingsState.userEmail?.let { binding.userEmail.putText(it) }
                 Picasso.get()
@@ -158,7 +158,7 @@ class SettingsFragment : Fragment() {
             }
             SettingsState.LoggedOut -> {
                 binding.loginButton.show()
-                binding.logoutButton.hide()
+                binding.logoutButton.disappear()
                 binding.userEmail.putText(getString(R.string.login_to_sync))
                 binding.userLogo.setImageDrawable(defaultPicture)
                 if (isLoginPressed) binding.motionSettings.transitionToStart()

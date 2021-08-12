@@ -51,6 +51,7 @@
     <string name="settings_bottom">Настройки</string>
     <string name="back_again_to_exit">Нажмите \"Назад\" еще раз для выхода</string>
 
+
     <plurals name="days" tools:ignore="ImpliedQuantity">
         <item quantity="one">день</item>
         <item quantity="few">дня</item>

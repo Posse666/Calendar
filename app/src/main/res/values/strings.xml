@@ -51,10 +51,12 @@
     <string name="settings_bottom">Settings</string>
     <string name="back_again_to_exit">Press \"Back\" again to exit</string>
     <string name="login_to_see_friends_calendars">Login to see friends calendars</string>
+    <string name="days_plural" translatable="false">days</string>
+    <string name="day_plural" translatable="false">day</string>
 
     <plurals name="days">
-        <item quantity="one">day</item>
-        <item quantity="other">days</item>
+        <item quantity="one">@string/day_plural</item>
+        <item quantity="other">@string/days_plural</item>
     </plurals>
 
 </resources>

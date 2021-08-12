@@ -17,28 +17,27 @@
         app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior"
         tools:visibility="visible">
 
-        <ScrollView
+        <androidx.core.widget.NestedScrollView
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="parent">
+            android:layout_height="match_parent">
 
             <androidx.appcompat.widget.LinearLayoutCompat
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:paddingBottom="?android:attr/actionBarSize"
-                tools:context=".view.StatisticFragment">
+                android:paddingBottom="?android:attr/actionBarSize">
 
                 <com.google.android.material.card.MaterialCardView
-                    android:id="@+id/cardTotal"
+                    android:id="@+id/cardTotalYears"
                     style="@style/CardLayoutStyle"
                     android:layout_height="wrap_content">
 
-                    <include
+                    <com.google.android.material.textview.MaterialTextView
                         android:id="@+id/totalYearStats"
-                        layout="@layout/main_stats" />
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:textSize="@dimen/stats_text_size"
+                        tools:text="@string/in_this_year_you_drank"/>
                 </com.google.android.material.card.MaterialCardView>
 
                 <com.google.android.material.card.MaterialCardView
@@ -46,9 +45,12 @@
                     style="@style/CardLayoutStyle"
                     android:layout_height="wrap_content">
 
-                    <include
+                    <com.google.android.material.textview.MaterialTextView
                         android:id="@+id/longestDrinkThisYear"
-                        layout="@layout/main_stats" />
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:textSize="@dimen/stats_text_size"
+                        tools:text="@string/longest_drink_marathon_in_this_year"/>
                 </com.google.android.material.card.MaterialCardView>
 
                 <com.google.android.material.card.MaterialCardView
@@ -56,11 +58,14 @@
                     style="@style/CardLayoutStyle"
                     android:layout_height="wrap_content">
 
-                    <include
+                    <com.google.android.material.textview.MaterialTextView
                         android:id="@+id/longestDrinkAllTime"
-                        layout="@layout/main_stats" />
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:textSize="@dimen/stats_text_size"
+                        tools:text="@string/longest_drink_marathon_all_time"/>
                 </com.google.android.material.card.MaterialCardView>
             </androidx.appcompat.widget.LinearLayoutCompat>
-        </ScrollView>
+        </androidx.core.widget.NestedScrollView>
     </androidx.constraintlayout.widget.ConstraintLayout>
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
