@@ -1,137 +1,94 @@
 package com.posse.kotlin1.calendar.model.repository
 
 import android.util.Log
-import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import com.google.android.gms.tasks.Task
-import com.google.firebase.firestore.*
-import com.posse.kotlin1.calendar.model.CalendarDayData
+import com.google.firebase.firestore.DocumentSnapshot
+import com.google.firebase.firestore.FieldValue
+import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.SetOptions
 import com.posse.kotlin1.calendar.utils.convertLocalDateToLong
 import com.posse.kotlin1.calendar.utils.convertLongToLocalDale
 import java.time.LocalDate
 import java.util.*
 
-private const val DATE = "Date"
-private const val COLLECTION = "Dates"
-private const val FIELD_USER_EMAIL = "UserEmail"
+private const val DATES = "Dates"
 
-object RepositoryFirestoreImpl : Repository {
+object RepositoryFirestoreImpl : BaseRepoImpl(), Repository {
+    private val data: HashSet<LocalDate> = hashSetOf()
+    private lateinit var oldEmail: String
+    private val liveDataToObserve: MutableLiveData<HashSet<LocalDate>> = MutableLiveData()
 
-    private val liveDataToObserve: MutableLiveData<HashMap<LocalDate, CalendarDayData>> =
-        MutableLiveData()
-    private val readyData: MutableLiveData<Boolean> = MutableLiveData(false)
-    private var collection: CollectionReference? = null
-    private val data: HashMap<LocalDate, CalendarDayData> = hashMapOf()
-    private lateinit var userEmail: String
+    override fun getLiveData() = liveDataToObserve
 
-    init {
-        FirebaseFirestore.getInstance().firestoreSettings = FirebaseFirestoreSettings
-            .Builder()
-            .setCacheSizeBytes(FirebaseFirestoreSettings.CACHE_SIZE_UNLIMITED)
-            .build()
-        collection = FirebaseFirestore.getInstance().collection(COLLECTION)
+    override fun mergeData(newMail: String) {
+        updateDB(newMail, true)
     }
 
-    override fun getLiveData(): LiveData<HashMap<LocalDate, CalendarDayData>> = liveDataToObserve
-
-    override fun isDataReady(): LiveData<Boolean> = readyData
-
-    override fun changeEmail(oldMail: String, newMail: String) {
-        collection?.let { collection ->
-            collection.whereEqualTo(FIELD_USER_EMAIL, oldMail)
-                .orderBy(DATE, Query.Direction.ASCENDING).get()
-                .addOnCompleteListener {
-                    onFetchComplete(it, newMail)
-                }
-                .addOnFailureListener {
-                    onFetchFailed(it)
-                }
-        }
+    override fun switchCollection(email: String) {
+        oldEmail = email
+        updateDB(email, false)
     }
 
-    private fun onFetchComplete(
-        task: Task<QuerySnapshot>,
-        newMail: String
-    ) {
-        if (task.isSuccessful) {
-            task.result?.forEach { document ->
-                document.reference.update(FIELD_USER_EMAIL, newMail)
-            }
-            updateEmail(newMail)
-        }
-    }
-
-    override fun updateEmail(email: String) {
+    private fun updateDB(userEmail: String, merge: Boolean) {
         readyData.value = false
-        data.clear()
-        userEmail = email
-        updateDB(email)
-    }
-
-    private fun updateDB(userEmail: String) {
-        collection?.let { collection ->
-            collection.whereEqualTo(FIELD_USER_EMAIL, userEmail)
-                .orderBy(DATE, Query.Direction.ASCENDING).get()
-                .addOnCompleteListener {
-                    onFetchComplete(it)
+        document = FirebaseFirestore.getInstance().collection(userEmail).document(DATES)
+        document?.let { document ->
+            document
+                .get()
+                .addOnSuccessListener {
+                    onFetchComplete(it, merge)
                 }
                 .addOnFailureListener {
-                    onFetchFailed(it)
+                    Log.e("Firestore", it.toString())
                 }
         }
     }
 
-    private fun onFetchFailed(exception: Exception) {
-        Log.e("Firestore", exception.toString())
-    }
-
-    private fun onFetchComplete(
-        task: Task<QuerySnapshot>
-    ) {
-        if (task.isSuccessful) {
-            task.result?.forEach { document ->
-                val dateLong = document.getLong(DATE) ?: return@forEach
-                val date = convertLongToLocalDale(dateLong)
-                if (data.containsKey(date)) deleteDate(date)
-                data[date] = (CalendarDayData(document.id, userEmail, dateLong))
-            }
-            liveDataToObserve.value = data
-            readyData.value = true
+    private fun onFetchComplete(documentSnapshot: DocumentSnapshot, merge: Boolean) {
+        val dates: HashSet<LocalDate> = hashSetOf()
+        documentSnapshot.data?.forEach {
+            dates.add(convertLongToLocalDale(it.value as Long))
         }
+        if (merge) {
+            data.forEach {
+                document?.set(
+                    hashMapOf(it.toString() to convertLocalDateToLong(it)),
+                    SetOptions.merge()
+                )
+            }
+            dates.addAll(data)
+            FirebaseFirestore.getInstance().collection(oldEmail).document(DATES).delete()
+        }
+        data.clear()
+        data.addAll(dates)
+        liveDataToObserve.value = data
+        readyData.value = true
     }
 
     override fun changeState(date: LocalDate) {
-        if (!checkDate(date))
-            collection?.let {
-                it.add(getFields(getCalendarDayData(date)))
-                data[date] = (CalendarDayData(it.id, userEmail, convertLocalDateToLong(date)))
-                liveDataToObserve.value = data
-            }
-        else {
+        if (!checkDate(date)) {
+            addDate(date)
+        } else {
             deleteDate(date)
         }
     }
 
+    private fun addDate(date: LocalDate) {
+        data.add(date)
+        document?.set(
+            hashMapOf(date.toString() to convertLocalDateToLong(date)),
+            SetOptions.merge()
+        )
+        liveDataToObserve.value = data
+    }
+
     private fun deleteDate(date: LocalDate) {
-        data[date]?.let {
-            collection?.document(it.id)?.delete()
-            data.remove(date)
-            liveDataToObserve.value = data
-        }
-    }
-
-    private fun getCalendarDayData(date: LocalDate): CalendarDayData {
-        return CalendarDayData("", userEmail, convertLocalDateToLong(date))
-    }
-
-    private fun getFields(calendarDayData: CalendarDayData): Map<String, Any> {
-        val fields = HashMap<String, Any>()
-        fields[DATE] = calendarDayData.date
-        fields[FIELD_USER_EMAIL] = calendarDayData.email
-        return Collections.unmodifiableMap(fields)
+        data.remove(date)
+        document?.update(hashMapOf<String, Any>(date.toString() to FieldValue.delete()))
+        liveDataToObserve.value = data
     }
 
     private fun checkDate(date: LocalDate): Boolean {
-        return data.containsKey(date)
+        return data.contains(date)
     }
 }

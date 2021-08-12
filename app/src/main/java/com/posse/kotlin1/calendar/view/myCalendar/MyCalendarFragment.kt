@@ -24,14 +24,18 @@ class MyCalendarFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        Account.getEmail { email: String ->
-            childFragmentManager
-                .beginTransaction()
-                .setReorderingAllowed(true)
-                .replace(R.id.myCalendarContainer, CalendarFragment.newInstance(email, true))
-                .commit()
+        val mail = Account.getEmail()
+        if (mail != null) swapFragment(mail)
+        else Account.anonymousLogin { email: String ->
+            swapFragment(email)
         }
     }
+
+    private fun swapFragment(email: String) = childFragmentManager
+        .beginTransaction()
+        .setReorderingAllowed(true)
+        .replace(R.id.myCalendarContainer, CalendarFragment.newInstance(email, true))
+        .commit()
 
     override fun onDestroyView() {
         super.onDestroyView()

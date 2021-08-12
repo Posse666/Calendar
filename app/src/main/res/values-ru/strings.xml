@@ -50,5 +50,10 @@
     <string name="back_again_to_exit">Нажмите \"Назад\" еще раз для выхода</string>
     <string name="login_to_see_friends_calendars">Войдите чтобы увидеть календари друзей</string>
     <string name="authentication_failed">Ошибка входа! Перезапустите приложение!</string>
+    <string name="select_friend">Выберите друга</string>
+    <string name="nobody_shared">Похоже, что никто не поделся с Вами календарем</string>
+    <string name="block_this_person">Заблокировать</string>
+    <string name="delete_text">Точно удалить</string>
+    <string name="delete">Удалить</string>
 
 </resources>

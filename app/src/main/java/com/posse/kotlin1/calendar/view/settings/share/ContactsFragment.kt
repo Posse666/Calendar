@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.WindowManager
 import androidx.fragment.app.DialogFragment
 import com.posse.kotlin1.calendar.databinding.FragmentContactsBinding
 import com.posse.kotlin1.calendar.utils.add
@@ -33,7 +34,7 @@ class ContactsFragment : DialogFragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        setWindowSize(this)
+        setWindowSize(this, WindowManager.LayoutParams.MATCH_PARENT)
         isCancelable = true
         binding.btnSave.setOnClickListener {
             dismiss()

@@ -18,7 +18,7 @@ import kotlin.system.exitProcess
 private const val KEY_SELECTED = "Selected item"
 private const val BACK_BUTTON_EXIT_DELAY = 3000
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity(), SettingsTabSwitcher {
     private val binding: ActivityMainBinding by lazy { ActivityMainBinding.inflate(layoutInflater) }
     private var isBackShown = false
     private var lastTimeBackPressed: Long = 0
@@ -74,4 +74,12 @@ class MainActivity : AppCompatActivity() {
         }
         isBackShown = true
     }
+
+    override fun switchToSettings() {
+        binding.bottomNavigation.selectedItemId = R.id.bottomSettings
+    }
+}
+
+interface SettingsTabSwitcher{
+    fun switchToSettings()
 }

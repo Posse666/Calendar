@@ -1,19 +1,28 @@
 package com.posse.kotlin1.calendar.view.friends
 
+import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentTransaction
+import androidx.fragment.app.activityViewModels
 import com.posse.kotlin1.calendar.R
 import com.posse.kotlin1.calendar.databinding.FragmentFriendsBinding
+import com.posse.kotlin1.calendar.utils.Account
+import com.posse.kotlin1.calendar.utils.putText
+import com.posse.kotlin1.calendar.view.SettingsTabSwitcher
 import com.posse.kotlin1.calendar.view.calendar.CalendarFragment
 import com.posse.kotlin1.calendar.view.friends.list.FriendsListFragment
+import com.posse.kotlin1.calendar.viewModel.FriendsViewModel
 
 class FriendsFragment : Fragment() {
     private var _binding: FragmentFriendsBinding? = null
     private val binding get() = _binding!!
+    private var settingsTabSwitcher: SettingsTabSwitcher? = null
+    private var friendsListFragment: FriendsListFragment? = null
+    private val viewModel: FriendsViewModel by activityViewModels()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -25,10 +34,42 @@ class FriendsFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        swapFragment(CalendarFragment.newInstance("friend", false))
-
-        binding.friendName.setOnClickListener {
-            swapFragment(FriendsListFragment.newInstance())
+        val myMail = Account.getEmail()
+        if (myMail != null && myMail.contains("@")) {
+            viewModel.setEmail(myMail)
+            viewModel.isDataReady().observe(viewLifecycleOwner, { dataReady ->
+                if (dataReady) {
+                    viewModel.getLiveData().observe(viewLifecycleOwner, { friends ->
+                        friendsListFragment?.let {
+                            childFragmentManager
+                                .beginTransaction()
+                                .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE)
+                                .setReorderingAllowed(true)
+                                .remove(it)
+                                .commit()
+                        }
+                        friendsListFragment = null
+                        binding.friendName.putText(getString(R.string.select_friend))
+                        friends.forEach { friend ->
+                            if (friend.isSelected) {
+                                binding.friendName.putText(friend.name)
+                                swapFragment(CalendarFragment.newInstance(friend.email, false))
+                            }
+                        }
+                        binding.friendsCard.setOnClickListener {
+                            if (friendsListFragment == null || !friendsListFragment!!.isVisible) {
+                                friendsListFragment = FriendsListFragment.newInstance()
+                                swapFragment(friendsListFragment!!)
+                            }
+                        }
+                    })
+                }
+            })
+        } else {
+            binding.friendName.putText(getString(R.string.login_to_see_friends_calendars))
+            binding.friendsCard.setOnClickListener {
+                settingsTabSwitcher?.switchToSettings()
+            }
         }
     }
 
@@ -38,13 +79,19 @@ class FriendsFragment : Fragment() {
             .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE)
             .setReorderingAllowed(true)
             .replace(R.id.friendsMainFragment, fragment)
-            .addToBackStack(null)
             .commit()
+    }
+
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        settingsTabSwitcher = context as SettingsTabSwitcher
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
+        settingsTabSwitcher = null
+        friendsListFragment = null
     }
 
     companion object {

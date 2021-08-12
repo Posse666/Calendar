@@ -13,7 +13,7 @@ class DiffUtilCallback(
     override fun getNewListSize(): Int = newItems.size
 
     override fun areItemsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean =
-        oldItems[oldItemPosition].id == newItems[newItemPosition].id
+        oldItems[oldItemPosition].email == newItems[newItemPosition].email
 
     override fun areContentsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean =
         oldItems[oldItemPosition].isSelected == newItems[newItemPosition].isSelected

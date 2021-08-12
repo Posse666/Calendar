@@ -3,7 +3,6 @@ package com.posse.kotlin1.calendar.viewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Transformations
-import androidx.lifecycle.ViewModel
 import com.posse.kotlin1.calendar.model.repository.Repository
 import com.posse.kotlin1.calendar.model.repository.RepositoryFirestoreImpl
 import java.time.LocalDate
@@ -12,17 +11,15 @@ import java.time.Year
 private const val THIS_YEAR = true
 private const val ALL_TIME = false
 
-class CalendarViewModel : ViewModel() {
-
-    private val repository: Repository = RepositoryFirestoreImpl
-    private val liveDataToObserve: LiveData<Set<LocalDate>> =
-        Transformations.map(repository.getLiveData()) {
-            liveStatisticToObserve.value = getSats(it.keys)
-            it.keys
+class CalendarViewModel : BaseViewModel() {
+    override val repository: Repository = RepositoryFirestoreImpl
+    private val liveDataToObserve: LiveData<Set<LocalDate>>
+        get() = Transformations.map(repository.getLiveData()) {
+            liveStatisticToObserve.value = getSats(it)
+            it
         }
     private val liveStatisticToObserve: MutableLiveData<Map<STATISTIC, Set<LocalDate>>> =
         MutableLiveData()
-    private val readyData: LiveData<Boolean> = Transformations.map(repository.isDataReady()) { it }
 
     private fun getSats(dates: Set<LocalDate>?): Map<STATISTIC, Set<LocalDate>> {
         val result = HashMap<STATISTIC, Set<LocalDate>>()
@@ -34,15 +31,9 @@ class CalendarViewModel : ViewModel() {
 
     fun getLiveData() = liveDataToObserve
 
-    fun isDataReady() = readyData
-
     fun getLiveStats() = liveStatisticToObserve
 
     fun dayClicked(date: LocalDate) = repository.changeState(date)
-
-    fun setEmail(email: String) {
-        repository.updateEmail(email)
-    }
 
     private fun getDrankDaysQuantity(dates: Set<LocalDate>?): Set<LocalDate> {
         val result = HashSet<LocalDate>()

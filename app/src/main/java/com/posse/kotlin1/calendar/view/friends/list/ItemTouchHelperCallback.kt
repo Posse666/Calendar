@@ -31,7 +31,7 @@ class ItemTouchHelperCallback(private val adapter: FriendListRecyclerAdapter) :
         source: RecyclerView.ViewHolder,
         target: RecyclerView.ViewHolder
     ): Boolean {
-        adapter.onItemMove(source.adapterPosition, target.adapterPosition)
+        adapter.onItemMove(source.bindingAdapterPosition, target.bindingAdapterPosition)
         return true
     }
 

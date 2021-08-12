@@ -39,12 +39,9 @@ object Account {
         if (result.resultCode == Activity.RESULT_OK) {
             val task = GoogleSignIn.getSignedInAccountFromIntent(result.data)
             try {
-                val oldMail = getAvailableMail()
                 googleAccount = task.getResult(ApiException::class.java)
                 googleAccount?.email?.let {
-                    if (oldMail != null && oldMail != it) {
-                        repository.changeEmail(oldMail, it)
-                    }
+                    repository.mergeData(it)
                 }
             } catch (e: ApiException) {
                 Log.w("login", "signInResult:failed code=" + e.statusCode)
@@ -83,13 +80,13 @@ object Account {
         anonymousLogin { getAccountState() }
     }
 
-    fun getEmail(callback: (String) -> Unit) {
-        val email = getAvailableMail()
-        if (email == null) anonymousLogin(callback)
-        else callback.invoke(email)
+    fun getEmail(): String? {
+        var email = googleAccount?.email ?: FirebaseAuth.getInstance().currentUser?.email
+        if (email == "" || email == null) email = FirebaseAuth.getInstance().currentUser?.uid
+        return email
     }
 
-    private fun anonymousLogin(callback: (String) -> Unit) {
+    fun anonymousLogin(callback: (String) -> Unit) {
         FirebaseAuth.getInstance().signInAnonymously().addOnCompleteListener {
             if (it.isSuccessful) {
                 Log.d("TAG", "signInAnonymously:success")
