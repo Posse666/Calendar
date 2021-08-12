@@ -33,6 +33,8 @@ import java.time.YearMonth
 import java.time.temporal.WeekFields
 import java.util.*
 
+private const val ARG_MY_CALENDAR = "My calendar"
+private const val ARG_MAIL = "eMail"
 private const val MULTIPLY: Double = 3.5
 private const val BOTTOM_ANIMATION_INTERVAL: Long = 20000
 
@@ -46,6 +48,8 @@ class CalendarFragment : Fragment(), StatisticListener {
     private val clickedDates: HashMap<LocalDate, TextView> = hashMapOf()
     private var actualState: Set<LocalDate> = emptySet()
     private var isInitCompleted: Boolean = false
+    private lateinit var email: String
+    private var isMyCalendar = false
     private var isStatsUsed = App.sharedPreferences?.statsUsed ?: false
     private val defaultColor: Int
         get() {
@@ -55,11 +59,20 @@ class CalendarFragment : Fragment(), StatisticListener {
             a?.recycle()
             return result
         }
+
     private val circle =
         { circle: CircleType, circle2: CircleType, date: LocalDate ->
             if (date == LocalDate.now()) circle
             else circle2
         }
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        arguments?.let {
+            email = it.getString(ARG_MAIL)!!
+            isMyCalendar = it.getBoolean(ARG_MY_CALENDAR)
+        }
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -74,11 +87,15 @@ class CalendarFragment : Fragment(), StatisticListener {
         binding.calendarLayout.setPadding(0, 0, 0, (getTextSize() * MULTIPLY).toInt())
         setupStatistic()
         setupFAB()
-        viewModel.getLiveData()
-            .observe(viewLifecycleOwner, {
-                actualState = it
-                if (!isInitCompleted) updateCalendar()
-            })
+        viewModel.setEmail(email)
+        viewModel.isDataReady().observe(viewLifecycleOwner, { dataReady ->
+            if (dataReady && !isInitCompleted)
+                viewModel.getLiveData()
+                    .observe(viewLifecycleOwner, { set ->
+                        actualState = set
+                        if (!isInitCompleted) updateCalendar()
+                    })
+        })
     }
 
     private fun setupStatistic() {
@@ -152,8 +169,7 @@ class CalendarFragment : Fragment(), StatisticListener {
     private fun updateCalendar() {
         binding.loadingLayout.show()
         val currentMonth = YearMonth.now()
-
-        var firstMonth = currentMonth.minusMonths(12)
+        var firstMonth = if (isMyCalendar) currentMonth.minusMonths(12) else currentMonth
         if (actualState.isNotEmpty()) {
             val minMonth = YearMonth.from(Collections.min(actualState))
             if (minMonth.isBefore(firstMonth)) {
@@ -183,7 +199,9 @@ class CalendarFragment : Fragment(), StatisticListener {
                     textView.putText(day.date.dayOfMonth)
                     if (day.owner == DayOwner.THIS_MONTH) {
                         textView.show()
-                        if (day.date.isBefore(LocalDate.now()) || day.date.isEqual(LocalDate.now())) {
+                        if (isMyCalendar
+                            && (day.date.isBefore(LocalDate.now()) || day.date.isEqual(LocalDate.now()))
+                        ) {
                             container.view.setOnClickListener {
                                 if (!clickedDates.containsKey(day.date)) {
                                     clickedDates[day.date] = textView
@@ -280,6 +298,11 @@ class CalendarFragment : Fragment(), StatisticListener {
         return defaultColor
     }
 
+    override fun cardStatsPressed(date: LocalDate) {
+        bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
+        calendarView.smoothScrollToMonth(YearMonth.from(date))
+    }
+
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
@@ -287,15 +310,11 @@ class CalendarFragment : Fragment(), StatisticListener {
 
     companion object {
         @JvmStatic
-        fun newInstance() = CalendarFragment()
-    }
-
-    override fun cardStatsPressed(date: LocalDate) {
-        scrollToDate(date)
-    }
-
-    private fun scrollToDate(date: LocalDate) {
-        bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
-        calendarView.smoothScrollToMonth(YearMonth.from(date))
+        fun newInstance(email: String, isMyCalendar: Boolean) = CalendarFragment().apply {
+            arguments = Bundle().apply {
+                putString(ARG_MAIL, email)
+                putBoolean(ARG_MY_CALENDAR, isMyCalendar)
+            }
+        }
     }
 }

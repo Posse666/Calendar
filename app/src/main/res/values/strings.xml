@@ -1,7 +1,6 @@
 <resources>
     <string name="app_name">AlcoCalendar</string>
 
-    <string name="hello_friends_fragment">Hello friends fragment</string>
     <string name="backToDateButton">Back to current date</string>
 
     <string name="january">January</string>
@@ -25,8 +24,7 @@
     <string name="saturday">Sat</string>
     <string name="sunday">Sun</string>
 
-    <string name="in_this_year_you_drank">In this year you drank </string>
-    <string name="of"> of </string>
+    <string name="in_this_year_you_drank">Days that you drunk in this year</string>
     <string name="longest_drink_marathon_in_this_year">Longest drink marathon in this year is </string>
     <string name="longest_drink_marathon_all_time">Longest drink marathon for all time is </string>
 
@@ -51,12 +49,11 @@
     <string name="settings_bottom">Settings</string>
     <string name="back_again_to_exit">Press \"Back\" again to exit</string>
     <string name="login_to_see_friends_calendars">Login to see friends calendars</string>
-    <string name="days_plural" translatable="false">days</string>
-    <string name="day_plural" translatable="false">day</string>
-
-    <plurals name="days">
-        <item quantity="one">@string/day_plural</item>
-        <item quantity="other">@string/days_plural</item>
-    </plurals>
+    <string name="authentication_failed">Authentication failed. Please restart Application</string>
+    <string name="select_friend">Select friend</string>
+    <string name="nobody_shared">Seems like nobody shared calendar with you</string>
+    <string name="block_this_person">Block</string>
+    <string name="delete_text">Are you sure you want delete</string>
+    <string name="delete">Delete</string>
 
 </resources>

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-    <resources xmlns:tools="http://schemas.android.com/tools">
+<resources>
     <string name="app_name">АлкоКалендарь</string>
 
     <string name="backToDateButton">Вернуться на текущую дату</string>
@@ -25,11 +25,9 @@
     <string name="saturday">Сб.</string>
     <string name="sunday">Вс.</string>
 
-    <string name="hello_friends_fragment">Тут будет календарь друзей</string>
-    <string name="in_this_year_you_drank">"В этом году Вы пили "</string>
-    <string name="of">" из "</string>
-    <string name="longest_drink_marathon_in_this_year">"Самая запойная серия в этом году "</string>
-    <string name="longest_drink_marathon_all_time">"Самая запойная серия за все время "</string>
+    <string name="in_this_year_you_drank">"Пропитые дни в этом году </string>
+    <string name="longest_drink_marathon_in_this_year">"Самая запойная серия в этом году"</string>
+    <string name="longest_drink_marathon_all_time">"Самая запойная серия за все время"</string>
 
     <string name="login_to_sync">Войдите для синхронизации</string>
     <string name="login">Войти</string>
@@ -50,14 +48,12 @@
     <string name="friends_bottom">Друзья</string>
     <string name="settings_bottom">Настройки</string>
     <string name="back_again_to_exit">Нажмите \"Назад\" еще раз для выхода</string>
-
-
-    <plurals name="days" tools:ignore="ImpliedQuantity">
-        <item quantity="one">день</item>
-        <item quantity="few">дня</item>
-        <item quantity="many">дней</item>
-        <item quantity="other">дней</item>
-    </plurals>
     <string name="login_to_see_friends_calendars">Войдите чтобы увидеть календари друзей</string>
+    <string name="authentication_failed">Ошибка входа! Перезапустите приложение!</string>
+    <string name="select_friend">Выберите друга</string>
+    <string name="nobody_shared">Похоже, что никто не поделся с Вами календарем</string>
+    <string name="block_this_person">Заблокировать</string>
+    <string name="delete_text">Точно удалить</string>
+    <string name="delete">Удалить</string>
 
 </resources>

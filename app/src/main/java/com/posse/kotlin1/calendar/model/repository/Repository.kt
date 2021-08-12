@@ -1,13 +1,13 @@
 package com.posse.kotlin1.calendar.model.repository
 
 import androidx.lifecycle.LiveData
-import com.posse.kotlin1.calendar.model.CalendarDayData
 import java.time.LocalDate
-import java.util.HashMap
 
-interface Repository {
+interface Repository : BaseRepo {
 
-    fun getLiveData(): LiveData<HashMap<LocalDate, CalendarDayData>>
+    fun mergeData(newMail: String)
+
+    fun getLiveData(): LiveData<HashSet<LocalDate>>
 
     fun changeState(date: LocalDate)
 }

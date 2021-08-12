@@ -7,7 +7,6 @@ import android.graphics.drawable.GradientDrawable
 import androidx.core.content.res.ResourcesCompat
 import com.posse.kotlin1.calendar.R
 
-
 object Background {
     private const val PADDING: Int = 5
     private val circleSize: Int =

@@ -28,44 +28,72 @@ class FriendViewHolder(
     private val inputMethodManager =
         activity.getSystemService(android.content.Context.INPUT_METHOD_SERVICE) as InputMethodManager
 
-    @SuppressLint("ClickableViewAccessibility")
     fun bind(friend: Friend) {
         setTouchResponse(null, null)
         switchElements(friendBinding.saveFriend, friendBinding.editFriend)
+        setupViewText(friend)
+        setupCheckedView(friend)
+        setupDragListener()
+        setupEditButton()
+        setupSaveButton(friend)
+        setupCardClickListener(friend)
+        setupDeleteButton(friend)
+    }
 
+    private fun setupDeleteButton(friend: Friend) {
+        friendBinding.deleteFriend.setOnClickListener {
+            listener.deleteItem(friend)
+        }
+    }
+
+    private fun setupViewText(friend: Friend) {
         friendBinding.editNameField.putText(friend.name)
         friendBinding.friendEmail.putText(friend.email)
+    }
 
+    private fun setupCheckedView(friend: Friend) {
         friendBinding.friendChecked.setImageResource(
             if (friend.isSelected) android.R.drawable.radiobutton_on_background
             else android.R.drawable.radiobutton_off_background
         )
+    }
 
+    @SuppressLint("ClickableViewAccessibility")
+    private fun setupDragListener() {
         friendBinding.dragHandleFriend.setOnTouchListener { _, event ->
             if (event.actionMasked == MotionEvent.ACTION_DOWN) {
                 dragListener.onStartDrag(this)
             }
             false
         }
+    }
 
+    private fun setupCardClickListener(friend: Friend) {
+        friendBinding.friendCardView.setOnClickListener {
+            hideKeyboard(it)
+            friend.isSelected = true
+            listener.saveItem(friend)
+        }
+    }
+
+    private fun setupSaveButton(friend: Friend) {
+        friendBinding.saveFriend.setOnClickListener {
+            switchElements(it, friendBinding.editFriend)
+            friendBinding.editNameField.removeFocus()
+            setTouchResponse(null, null)
+            hideKeyboard(it)
+            friend.name = friendBinding.editNameField.text.toString()
+            listener.saveItem(friend)
+        }
+    }
+
+    private fun setupEditButton() {
         friendBinding.editFriend.setOnClickListener {
             switchElements(it, friendBinding.saveFriend)
             friendBinding.editNameField.setFocus()
             friendBinding.editNameField.setSelection(friendBinding.editNameField.text.toString().length)
             setTouchResponse(movementMethod, keyListener)
             showKeyboard()
-        }
-
-        friendBinding.saveFriend.setOnClickListener {
-            switchElements(it, friendBinding.editFriend)
-            friendBinding.editNameField.removeFocus()
-            setTouchResponse(null, null)
-            hideKeyboard(it)
-        }
-
-        friendBinding.friendCardView.setOnClickListener {
-            hideKeyboard(it)
-            listener.onItemClicked(friend)
         }
     }
 
@@ -101,11 +129,11 @@ class FriendViewHolder(
     }
 
     override fun onItemSelected() {
-        friendBinding.friendCardView.setCardBackgroundColor(Color.LTGRAY)
+        friendBinding.friendCardView.background.setTint(Color.LTGRAY)
     }
 
     override fun onItemClear() {
-        friendBinding.friendCardView.setCardBackgroundColor(Color.WHITE)
+        friendBinding.friendCardView.background.setTintList(null)
     }
 }
 
@@ -115,5 +143,6 @@ interface ItemTouchHelperViewHolder {
 }
 
 interface ItemClickListener {
-    fun onItemClicked(friend: Friend)
+    fun saveItem(friend: Friend)
+    fun deleteItem(friend: Friend)
 }

@@ -1,9 +1,6 @@
 package com.posse.kotlin1.calendar.view.statistic
 
 import android.os.Bundle
-import android.text.Spannable
-import android.text.SpannableString
-import android.text.style.ForegroundColorSpan
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -13,6 +10,7 @@ import androidx.fragment.app.activityViewModels
 import com.google.android.material.card.MaterialCardView
 import com.posse.kotlin1.calendar.R
 import com.posse.kotlin1.calendar.databinding.FragmentStatisticBinding
+import com.posse.kotlin1.calendar.utils.putText
 import com.posse.kotlin1.calendar.viewModel.CalendarViewModel
 import com.posse.kotlin1.calendar.viewModel.STATISTIC
 import java.time.LocalDate
@@ -37,78 +35,56 @@ class StatisticFragment : Fragment() {
     }
 
     private fun updateStats(stats: Map<STATISTIC, Set<LocalDate>>) {
-        updateTotal(stats)
+        updateTotal(stats[STATISTIC.DRINK_DAYS_THIS_YEAR])
         updateMarathonThisYear(stats[STATISTIC.DRINK_MAX_ROW_THIS_YEAR])
         updateMarathonAllTime(stats[STATISTIC.DRINK_MAX_ROW_TOTAL])
     }
 
-    private fun updateTotal(stats: Map<STATISTIC, Set<LocalDate>>) {
-        val total = stats[STATISTIC.DRINK_DAYS_THIS_YEAR]?.size ?: 0
+    private fun updateTotal(stats: Set<LocalDate>?) {
         putStatistic(
-            total,
-            stats[STATISTIC.DAYS_THIS_YEAR]?.size.toString(),
+            stats?.size ?: 0,
             getString(R.string.in_this_year_you_drank),
-            resources.getQuantityString(
-                R.plurals.days,
-                total
-            ) + getString(R.string.of),
-            null,
-            binding.totalYearStats,
+            stats ?: emptySet(),
+            binding.cardTotalYears.statsDescription,
+            binding.cardTotalYears.statsValue,
             null
         )
     }
 
     private fun updateMarathonThisYear(stats: Set<LocalDate>?) {
-        val thisYear = stats?.size ?: 0
         putStatistic(
-            thisYear,
-            "",
+            stats?.size ?: 0,
             getString(R.string.longest_drink_marathon_in_this_year),
-            resources.getQuantityString(
-                R.plurals.days,
-                thisYear
-            ),
-            stats,
-            binding.longestDrinkThisYear,
-            binding.cardThisYear
+            stats ?: emptySet(),
+            binding.cardThisYear.statsDescription,
+            binding.cardThisYear.statsValue,
+            binding.cardThisYear.root
         )
     }
 
     private fun updateMarathonAllTime(stats: Set<LocalDate>?) {
-        val allTime = stats?.size ?: 0
         putStatistic(
-            allTime,
-            "",
+            stats?.size ?: 0,
             getString(R.string.longest_drink_marathon_all_time),
-            resources.getQuantityString(
-                R.plurals.days,
-                allTime
-            ),
-            stats,
-            binding.longestDrinkAllTime,
-            binding.cardAllTime
+            stats ?: emptySet(),
+            binding.cardAllTime.statsDescription,
+            binding.cardAllTime.statsValue,
+            binding.cardAllTime.root
         )
     }
 
     private fun putStatistic(
-        firstStat: Int,
-        secondStat: String,
+        statsValue: Int,
         description: String,
-        plurals: String,
-        stats: Set<LocalDate>?,
-        textView: TextView,
+        stats: Set<LocalDate>,
+        descriptionTextView: TextView,
+        valueTextView: TextView,
         cardView: MaterialCardView?
     ) {
-        val text = "$description$firstStat $plurals $secondStat"
-        val spannable = SpannableString(text)
-        spannable.setSpan(
-            ForegroundColorSpan(resources.getColor(R.color.fillColor, null)),
-            description.length, description.length + firstStat.toString().length,
-            Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
-        )
-        textView.text = spannable
+        descriptionTextView.putText(description)
+        valueTextView.putText(statsValue)
         cardView?.setOnClickListener {
-            listener?.cardStatsPressed(stats?.minOrNull() ?: LocalDate.now())
+            listener?.cardStatsPressed(stats.minOrNull() ?: LocalDate.now())
         }
     }
 

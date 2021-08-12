@@ -14,8 +14,9 @@ import com.posse.kotlin1.calendar.utils.createCombinedPayload
 class FriendListRecyclerAdapter(
     private var data: MutableList<Friend>,
     private val dragListener: OnStartDragListener,
-    private val activity: Activity
-) : RecyclerView.Adapter<FriendViewHolder>(), ItemTouchHelperAdapter, ItemClickListener {
+    private val activity: Activity,
+    private val listener: FriendAdapterListener
+) : RecyclerView.Adapter<FriendViewHolder>(), ItemClickListener {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): FriendViewHolder {
         val inflater = LayoutInflater.from(parent.context)
@@ -54,9 +55,11 @@ class FriendListRecyclerAdapter(
         return data.size
     }
 
-    override fun onItemMove(fromPosition: Int, toPosition: Int) {
+    fun onItemMove(fromPosition: Int, toPosition: Int) {
         data.removeAt(fromPosition).apply {
-            data.add(if (toPosition > fromPosition) toPosition - 1 else toPosition, this)
+            val position = if (toPosition > fromPosition) toPosition - 1 else toPosition
+            data.add(position, this)
+            listener.friendMoved(fromPosition, toPosition)
         }
         notifyItemMoved(fromPosition, toPosition)
     }
@@ -68,20 +71,17 @@ class FriendListRecyclerAdapter(
         data.addAll(newItems)
     }
 
-    override fun onItemClicked(friend: Friend) {
-        val newData = data.map { it.copy() }
-        newData.forEach {
-            if (it.id == friend.id) it.isSelected = true
-            else if (it.isSelected) it.isSelected = false
-        }
-        setData(newData.toMutableList())
-    }
+    override fun saveItem(friend: Friend) = listener.friendClicked(friend)
+
+    override fun deleteItem(friend: Friend) = listener.friendDeleted(friend)
 }
 
-interface ItemTouchHelperAdapter {
-    fun onItemMove(fromPosition: Int, toPosition: Int)
-}
-
-interface OnStartDragListener {
+fun interface OnStartDragListener {
     fun onStartDrag(viewHolder: RecyclerView.ViewHolder)
+}
+
+interface FriendAdapterListener {
+    fun friendClicked(friend: Friend)
+    fun friendMoved(fromPosition: Int, toPosition: Int)
+    fun friendDeleted(friend: Friend)
 }

@@ -10,15 +10,15 @@ import androidx.fragment.app.FragmentTransaction
 import com.posse.kotlin1.calendar.R
 import com.posse.kotlin1.calendar.databinding.ActivityMainBinding
 import com.posse.kotlin1.calendar.utils.getAppTheme
-import com.posse.kotlin1.calendar.view.calendar.CalendarFragment
 import com.posse.kotlin1.calendar.view.friends.FriendsFragment
+import com.posse.kotlin1.calendar.view.myCalendar.MyCalendarFragment
 import com.posse.kotlin1.calendar.view.settings.SettingsFragment
 import kotlin.system.exitProcess
 
 private const val KEY_SELECTED = "Selected item"
 private const val BACK_BUTTON_EXIT_DELAY = 3000
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity(), SettingsTabSwitcher {
     private val binding: ActivityMainBinding by lazy { ActivityMainBinding.inflate(layoutInflater) }
     private var isBackShown = false
     private var lastTimeBackPressed: Long = 0
@@ -30,10 +30,10 @@ class MainActivity : AppCompatActivity() {
 
         binding.bottomNavigation.setOnItemSelectedListener { item ->
             when (item.itemId) {
-                R.id.bottomCalendar -> replaceFragment(CalendarFragment.newInstance())
+                R.id.bottomCalendar -> replaceFragment(MyCalendarFragment.newInstance())
                 R.id.bottomFriends -> replaceFragment(FriendsFragment.newInstance())
                 R.id.bottomSettings -> replaceFragment(SettingsFragment.newInstance())
-                else -> replaceFragment(CalendarFragment.newInstance())
+                else -> replaceFragment(MyCalendarFragment.newInstance())
             }
             true
         }
@@ -74,4 +74,12 @@ class MainActivity : AppCompatActivity() {
         }
         isBackShown = true
     }
+
+    override fun switchToSettings() {
+        binding.bottomNavigation.selectedItemId = R.id.bottomSettings
+    }
+}
+
+interface SettingsTabSwitcher{
+    fun switchToSettings()
 }
