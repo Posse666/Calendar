@@ -17,3 +17,11 @@ var SharedPreferences.lightTheme: Boolean
             .putBoolean("lightTheme", value)
             .apply()
     }
+
+var SharedPreferences.statsUsed: Boolean
+    get() = this.getBoolean("statsUsed", false)
+    set(value) {
+        this.edit()
+            .putBoolean("statsUsed", value)
+            .apply()
+    }
