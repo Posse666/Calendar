@@ -31,4 +31,8 @@
         <item name="materialCardViewStyle">@style/CardStyle</item>
         <item name="android:fontFamily">@font/roboto_regular</item>
     </style>
+
+    <style name="Theme.AlcoCalendar.Splash">
+        <item name="android:windowBackground">@drawable/splash_background_drawable</item>
+    </style>
 </resources>
