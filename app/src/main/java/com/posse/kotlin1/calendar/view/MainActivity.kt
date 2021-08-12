@@ -11,6 +11,7 @@ import com.posse.kotlin1.calendar.R
 import com.posse.kotlin1.calendar.databinding.ActivityMainBinding
 import com.posse.kotlin1.calendar.utils.getAppTheme
 import com.posse.kotlin1.calendar.view.calendar.CalendarFragment
+import com.posse.kotlin1.calendar.view.friends.FriendsFragment
 import com.posse.kotlin1.calendar.view.settings.SettingsFragment
 import kotlin.system.exitProcess
 

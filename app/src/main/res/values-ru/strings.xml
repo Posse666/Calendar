@@ -57,5 +57,6 @@
         <item quantity="many">дней</item>
         <item quantity="other">дней</item>
     </plurals>
+    <string name="login_to_see_friends_calendars">Войдите чтобы увидеть календари друзей</string>
 
 </resources>

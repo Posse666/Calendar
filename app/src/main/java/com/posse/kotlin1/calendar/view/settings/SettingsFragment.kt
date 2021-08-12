@@ -20,9 +20,7 @@ import com.google.android.gms.common.api.ApiException
 import com.posse.kotlin1.calendar.R
 import com.posse.kotlin1.calendar.app.App
 import com.posse.kotlin1.calendar.databinding.FragmentSettingsBinding
-import com.posse.kotlin1.calendar.utils.THEME
-import com.posse.kotlin1.calendar.utils.lightTheme
-import com.posse.kotlin1.calendar.utils.themeSwitch
+import com.posse.kotlin1.calendar.utils.*
 import com.posse.kotlin1.calendar.view.settings.share.ShareFragment
 import com.posse.kotlin1.calendar.viewModel.SettingsState
 import com.posse.kotlin1.calendar.viewModel.SettingsViewModel
@@ -122,7 +120,7 @@ class SettingsFragment : Fragment() {
                     }
                 }
             }
-        } else binding.switchTheme.visibility = View.GONE
+        } else binding.switchTheme.disappear()
 
         binding.chipDay.isEnabled = !themeSwitch
         binding.chipNight.isEnabled = !themeSwitch
@@ -147,7 +145,7 @@ class SettingsFragment : Fragment() {
             is SettingsState.LoggedIn -> {
                 binding.loginButton.hide()
                 binding.logoutButton.show()
-                binding.userEmail.text = settingsState.userEmail
+                settingsState.userEmail?.let { binding.userEmail.putText(it) }
                 Picasso.get()
                     .load(settingsState.userPicture)
                     .resize(
@@ -161,7 +159,7 @@ class SettingsFragment : Fragment() {
             SettingsState.LoggedOut -> {
                 binding.loginButton.show()
                 binding.logoutButton.hide()
-                binding.userEmail.text = getString(R.string.login_to_sync)
+                binding.userEmail.putText(getString(R.string.login_to_sync))
                 binding.userLogo.setImageDrawable(defaultPicture)
                 if (isLoginPressed) binding.motionSettings.transitionToStart()
             }
@@ -177,12 +175,4 @@ class SettingsFragment : Fragment() {
         @JvmStatic
         fun newInstance() = SettingsFragment()
     }
-}
-
-private fun View.show() {
-    this.visibility = View.VISIBLE
-}
-
-private fun View.hide() {
-    this.visibility = View.GONE
 }

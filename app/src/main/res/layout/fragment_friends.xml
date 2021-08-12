@@ -1,13 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.appcompat.widget.LinearLayoutCompat xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:orientation="vertical">
 
-    <com.google.android.material.card.MaterialCardView style="@style/CardLayoutStyle">
+    <com.google.android.material.card.MaterialCardView
+        style="@style/CardLayoutStyle"
+        android:layout_height="wrap_content">
 
         <TextView
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:text="@string/hello_friends_fragment" />
+            android:id="@+id/friendName"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/login_to_see_friends_calendars" />
     </com.google.android.material.card.MaterialCardView>
-</FrameLayout>
+
+    <androidx.fragment.app.FragmentContainerView
+        android:id="@+id/friendsMainFragment"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"/>
+</androidx.appcompat.widget.LinearLayoutCompat>

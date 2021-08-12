@@ -10,9 +10,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.animation.AccelerateInterpolator
 import android.view.animation.DecelerateInterpolator
-import android.widget.FrameLayout
 import android.widget.TextView
-import androidx.appcompat.widget.AppCompatTextView
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
@@ -26,7 +24,7 @@ import com.kizitonwose.calendarview.ui.MonthHeaderFooterBinder
 import com.posse.kotlin1.calendar.R
 import com.posse.kotlin1.calendar.app.App
 import com.posse.kotlin1.calendar.databinding.FragmentCalendarBinding
-import com.posse.kotlin1.calendar.utils.statsUsed
+import com.posse.kotlin1.calendar.utils.*
 import com.posse.kotlin1.calendar.view.statistic.StatisticFragment
 import com.posse.kotlin1.calendar.view.statistic.StatisticListener
 import com.posse.kotlin1.calendar.viewModel.CalendarViewModel
@@ -300,20 +298,4 @@ class CalendarFragment : Fragment(), StatisticListener {
         bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
         calendarView.smoothScrollToMonth(YearMonth.from(date))
     }
-}
-
-private fun AppCompatTextView.putText(newValue: Any) {
-    text = newValue.toString()
-}
-
-private fun View.show() {
-    visibility = View.VISIBLE
-}
-
-private fun FrameLayout.disappear() {
-    visibility = View.GONE
-}
-
-private fun TextView.hide() {
-    visibility = View.INVISIBLE
 }

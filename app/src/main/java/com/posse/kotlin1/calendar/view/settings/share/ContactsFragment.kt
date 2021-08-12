@@ -1,14 +1,12 @@
 package com.posse.kotlin1.calendar.view.settings.share
 
-import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.LinearLayout
-import android.widget.TextView
 import androidx.fragment.app.DialogFragment
 import com.posse.kotlin1.calendar.databinding.FragmentContactsBinding
+import com.posse.kotlin1.calendar.utils.add
 import com.posse.kotlin1.calendar.utils.setWindowSize
 
 private const val ARG_CONTACTS = "contacts"
@@ -67,10 +65,4 @@ class ContactsFragment : DialogFragment() {
             }
         }
     }
-}
-
-private fun LinearLayout.add(context: Context, text: String) {
-    val textView = TextView(context)
-    textView.text = text
-    addView(textView)
 }
