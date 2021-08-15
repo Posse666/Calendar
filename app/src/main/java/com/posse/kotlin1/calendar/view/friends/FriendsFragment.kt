@@ -36,33 +36,31 @@ class FriendsFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         val myMail = Account.getEmail()
         if (myMail != null && myMail.contains("@")) {
-            viewModel.setEmail(myMail)
-            viewModel.isDataReady().observe(viewLifecycleOwner, { dataReady ->
-                if (dataReady) {
-                    viewModel.getLiveData().observe(viewLifecycleOwner, { friends ->
-                        friendsListFragment?.let {
-                            childFragmentManager
-                                .beginTransaction()
-                                .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE)
-                                .setReorderingAllowed(true)
-                                .remove(it)
-                                .commit()
+            viewModel.refreshLiveData()
+            viewModel.getLiveData().observe(viewLifecycleOwner, { data ->
+                if (data.first) {
+                    friendsListFragment?.let {
+                        childFragmentManager
+                            .beginTransaction()
+                            .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE)
+                            .setReorderingAllowed(true)
+                            .remove(it)
+                            .commit()
+                    }
+                    friendsListFragment = null
+                    binding.friendName.putText(getString(R.string.select_friend))
+                    data.second.forEach { friend ->
+                        if (friend.isSelected) {
+                            binding.friendName.putText(friend.name)
+                            swapFragment(CalendarFragment.newInstance(friend.email, false))
                         }
-                        friendsListFragment = null
-                        binding.friendName.putText(getString(R.string.select_friend))
-                        friends.forEach { friend ->
-                            if (friend.isSelected) {
-                                binding.friendName.putText(friend.name)
-                                swapFragment(CalendarFragment.newInstance(friend.email, false))
-                            }
+                    }
+                    binding.friendsCard.setOnClickListener {
+                        if (friendsListFragment == null || !friendsListFragment!!.isVisible) {
+                            friendsListFragment = FriendsListFragment.newInstance()
+                            swapFragment(friendsListFragment!!)
                         }
-                        binding.friendsCard.setOnClickListener {
-                            if (friendsListFragment == null || !friendsListFragment!!.isVisible) {
-                                friendsListFragment = FriendsListFragment.newInstance()
-                                swapFragment(friendsListFragment!!)
-                            }
-                        }
-                    })
+                    }
                 }
             })
         } else {

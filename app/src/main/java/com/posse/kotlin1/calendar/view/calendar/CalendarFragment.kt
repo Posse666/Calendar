@@ -88,14 +88,12 @@ class CalendarFragment : Fragment(), StatisticListener {
         setupStatistic()
         setupFAB()
         viewModel.setEmail(email)
-        viewModel.isDataReady().observe(viewLifecycleOwner, { dataReady ->
-            if (dataReady && !isInitCompleted)
-                viewModel.getLiveData()
-                    .observe(viewLifecycleOwner, { set ->
-                        actualState = set
-                        if (!isInitCompleted) updateCalendar()
-                    })
-        })
+        viewModel.getLiveData().observe(viewLifecycleOwner, {
+                if (it.first) {
+                    actualState = it.second
+                    if (!isInitCompleted) updateCalendar()
+                }
+            })
     }
 
     private fun setupStatistic() {

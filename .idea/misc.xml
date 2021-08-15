@@ -3,6 +3,8 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
+        <entry key="..\:/android/Calendar/app/src/main/res/layout/contact_layout.xml" value="0.25" />
+        <entry key="..\:/android/Calendar/app/src/main/res/layout/fragment_contacts.xml" value="0.25" />
         <entry key="..\:/android/Calendar/app/src/main/res/layout/fragment_delete_dialog.xml" value="0.25" />
         <entry key="..\:/android/Calendar/app/src/main/res/layout/fragment_friends_list.xml" value="0.1453804347826087" />
         <entry key="..\:/android/Calendar/app/src/main/res/layout/friend_layout.xml" value="0.22" />

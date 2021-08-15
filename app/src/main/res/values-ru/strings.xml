@@ -55,5 +55,6 @@
     <string name="block_this_person">Заблокировать</string>
     <string name="delete_text">Точно удалить</string>
     <string name="delete">Удалить</string>
+    <string name="no_contacts">Нет контактов с почтой в вашей телефонной книге</string>
 
 </resources>

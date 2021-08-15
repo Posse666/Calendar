@@ -1,11 +1,11 @@
 package com.posse.kotlin1.calendar.utils
 
 import androidx.recyclerview.widget.DiffUtil
-import com.posse.kotlin1.calendar.model.Friend
+import com.posse.kotlin1.calendar.model.Person
 
 class DiffUtilCallback(
-    private var oldItems: List<Friend>,
-    private var newItems: List<Friend>
+    private var oldItems: List<Person>,
+    private var newItems: List<Person>
 ) : DiffUtil.Callback() {
 
     override fun getOldListSize(): Int = oldItems.size

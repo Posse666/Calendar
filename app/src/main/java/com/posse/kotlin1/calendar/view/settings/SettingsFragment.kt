@@ -17,7 +17,6 @@ import com.posse.kotlin1.calendar.app.App
 import com.posse.kotlin1.calendar.databinding.FragmentSettingsBinding
 import com.posse.kotlin1.calendar.utils.*
 import com.posse.kotlin1.calendar.view.settings.share.ShareFragment
-import com.posse.kotlin1.calendar.viewModel.AccountState
 import com.posse.kotlin1.calendar.viewModel.SettingsViewModel
 import com.squareup.picasso.Picasso
 

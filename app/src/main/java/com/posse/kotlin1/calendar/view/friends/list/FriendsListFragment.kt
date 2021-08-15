@@ -23,7 +23,6 @@ class FriendsListFragment : Fragment(), FriendAdapterListener {
     private val viewModel: FriendsViewModel by activityViewModels()
     private lateinit var adapter: FriendListRecyclerAdapter
     private lateinit var itemTouchHelper: ItemTouchHelper
-    private var friends: MutableList<Friend> = mutableListOf()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -35,34 +34,26 @@ class FriendsListFragment : Fragment(), FriendAdapterListener {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        binding.friendsListClose.setOnClickListener { viewModel.refreshLivedata() }
-        viewModel.isDataReady().observe(viewLifecycleOwner, { dataReady ->
-            if (dataReady) {
-                adapter = FriendListRecyclerAdapter(
-                    friends,
-                    { viewHolder -> itemTouchHelper.startDrag(viewHolder) },
-                    requireActivity(),
-                    this
-                )
-
-                binding.friendsRecyclerView.adapter = adapter
-                itemTouchHelper = ItemTouchHelper(ItemTouchHelperCallback(adapter))
-                itemTouchHelper.attachToRecyclerView(binding.friendsRecyclerView)
-
-                viewModel.getLiveData()
-                    .observe(viewLifecycleOwner, {
-                        if (it.isEmpty()) {
-                            binding.noFriends.show()
-                            binding.friendsRecyclerView.disappear()
-                        } else refreshAdapterData(it.toMutableList())
-                    })
+        binding.friendsListClose.setOnClickListener { viewModel.refreshLiveData() }
+        viewModel.getLiveData().observe(viewLifecycleOwner, {
+            if (it.first) {
+                if (it.second.isEmpty()) {
+                    binding.noFriends.show()
+                    binding.friendsRecyclerView.disappear()
+                } else {
+                    val friends = it.second.toMutableList()
+                    friends.sortBy { friend -> friend.position }
+                    adapter = FriendListRecyclerAdapter(
+                        friends,
+                        { viewHolder -> itemTouchHelper.startDrag(viewHolder) },
+                        this
+                    )
+                    binding.friendsRecyclerView.adapter = adapter
+                    itemTouchHelper = ItemTouchHelper(ItemTouchHelperCallback(adapter))
+                    itemTouchHelper.attachToRecyclerView(binding.friendsRecyclerView)
+                }
             }
         })
-    }
-
-    private fun refreshAdapterData(friends: MutableList<Friend>) {
-        friends.sortBy { it.position }
-        adapter.setData(friends)
     }
 
     override fun friendClicked(friend: Friend) = viewModel.friendSelected(friend)

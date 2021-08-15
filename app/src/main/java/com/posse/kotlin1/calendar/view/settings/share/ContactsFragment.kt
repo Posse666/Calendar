@@ -6,23 +6,21 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
 import androidx.fragment.app.DialogFragment
+import androidx.fragment.app.activityViewModels
 import com.posse.kotlin1.calendar.databinding.FragmentContactsBinding
-import com.posse.kotlin1.calendar.utils.add
+import com.posse.kotlin1.calendar.model.Contact
+import com.posse.kotlin1.calendar.utils.Keyboard
+import com.posse.kotlin1.calendar.utils.hide
 import com.posse.kotlin1.calendar.utils.setWindowSize
+import com.posse.kotlin1.calendar.utils.show
+import com.posse.kotlin1.calendar.viewModel.ContactsViewModel
 
-private const val ARG_CONTACTS = "contacts"
-
-class ContactsFragment : DialogFragment() {
-    private var contacts: ArrayList<Contact>? = null
+class ContactsFragment : DialogFragment(), ContactAdapterListener {
     private var _binding: FragmentContactsBinding? = null
     private val binding get() = _binding!!
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        arguments?.let {
-            contacts = it.getParcelableArrayList(ARG_CONTACTS)
-        }
-    }
+    private val viewModel: ContactsViewModel by activityViewModels()
+    private lateinit var adapter: ContactsListRecyclerAdapter
+    private val keyboard = Keyboard()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -35,35 +33,36 @@ class ContactsFragment : DialogFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         setWindowSize(this, WindowManager.LayoutParams.MATCH_PARENT)
+        viewModel.getLiveData().observe(viewLifecycleOwner, { pair ->
+            binding.contactsListClose.setOnClickListener { dismiss() }
+            if (pair.first) {
+                if (pair.second.isEmpty()) {
+                    binding.noContacts.show()
+                    binding.contactsRecyclerCard.hide()
+                } else {
+                    val sortedContacts = pair.second.toSortedSet(compareBy(
+                        { it.notInContacts },
+                        { it.isSelected },
+                        { it.names[0] }
+                    ))
+                    adapter = ContactsListRecyclerAdapter(sortedContacts.toMutableList(),this)
+                    binding.contactsRecyclerView.adapter = adapter
+                }
+            }
+        })
         isCancelable = true
-        binding.btnSave.setOnClickListener {
-            dismiss()
-        }
-        binding.btnCancel.setOnClickListener {
-            dismiss()
-        }
-        addContacts()
     }
 
-    private fun addContacts() {
-        contacts?.forEach {
-            binding.containerForContacts.add(requireContext(), it.name)
-            binding.containerForContacts.add(requireContext(), it.email)
-        }
-    }
+    override fun contactClicked(contact: Contact) = viewModel.contactClicked(contact)
 
     override fun onDestroyView() {
         super.onDestroyView()
+        keyboard.hide(binding.root)
         _binding = null
     }
 
     companion object {
-
         @JvmStatic
-        fun newInstance(contacts: ArrayList<Contact>) = ContactsFragment().apply {
-            arguments = Bundle().apply {
-                putParcelableArrayList(ARG_CONTACTS, contacts)
-            }
-        }
+        fun newInstance() = ContactsFragment()
     }
 }

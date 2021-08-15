@@ -25,6 +25,7 @@ class MainActivity : AppCompatActivity(), SettingsTabSwitcher {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        instance = this
         setTheme(getAppTheme())
         setContentView(binding.root)
 
@@ -77,6 +78,10 @@ class MainActivity : AppCompatActivity(), SettingsTabSwitcher {
 
     override fun switchToSettings() {
         binding.bottomNavigation.selectedItemId = R.id.bottomSettings
+    }
+
+    companion object{
+        var instance: MainActivity? = null
     }
 }
 

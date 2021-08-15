@@ -55,5 +55,6 @@
     <string name="block_this_person">Block</string>
     <string name="delete_text">Are you sure you want delete</string>
     <string name="delete">Delete</string>
+    <string name="no_contacts">No contacts with emails in your phonebook</string>
 
 </resources>

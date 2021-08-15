@@ -2,6 +2,7 @@ package com.posse.kotlin1.calendar.utils
 
 import android.app.Activity
 import android.content.Intent
+import android.net.Uri
 import android.util.Log
 import android.widget.Toast
 import androidx.activity.result.ActivityResult
@@ -20,7 +21,6 @@ import com.posse.kotlin1.calendar.R
 import com.posse.kotlin1.calendar.app.App
 import com.posse.kotlin1.calendar.model.repository.Repository
 import com.posse.kotlin1.calendar.model.repository.RepositoryFirestoreImpl
-import com.posse.kotlin1.calendar.viewModel.AccountState
 
 object Account {
     private val repository: Repository = RepositoryFirestoreImpl
@@ -41,7 +41,12 @@ object Account {
             try {
                 googleAccount = task.getResult(ApiException::class.java)
                 googleAccount?.email?.let {
-                    repository.mergeData(it)
+                    var nickName = App.sharedPreferences?.nickName
+                    if (nickName == null) {
+                        nickName = it
+                        App.sharedPreferences?.nickName = it
+                    }
+                    repository.mergeDates(it, nickName)
                 }
             } catch (e: ApiException) {
                 Log.w("login", "signInResult:failed code=" + e.statusCode)
@@ -113,4 +118,13 @@ object Account {
         if (email == "" || email == null) email = FirebaseAuth.getInstance().currentUser?.uid
         return email
     }
+}
+
+sealed class AccountState {
+    data class LoggedIn(
+        val userPicture: Uri?,
+        val userEmail: String?
+    ) : AccountState()
+
+    object LoggedOut : AccountState()
 }

@@ -9,19 +9,22 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import com.posse.kotlin1.calendar.R
 import com.posse.kotlin1.calendar.databinding.FragmentShareBinding
+import com.posse.kotlin1.calendar.model.Contact
 import com.posse.kotlin1.calendar.utils.Permission
 import com.posse.kotlin1.calendar.utils.checkPermission
 import com.posse.kotlin1.calendar.utils.checkPermissionsResult
+import com.posse.kotlin1.calendar.viewModel.ContactsViewModel
 
 private const val REQUEST_CODE = 66
 
 class ShareFragment : Fragment() {
-
     private var _binding: FragmentShareBinding? = null
     private val binding get() = _binding!!
-    private val contactsWithEmail: ArrayList<Contact> = arrayListOf()
+    private val viewModel: ContactsViewModel by activityViewModels()
+    private val contactsWithEmail: MutableList<Contact> = mutableListOf()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -106,7 +109,16 @@ class ShareFragment : Fragment() {
                                         cursor2.getString(cursor2.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME))
                                     val email =
                                         cursor2.getString(cursor2.getColumnIndex(ContactsContract.CommonDataKinds.Email.DATA))
-                                    if (email != null) contactsWithEmail.add(Contact(name, email))
+                                    if (email != null) {
+                                        var isNotAdded = true
+                                        contactsWithEmail.forEach { contact ->
+                                            if (contact.email == email) {
+                                                if (!contact.names.contains(name)) contact.names[contact.names.size] = name
+                                                isNotAdded = false
+                                            }
+                                        }
+                                        if (isNotAdded) contactsWithEmail.add(Contact(arrayOf(name), email))
+                                    }
                                 }
                             }
                         }
@@ -116,8 +128,8 @@ class ShareFragment : Fragment() {
             }
             cursorWithContacts?.close()
         }
-        ContactsFragment.newInstance(contactsWithEmail)
-            .show(requireActivity().supportFragmentManager, null)
+        viewModel.setContacts(contactsWithEmail)
+        ContactsFragment.newInstance().show(childFragmentManager, null)
     }
 
     override fun onDestroyView() {

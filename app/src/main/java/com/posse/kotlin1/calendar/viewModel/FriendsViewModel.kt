@@ -2,21 +2,24 @@ package com.posse.kotlin1.calendar.viewModel
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.Transformations
+import androidx.lifecycle.ViewModel
 import com.posse.kotlin1.calendar.model.Friend
-import com.posse.kotlin1.calendar.model.repository.FriendsRepo
-import com.posse.kotlin1.calendar.model.repository.FriendsRepoImpl
+import com.posse.kotlin1.calendar.model.repository.Repository
+import com.posse.kotlin1.calendar.model.repository.RepositoryFirestoreImpl
 
-class FriendsViewModel : BaseViewModel() {
-    override val repository: FriendsRepo = FriendsRepoImpl()
-    private val liveDataToObserve: LiveData<Set<Friend>> = Transformations.map(repository.getLiveData()) { it }
+class FriendsViewModel : ViewModel() {
+    private val repository: Repository = RepositoryFirestoreImpl
+    private val liveDataToObserve: LiveData<Pair<Boolean, Set<Friend>>> =
+        Transformations.map(repository.getFriendsLiveData()) { it }
 
     fun getLiveData() = liveDataToObserve
 
-    fun refreshLivedata() = repository.refreshData()
+    fun refreshLiveData() = repository.updateFriendsData()
 
     fun friendSelected(friend: Friend) = repository.saveFriend(friend)
 
-    fun itemMoved(fromPosition: Int, toPosition: Int) = repository.changePosition(fromPosition, toPosition)
+    fun itemMoved(fromPosition: Int, toPosition: Int) =
+        repository.changeFriendPosition(fromPosition, toPosition)
 
-    fun deleteFriend(friend: Friend) = repository.deleteItem(friend)
+    fun deleteFriend(friend: Friend) = repository.deleteFriend(friend)
 }

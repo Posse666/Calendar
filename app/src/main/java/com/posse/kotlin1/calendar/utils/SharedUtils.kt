@@ -25,3 +25,11 @@ var SharedPreferences.statsUsed: Boolean
             .putBoolean("statsUsed", value)
             .apply()
     }
+
+var SharedPreferences.nickName: String?
+    get() = this.getString("nickName", null)
+    set(value) {
+        this.edit()
+            .putString("nickName", value)
+            .apply()
+    }
