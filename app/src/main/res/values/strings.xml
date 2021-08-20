@@ -56,5 +56,8 @@
     <string name="delete_text">Are you sure you want delete</string>
     <string name="delete">Delete</string>
     <string name="no_contacts">No contacts with emails in your phonebook</string>
+    <string name="enter_e_mail">Enter e-mail</string>
+    <string name="email_not_found">Email not found</string>
+    <string name="nick_name">Nickname</string>
 
 </resources>

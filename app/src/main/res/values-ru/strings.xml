@@ -56,5 +56,8 @@
     <string name="delete_text">Точно удалить</string>
     <string name="delete">Удалить</string>
     <string name="no_contacts">Нет контактов с почтой в вашей телефонной книге</string>
+    <string name="enter_e_mail">Введите почту</string>
+    <string name="email_not_found">Почта не найдена</string>
+    <string name="nick_name">Имя</string>
 
 </resources>

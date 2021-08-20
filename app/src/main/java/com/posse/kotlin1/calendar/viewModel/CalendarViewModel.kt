@@ -1,11 +1,11 @@
 package com.posse.kotlin1.calendar.viewModel
 
-import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.Transformations
 import androidx.lifecycle.ViewModel
+import com.posse.kotlin1.calendar.model.repository.DOCUMENTS
 import com.posse.kotlin1.calendar.model.repository.Repository
 import com.posse.kotlin1.calendar.model.repository.RepositoryFirestoreImpl
+import com.posse.kotlin1.calendar.utils.convertLongToLocalDale
 import java.time.LocalDate
 import java.time.Year
 
@@ -13,14 +13,30 @@ private const val THIS_YEAR = true
 private const val ALL_TIME = false
 
 class CalendarViewModel : ViewModel() {
-    private val repository: Repository = RepositoryFirestoreImpl
-    private val liveDataToObserve: LiveData<Pair<Boolean, Set<LocalDate>>>
-        get() = Transformations.map(repository.getDatesLiveData()) {
-            liveStatisticToObserve.value = getSats(it.second)
-            it
-        }
+    private val repository: Repository = RepositoryFirestoreImpl()
+    private val datesData: java.util.HashSet<LocalDate> = hashSetOf()
+    private lateinit var email: String
+    private val liveDataToObserve: MutableLiveData<Pair<Boolean, Set<LocalDate>>> =
+        MutableLiveData(Pair(false, emptySet()))
     private val liveStatisticToObserve: MutableLiveData<Map<STATISTIC, Set<LocalDate>>> =
         MutableLiveData()
+
+    fun getLiveData() = liveDataToObserve
+
+    fun getLiveStats() = liveStatisticToObserve
+
+    fun refreshLiveData(email: String) {
+        this.email = email
+        liveDataToObserve.value = Pair(false, emptySet())
+        repository.getData(DOCUMENTS.DATES, email) { dates ->
+            datesData.clear()
+            dates?.forEach {
+                datesData.add(convertLongToLocalDale(it.value as Long))
+            }
+            liveDataToObserve.value = Pair(true, datesData)
+            liveStatisticToObserve.value = getSats(datesData)
+        }
+    }
 
     private fun getSats(dates: Set<LocalDate>?): Map<STATISTIC, Set<LocalDate>> {
         val result = HashMap<STATISTIC, Set<LocalDate>>()
@@ -30,13 +46,18 @@ class CalendarViewModel : ViewModel() {
         return result
     }
 
-    fun setEmail (email: String) = repository.switchCollection(email)
+    fun dayClicked(date: LocalDate) {
+        if (!checkDate(date)) {
+            datesData.add(date)
+            repository.saveItem(DOCUMENTS.DATES, email, date)
+        } else {
+            datesData.remove(date)
+            repository.removeItem(DOCUMENTS.DATES, email, date)
+        }
+        liveStatisticToObserve.value = getSats(datesData)
+    }
 
-    fun getLiveData() = liveDataToObserve
-
-    fun getLiveStats() = liveStatisticToObserve
-
-    fun dayClicked(date: LocalDate) = repository.changeState(date)
+    private fun checkDate(date: LocalDate): Boolean = datesData.contains(date)
 
     private fun getDrankDaysQuantity(dates: Set<LocalDate>?): Set<LocalDate> {
         val result = HashSet<LocalDate>()

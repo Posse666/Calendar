@@ -11,6 +11,7 @@ import androidx.recyclerview.widget.ItemTouchHelper
 import com.posse.kotlin1.calendar.R
 import com.posse.kotlin1.calendar.databinding.FragmentFriendsListBinding
 import com.posse.kotlin1.calendar.model.Friend
+import com.posse.kotlin1.calendar.utils.Account
 import com.posse.kotlin1.calendar.utils.disappear
 import com.posse.kotlin1.calendar.utils.show
 import com.posse.kotlin1.calendar.view.deleteConfirmation.DeleteFragmentDialog
@@ -34,26 +35,30 @@ class FriendsListFragment : Fragment(), FriendAdapterListener {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        binding.friendsListClose.setOnClickListener { viewModel.refreshLiveData() }
-        viewModel.getLiveData().observe(viewLifecycleOwner, {
-            if (it.first) {
-                if (it.second.isEmpty()) {
-                    binding.noFriends.show()
-                    binding.friendsRecyclerView.disappear()
-                } else {
-                    val friends = it.second.toMutableList()
-                    friends.sortBy { friend -> friend.position }
-                    adapter = FriendListRecyclerAdapter(
-                        friends,
-                        { viewHolder -> itemTouchHelper.startDrag(viewHolder) },
-                        this
-                    )
-                    binding.friendsRecyclerView.adapter = adapter
-                    itemTouchHelper = ItemTouchHelper(ItemTouchHelperCallback(adapter))
-                    itemTouchHelper.attachToRecyclerView(binding.friendsRecyclerView)
+        val myMail = Account.getEmail()
+        if (myMail != null && myMail.contains("@")) {
+            binding.friendsListClose.setOnClickListener { viewModel.refreshLiveData(myMail) }
+            adapter = FriendListRecyclerAdapter(
+                mutableListOf(),
+                { viewHolder -> itemTouchHelper.startDrag(viewHolder) },
+                this
+            )
+            binding.friendsRecyclerView.adapter = adapter
+            itemTouchHelper = ItemTouchHelper(ItemTouchHelperCallback(adapter))
+            itemTouchHelper.attachToRecyclerView(binding.friendsRecyclerView)
+            viewModel.getLiveData().observe(viewLifecycleOwner, {
+                if (it.first) {
+                    if (it.second.isEmpty()) {
+                        binding.noFriends.show()
+                        binding.friendsRecyclerView.disappear()
+                    } else {
+                        val friends = it.second.toMutableList()
+                        friends.sortBy { friend -> friend.position }
+                        adapter.setData(friends)
+                    }
                 }
-            }
-        })
+            })
+        }
     }
 
     override fun friendClicked(friend: Friend) = viewModel.friendSelected(friend)
@@ -66,7 +71,7 @@ class FriendsListFragment : Fragment(), FriendAdapterListener {
         val dialog = DeleteFragmentDialog
             .newInstance(dialogText, getString(R.string.delete), Color.RED, true)
         dialog.setListener {
-            friend.isBlocked = it
+            friend.blocked = it
             viewModel.deleteFriend(friend)
         }
         dialog.show(childFragmentManager, null)

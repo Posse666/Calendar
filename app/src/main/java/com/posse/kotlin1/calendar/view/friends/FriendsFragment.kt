@@ -36,7 +36,7 @@ class FriendsFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         val myMail = Account.getEmail()
         if (myMail != null && myMail.contains("@")) {
-            viewModel.refreshLiveData()
+            viewModel.refreshLiveData(myMail)
             viewModel.getLiveData().observe(viewLifecycleOwner, { data ->
                 if (data.first) {
                     friendsListFragment?.let {
@@ -50,7 +50,7 @@ class FriendsFragment : Fragment() {
                     friendsListFragment = null
                     binding.friendName.putText(getString(R.string.select_friend))
                     data.second.forEach { friend ->
-                        if (friend.isSelected) {
+                        if (friend.selected) {
                             binding.friendName.putText(friend.name)
                             swapFragment(CalendarFragment.newInstance(friend.email, false))
                         }

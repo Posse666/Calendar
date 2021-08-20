@@ -16,7 +16,7 @@ class DiffUtilCallback(
         oldItems[oldItemPosition].email == newItems[newItemPosition].email
 
     override fun areContentsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean =
-        oldItems[oldItemPosition].isSelected == newItems[newItemPosition].isSelected
+        oldItems[oldItemPosition].selected == newItems[newItemPosition].selected
 
     override fun getChangePayload(oldItemPosition: Int, newItemPosition: Int): Any {
         val oldItem = oldItems[oldItemPosition]

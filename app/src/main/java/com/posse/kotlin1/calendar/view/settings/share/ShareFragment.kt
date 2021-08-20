@@ -13,6 +13,7 @@ import androidx.fragment.app.activityViewModels
 import com.posse.kotlin1.calendar.R
 import com.posse.kotlin1.calendar.databinding.FragmentShareBinding
 import com.posse.kotlin1.calendar.model.Contact
+import com.posse.kotlin1.calendar.utils.Account
 import com.posse.kotlin1.calendar.utils.Permission
 import com.posse.kotlin1.calendar.utils.checkPermission
 import com.posse.kotlin1.calendar.utils.checkPermissionsResult
@@ -113,11 +114,11 @@ class ShareFragment : Fragment() {
                                         var isNotAdded = true
                                         contactsWithEmail.forEach { contact ->
                                             if (contact.email == email) {
-                                                if (!contact.names.contains(name)) contact.names[contact.names.size] = name
+                                                if (!contact.names.contains(name)) contact.names.add(name)
                                                 isNotAdded = false
                                             }
                                         }
-                                        if (isNotAdded) contactsWithEmail.add(Contact(arrayOf(name), email))
+                                        if (isNotAdded) contactsWithEmail.add(Contact(mutableListOf(name), email))
                                     }
                                 }
                             }
@@ -128,8 +129,11 @@ class ShareFragment : Fragment() {
             }
             cursorWithContacts?.close()
         }
-        viewModel.setContacts(contactsWithEmail)
-        ContactsFragment.newInstance().show(childFragmentManager, null)
+        val myMail = Account.getEmail()
+        if (myMail != null && myMail.contains("@")) {
+            viewModel.setContacts(myMail, contactsWithEmail)
+            ContactsFragment.newInstance().show(childFragmentManager, null)
+        }
     }
 
     override fun onDestroyView() {

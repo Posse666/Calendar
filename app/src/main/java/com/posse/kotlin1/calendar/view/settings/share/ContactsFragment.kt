@@ -5,8 +5,11 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
+import android.widget.Toast
+import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.activityViewModels
+import com.posse.kotlin1.calendar.R
 import com.posse.kotlin1.calendar.databinding.FragmentContactsBinding
 import com.posse.kotlin1.calendar.model.Contact
 import com.posse.kotlin1.calendar.utils.Keyboard
@@ -21,6 +24,7 @@ class ContactsFragment : DialogFragment(), ContactAdapterListener {
     private val viewModel: ContactsViewModel by activityViewModels()
     private lateinit var adapter: ContactsListRecyclerAdapter
     private val keyboard = Keyboard()
+    private val contacts: MutableSet<Contact> = mutableSetOf()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -33,27 +37,57 @@ class ContactsFragment : DialogFragment(), ContactAdapterListener {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         setWindowSize(this, WindowManager.LayoutParams.MATCH_PARENT)
+        binding.contactsListClose.setOnClickListener { dismiss() }
+        binding.contactSearchField.editText?.doOnTextChanged { _, _, _, count ->
+            if (count > 0) binding.contactSearchField.error = null
+        }
+        binding.contactAddButton.setOnClickListener {
+            binding.contactSearchField.editText?.let { editText ->
+                var isContactFound = false
+                contacts.forEach {
+                    if (it.email == editText.text.toString() && it.notInContacts) {
+                        viewModel.contactClicked(it) {}
+                        isContactFound = true
+                        keyboard.hide(editText)
+                        editText.text.clear()
+                    }
+                }
+                if (!isContactFound) binding.contactSearchField.error =
+                    getString(R.string.email_not_found)
+            }
+        }
+        adapter = ContactsListRecyclerAdapter(mutableListOf(), this)
+        binding.contactsRecyclerView.adapter = adapter
         viewModel.getLiveData().observe(viewLifecycleOwner, { pair ->
-            binding.contactsListClose.setOnClickListener { dismiss() }
             if (pair.first) {
                 if (pair.second.isEmpty()) {
                     binding.noContacts.show()
                     binding.contactsRecyclerCard.hide()
                 } else {
+                    contacts.clear()
+                    contacts.addAll(pair.second)
                     val sortedContacts = pair.second.toSortedSet(compareBy(
-                        { it.notInContacts },
-                        { it.isSelected },
+                        { !it.notInContacts },
+                        { !it.selected },
                         { it.names[0] }
                     ))
-                    adapter = ContactsListRecyclerAdapter(sortedContacts.toMutableList(),this)
-                    binding.contactsRecyclerView.adapter = adapter
+                    adapter.setData(
+                        sortedContacts.toList().filter { !(it.notInContacts && !it.selected) })
                 }
             }
         })
         isCancelable = true
     }
 
-    override fun contactClicked(contact: Contact) = viewModel.contactClicked(contact)
+    override fun contactClicked(contact: Contact) {
+        viewModel.contactClicked(contact) {
+            Toast.makeText(
+                requireContext(),
+                "You are in black list of this user",
+                Toast.LENGTH_SHORT
+            ).show()
+        }
+    }
 
     override fun onDestroyView() {
         super.onDestroyView()

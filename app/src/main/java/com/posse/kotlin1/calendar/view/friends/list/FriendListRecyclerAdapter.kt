@@ -2,9 +2,12 @@ package com.posse.kotlin1.calendar.view.friends.list
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.posse.kotlin1.calendar.databinding.FriendLayoutBinding
+import com.posse.kotlin1.calendar.model.Contact
 import com.posse.kotlin1.calendar.model.Friend
+import com.posse.kotlin1.calendar.utils.DiffUtilCallback
 
 class FriendListRecyclerAdapter(
     private var data: MutableList<Friend>,
@@ -34,6 +37,13 @@ class FriendListRecyclerAdapter(
             listener.friendMoved(fromPosition, toPosition)
         }
         notifyItemMoved(fromPosition, toPosition)
+    }
+
+    fun setData(newItems: MutableList<Friend>) {
+        val result = DiffUtil.calculateDiff(DiffUtilCallback(data, newItems))
+        result.dispatchUpdatesTo(this)
+        data.clear()
+        data.addAll(newItems)
     }
 
     override fun saveItem(friend: Friend) = listener.friendClicked(friend)

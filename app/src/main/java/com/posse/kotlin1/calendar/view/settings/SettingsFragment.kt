@@ -10,6 +10,7 @@ import android.view.ViewGroup
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat.getDrawable
+import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import com.posse.kotlin1.calendar.R
@@ -55,7 +56,15 @@ class SettingsFragment : Fragment() {
         account.getAccountState()
         setupLoginButton()
         setupLogoutButton()
+        setupNicknameField()
         setupThemeSwitch()
+    }
+
+    private fun setupNicknameField() {
+        App.sharedPreferences?.let { binding.nickName.editText?.setText(it.nickName) }
+        binding.nickName.editText?.doOnTextChanged { text, _, _, _ ->
+            App.sharedPreferences?.nickName = text.toString()
+        }
     }
 
     private fun setupShareFragment() {
@@ -128,12 +137,14 @@ class SettingsFragment : Fragment() {
                         defaultPicture?.intrinsicHeight ?: 0
                     )
                     .into(binding.userLogo)
+                binding.nickName.show()
                 if (isLoginPressed) binding.motionSettings.transitionToEnd()
                 else binding.motionSettings.progress = 1f
             }
             is AccountState.LoggedOut -> {
                 binding.loginButton.show()
                 binding.logoutButton.disappear()
+                binding.nickName.disappear()
                 binding.userEmail.putText(getString(R.string.login_to_sync))
                 binding.userLogo.setImageDrawable(defaultPicture)
                 if (isLoginPressed) binding.motionSettings.transitionToStart()

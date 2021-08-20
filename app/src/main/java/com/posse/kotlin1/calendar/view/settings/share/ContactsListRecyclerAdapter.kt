@@ -38,16 +38,16 @@ class ContactsListRecyclerAdapter(
             val oldData = combinedChange.oldData
             val newData = combinedChange.newData
 
-            if (newData.isSelected != oldData.isSelected) {
+            if (newData.selected != oldData.selected) {
                 holder.contactBinding.contactChecked.setImageResource(
-                    if (newData.isSelected) android.R.drawable.radiobutton_on_background
+                    if (newData.selected) android.R.drawable.radiobutton_on_background
                     else android.R.drawable.radiobutton_off_background
                 )
             }
         }
     }
 
-    private fun setData(newItems: MutableList<Contact>) {
+    fun setData(newItems: List<Contact>) {
         val result = DiffUtil.calculateDiff(DiffUtilCallback(data, newItems))
         result.dispatchUpdatesTo(this)
         data.clear()
@@ -59,11 +59,6 @@ class ContactsListRecyclerAdapter(
     }
 
     override fun selectItem(contact: Contact) {
-        val newData = data.map { it.copy() }
-        newData.forEach {
-            if (it.email == contact.email) it.isSelected = !it.isSelected
-        }
-        setData(newData.toMutableList())
         listener.contactClicked(contact)
     }
 }

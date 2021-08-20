@@ -46,7 +46,7 @@ class FriendViewHolder(
 
     private fun setupCheckedView(friend: Friend) {
         friendBinding.friendChecked.setImageResource(
-            if (friend.isSelected) android.R.drawable.radiobutton_on_background
+            if (friend.selected) android.R.drawable.radiobutton_on_background
             else android.R.drawable.radiobutton_off_background
         )
     }
@@ -64,7 +64,7 @@ class FriendViewHolder(
     private fun setupCardClickListener(friend: Friend) {
         friendBinding.friendCardView.setOnClickListener {
             keyboard.hide(it)
-            friend.isSelected = true
+            friend.selected = true
             listener.saveItem(friend)
         }
     }

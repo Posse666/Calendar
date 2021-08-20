@@ -13,8 +13,6 @@ import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.common.api.ApiException
-import com.google.android.gms.tasks.Task
-import com.google.firebase.auth.AuthResult
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.GoogleAuthProvider
 import com.posse.kotlin1.calendar.R
@@ -23,14 +21,16 @@ import com.posse.kotlin1.calendar.model.repository.Repository
 import com.posse.kotlin1.calendar.model.repository.RepositoryFirestoreImpl
 
 object Account {
-    private val repository: Repository = RepositoryFirestoreImpl
+    private val repository: Repository = RepositoryFirestoreImpl()
     private val liveData: MutableLiveData<AccountState> = MutableLiveData()
+    private lateinit var oldEmail: String
     private var googleAccount: GoogleSignInAccount? =
         GoogleSignIn.getLastSignedInAccount(App.appInstance)
     private val gso = GoogleSignInOptions
         .Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
         .requestIdToken(App.appInstance?.getString(R.string.default_web_client_id))
         .requestEmail()
+        .requestProfile()
         .build()
 
     fun getLiveData() = liveData
@@ -40,19 +40,10 @@ object Account {
             val task = GoogleSignIn.getSignedInAccountFromIntent(result.data)
             try {
                 googleAccount = task.getResult(ApiException::class.java)
-                googleAccount?.email?.let {
-                    var nickName = App.sharedPreferences?.nickName
-                    if (nickName == null) {
-                        nickName = it
-                        App.sharedPreferences?.nickName = it
-                    }
-                    repository.mergeDates(it, nickName)
-                }
             } catch (e: ApiException) {
                 Log.w("login", "signInResult:failed code=" + e.statusCode)
             }
             authToFirestore()
-            getAccountState()
         }
     }
 
@@ -60,10 +51,14 @@ object Account {
         FirebaseAuth.getInstance().currentUser?.delete()
         val credential = GoogleAuthProvider.getCredential(googleAccount?.idToken, null)
         FirebaseAuth.getInstance().signInWithCredential(credential)
-            .addOnCompleteListener { task1: Task<AuthResult?> ->
-                if (task1.isSuccessful) {
-                    Log.d("login", "signInWithCredential:success")
+            .addOnSuccessListener {
+                googleAccount?.email?.let {
+                    val nickName = App.sharedPreferences?.nickName ?: googleAccount?.displayName ?: it
+                    App.sharedPreferences?.nickName = nickName
+                    repository.mergeDates(oldEmail, it, nickName)
                 }
+                getAccountState()
+                Log.d("login", "signInWithCredential:success")
             }
     }
 
@@ -74,6 +69,7 @@ object Account {
     }
 
     fun login(fragment: Fragment, startLogin: ActivityResultLauncher<Intent>) {
+        oldEmail = getEmail()!!
         val googleSignInClient = GoogleSignIn.getClient(fragment.requireActivity(), gso)
         startLogin.launch(googleSignInClient.signInIntent)
     }
@@ -95,8 +91,9 @@ object Account {
         FirebaseAuth.getInstance().signInAnonymously().addOnCompleteListener {
             if (it.isSuccessful) {
                 Log.d("TAG", "signInAnonymously:success")
-                val email = getAvailableMail()
-                callback.invoke(email!!)
+                val email = getAvailableMail()!!
+                oldEmail = email
+                callback.invoke(email)
             } else {
                 Log.w("TAG", "signInAnonymously:failure", it.exception)
                 showErrorAuthentication()

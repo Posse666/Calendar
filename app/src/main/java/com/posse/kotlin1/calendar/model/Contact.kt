@@ -1,12 +1,15 @@
 package com.posse.kotlin1.calendar.model
 
 data class Contact(
-    val names: Array<String>,
+    val names: MutableList<String>,
     override val email: String,
     var notInContacts: Boolean = false,
     var notInBase: Boolean = true,
-    override var isSelected: Boolean = false
+    override var selected: Boolean = false,
+    override var blocked: Boolean = false
 ) : Person {
+    override fun toString(): String = email
+
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (javaClass != other?.javaClass) return false
