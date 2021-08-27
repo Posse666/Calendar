@@ -11,7 +11,7 @@ import com.posse.kotlin1.calendar.utils.toDataClass
 import java.util.*
 
 class FriendsViewModel : ViewModel() {
-    private val repository: Repository = RepositoryFirestoreImpl()
+    private val repository: Repository = RepositoryFirestoreImpl.newInstance()
     private val friendsData: HashSet<Friend> = hashSetOf()
     private lateinit var email: String
     private val liveDataToObserve: MutableLiveData<Pair<Boolean, Set<Friend>>> =
@@ -19,11 +19,10 @@ class FriendsViewModel : ViewModel() {
 
     fun getLiveData() = liveDataToObserve
 
-    fun refreshLiveData(email: String) {
+    fun refreshLiveData(email: String, callback: (() -> Unit)? = null) {
         this.email = email
-//        testingDELETE()
         liveDataToObserve.value = Pair(false, emptySet())
-        repository.getData(DOCUMENTS.FRIENDS, email) { friends ->
+        repository.getData(DOCUMENTS.FRIENDS, email) { friends, isOffline ->
             friendsData.clear()
             friends?.values?.forEach { friendMap ->
                 val friend = (friendMap as Map<String, Any>).toDataClass<Friend>()
@@ -31,14 +30,7 @@ class FriendsViewModel : ViewModel() {
             }
             sortPositions(friendsData.toList().sortedBy { it.position })
             liveDataToObserve.value = Pair(true, friendsData)
-        }
-    }
-
-    private fun testingDELETE() {
-        var friend: Friend
-        for (i in 1..22) {
-            friend = Friend("Друг_$i", "koresh_$i@mail.ru", false, false, i - 1)
-            repository.saveItem(DOCUMENTS.FRIENDS, email, friend)
+            if (isOffline) callback?.invoke()
         }
     }
 
@@ -84,17 +76,13 @@ class FriendsViewModel : ViewModel() {
         }
     }
 
+    fun changeName(friend: Friend) = repository.saveItem(DOCUMENTS.FRIENDS, email, friend)
+
     fun deleteFriend(friend: Friend) {
         if (friend.blocked) {
             repository.saveItem(DOCUMENTS.FRIENDS, email, friend)
         } else repository.removeItem(DOCUMENTS.FRIENDS, email, friend)
-        repository.getData(DOCUMENTS.SHARE, friend.email) { friendsShareCollection ->
-            val youInFriendShared =
-                (friendsShareCollection?.get(email) as Map<String, Any>?)?.toDataClass<Contact>()
-            youInFriendShared?.let {
-                repository.removeItem(DOCUMENTS.SHARE, friend.email, youInFriendShared)
-            }
-        }
+        repository.removeItem(DOCUMENTS.SHARE, friend.email, Contact(mutableListOf(), email))
         refreshLiveData(email)
     }
 }

@@ -2,45 +2,44 @@ package com.posse.kotlin1.calendar.view.friends.list
 
 import android.annotation.SuppressLint
 import android.graphics.Color
-import android.text.method.KeyListener
-import android.text.method.MovementMethod
 import android.view.MotionEvent
 import android.view.View
+import androidx.core.widget.doOnTextChanged
 import androidx.recyclerview.widget.RecyclerView
 import com.posse.kotlin1.calendar.databinding.FriendLayoutBinding
 import com.posse.kotlin1.calendar.model.Friend
-import com.posse.kotlin1.calendar.utils.*
+import com.posse.kotlin1.calendar.utils.Keyboard
+import com.posse.kotlin1.calendar.utils.putText
 
 class FriendViewHolder(
-    val friendBinding: FriendLayoutBinding,
+    private val friendBinding: FriendLayoutBinding,
     private val dragListener: OnStartDragListener,
-    private val listener: ItemClickListener
+    private val listener: FriendAdapterListener,
 ) :
     RecyclerView.ViewHolder(friendBinding.root), ItemTouchHelperViewHolder {
     private val keyboard = Keyboard()
-    private val movementMethod = friendBinding.editNameField.movementMethod
-    private val keyListener = friendBinding.editNameField.keyListener
 
     fun bind(friend: Friend) {
-        setTouchResponse(null, null)
-        switchElements(friendBinding.saveFriend, friendBinding.editFriend)
+        keyboard.setListener { friendBinding.editNameField.editText?.clearFocus() }
         setupViewText(friend)
         setupCheckedView(friend)
         setupDragListener()
-        setupEditButton()
-        setupSaveButton(friend)
         setupCardClickListener(friend)
         setupDeleteButton(friend)
     }
 
     private fun setupDeleteButton(friend: Friend) {
         friendBinding.deleteFriend.setOnClickListener {
-            listener.deleteItem(friend)
+            listener.friendDeleted(friend)
         }
     }
 
     private fun setupViewText(friend: Friend) {
-        friendBinding.editNameField.putText(friend.name)
+        friendBinding.editNameField.editText?.setText(friend.name)
+        friendBinding.editNameField.editText?.doOnTextChanged { text, _, _, _ ->
+            friend.name = text.toString()
+            listener.friendNameChanged(friend)
+        }
         friendBinding.friendEmail.putText(friend.email)
     }
 
@@ -65,39 +64,13 @@ class FriendViewHolder(
         friendBinding.friendCardView.setOnClickListener {
             keyboard.hide(it)
             friend.selected = true
-            listener.saveItem(friend)
+            listener.friendClicked(friend)
         }
     }
 
-    private fun setupSaveButton(friend: Friend) {
-        friendBinding.saveFriend.setOnClickListener {
-            switchElements(it, friendBinding.editFriend)
-            friendBinding.editNameField.removeFocus()
-            setTouchResponse(null, null)
-            keyboard.hide(it)
-            friend.name = friendBinding.editNameField.text.toString()
-            listener.saveItem(friend)
-        }
-    }
-
-    private fun setupEditButton() {
-        friendBinding.editFriend.setOnClickListener {
-            switchElements(it, friendBinding.saveFriend)
-            friendBinding.editNameField.setFocus()
-            friendBinding.editNameField.setSelection(friendBinding.editNameField.text.toString().length)
-            setTouchResponse(movementMethod, keyListener)
-            keyboard.show()
-        }
-    }
-
-    private fun setTouchResponse(movementMethod: MovementMethod?, keyListener: KeyListener?) {
-        friendBinding.editNameField.movementMethod = movementMethod
-        friendBinding.editNameField.keyListener = keyListener
-    }
-
-    private fun switchElements(view: View, view2: View) {
-        view.hide()
-        view2.show()
+    fun removeListeners() {
+        keyboard.setListener(null)
+        keyboard.removeGlobalListener()
     }
 
     override fun onItemSelected() {
@@ -112,9 +85,4 @@ class FriendViewHolder(
 interface ItemTouchHelperViewHolder {
     fun onItemSelected()
     fun onItemClear()
-}
-
-interface ItemClickListener {
-    fun saveItem(friend: Friend)
-    fun deleteItem(friend: Friend)
 }

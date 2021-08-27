@@ -13,7 +13,7 @@ private const val THIS_YEAR = true
 private const val ALL_TIME = false
 
 class CalendarViewModel : ViewModel() {
-    private val repository: Repository = RepositoryFirestoreImpl()
+    private val repository: Repository = RepositoryFirestoreImpl.newInstance()
     private val datesData: java.util.HashSet<LocalDate> = hashSetOf()
     private lateinit var email: String
     private val liveDataToObserve: MutableLiveData<Pair<Boolean, Set<LocalDate>>> =
@@ -25,16 +25,17 @@ class CalendarViewModel : ViewModel() {
 
     fun getLiveStats() = liveStatisticToObserve
 
-    fun refreshLiveData(email: String) {
+    fun refreshLiveData(email: String, callback: () -> Unit) {
         this.email = email
         liveDataToObserve.value = Pair(false, emptySet())
-        repository.getData(DOCUMENTS.DATES, email) { dates ->
+        repository.getData(DOCUMENTS.DATES, email) { dates, isOffline ->
             datesData.clear()
             dates?.forEach {
                 datesData.add(convertLongToLocalDale(it.value as Long))
             }
             liveDataToObserve.value = Pair(true, datesData)
             liveStatisticToObserve.value = getSats(datesData)
+            if (isOffline) callback.invoke()
         }
     }
 
@@ -54,6 +55,7 @@ class CalendarViewModel : ViewModel() {
             datesData.remove(date)
             repository.removeItem(DOCUMENTS.DATES, email, date)
         }
+        liveDataToObserve.value = Pair(true, datesData)
         liveStatisticToObserve.value = getSats(datesData)
     }
 

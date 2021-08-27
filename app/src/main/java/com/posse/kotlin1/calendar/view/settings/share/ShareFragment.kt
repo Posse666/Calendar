@@ -13,10 +13,7 @@ import androidx.fragment.app.activityViewModels
 import com.posse.kotlin1.calendar.R
 import com.posse.kotlin1.calendar.databinding.FragmentShareBinding
 import com.posse.kotlin1.calendar.model.Contact
-import com.posse.kotlin1.calendar.utils.Account
-import com.posse.kotlin1.calendar.utils.Permission
-import com.posse.kotlin1.calendar.utils.checkPermission
-import com.posse.kotlin1.calendar.utils.checkPermissionsResult
+import com.posse.kotlin1.calendar.utils.*
 import com.posse.kotlin1.calendar.viewModel.ContactsViewModel
 
 private const val REQUEST_CODE = 66
@@ -131,7 +128,7 @@ class ShareFragment : Fragment() {
         }
         val myMail = Account.getEmail()
         if (myMail != null && myMail.contains("@")) {
-            viewModel.setContacts(myMail, contactsWithEmail)
+            viewModel.setContacts(myMail, contactsWithEmail) { context?.showOfflineToast() }
             ContactsFragment.newInstance().show(childFragmentManager, null)
         }
     }

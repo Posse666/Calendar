@@ -21,7 +21,7 @@ import com.posse.kotlin1.calendar.model.repository.Repository
 import com.posse.kotlin1.calendar.model.repository.RepositoryFirestoreImpl
 
 object Account {
-    private val repository: Repository = RepositoryFirestoreImpl()
+    private val repository: Repository = RepositoryFirestoreImpl.newInstance()
     private val liveData: MutableLiveData<AccountState> = MutableLiveData()
     private lateinit var oldEmail: String
     private var googleAccount: GoogleSignInAccount? =

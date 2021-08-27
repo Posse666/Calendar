@@ -7,6 +7,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.inputmethod.EditorInfo
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat.getDrawable
@@ -17,6 +18,7 @@ import com.posse.kotlin1.calendar.R
 import com.posse.kotlin1.calendar.app.App
 import com.posse.kotlin1.calendar.databinding.FragmentSettingsBinding
 import com.posse.kotlin1.calendar.utils.*
+import com.posse.kotlin1.calendar.view.settings.blackList.BlackListFragment
 import com.posse.kotlin1.calendar.view.settings.share.ShareFragment
 import com.posse.kotlin1.calendar.viewModel.SettingsViewModel
 import com.squareup.picasso.Picasso
@@ -27,6 +29,7 @@ class SettingsFragment : Fragment() {
     private var _binding: FragmentSettingsBinding? = null
     private val binding get() = _binding!!
     private val account = Account
+    private val keyboard = Keyboard()
     private var isInitCompleted = false
     private var isLoginPressed = false
     private val viewModel: SettingsViewModel by lazy {
@@ -57,13 +60,24 @@ class SettingsFragment : Fragment() {
         setupLoginButton()
         setupLogoutButton()
         setupNicknameField()
+        setupBlackList()
         setupThemeSwitch()
+        keyboard.setListener { binding.nickName.editText?.clearFocus() }
     }
 
     private fun setupNicknameField() {
         App.sharedPreferences?.let { binding.nickName.editText?.setText(it.nickName) }
         binding.nickName.editText?.doOnTextChanged { text, _, _, _ ->
             App.sharedPreferences?.nickName = text.toString()
+            viewModel.changeName(account.getEmail()!!, text.toString())
+        }
+        binding.nickName.editText?.let {
+            it.setOnEditorActionListener { textView, actionId, _ ->
+                if (actionId == EditorInfo.IME_ACTION_DONE) {
+                    textView.clearFocus()
+                }
+                false
+            }
         }
     }
 
@@ -72,6 +86,12 @@ class SettingsFragment : Fragment() {
             this.beginTransaction()
                 .replace(R.id.shareFragmentContainer, ShareFragment.newInstance())
                 .commit()
+        }
+    }
+
+    private fun setupBlackList() {
+        binding.settingsBlackList.setOnClickListener {
+            BlackListFragment.newInstance(account.getEmail()!!).show(childFragmentManager, null)
         }
     }
 
@@ -129,6 +149,7 @@ class SettingsFragment : Fragment() {
             is AccountState.LoggedIn -> {
                 binding.loginButton.disappear()
                 binding.logoutButton.show()
+                binding.nickName.show()
                 accountState.userEmail?.let { binding.userEmail.putText(it) }
                 Picasso.get()
                     .load(accountState.userPicture)
@@ -137,7 +158,6 @@ class SettingsFragment : Fragment() {
                         defaultPicture?.intrinsicHeight ?: 0
                     )
                     .into(binding.userLogo)
-                binding.nickName.show()
                 if (isLoginPressed) binding.motionSettings.transitionToEnd()
                 else binding.motionSettings.progress = 1f
             }
@@ -148,6 +168,7 @@ class SettingsFragment : Fragment() {
                 binding.userEmail.putText(getString(R.string.login_to_sync))
                 binding.userLogo.setImageDrawable(defaultPicture)
                 if (isLoginPressed) binding.motionSettings.transitionToStart()
+                else binding.motionSettings.progress = 0f
             }
         }
     }
@@ -155,6 +176,8 @@ class SettingsFragment : Fragment() {
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
+        keyboard.setListener(null)
+        keyboard.removeGlobalListener()
     }
 
     companion object {

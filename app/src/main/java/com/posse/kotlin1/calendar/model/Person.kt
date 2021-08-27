@@ -5,4 +5,3 @@ interface Person {
     var selected: Boolean
     var blocked: Boolean
 }
-

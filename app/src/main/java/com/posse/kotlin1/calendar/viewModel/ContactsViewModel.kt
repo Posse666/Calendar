@@ -14,7 +14,7 @@ import com.posse.kotlin1.calendar.utils.toDataClass
 import java.util.*
 
 class ContactsViewModel : ViewModel() {
-    private val repository: Repository = RepositoryFirestoreImpl()
+    private val repository: Repository = RepositoryFirestoreImpl.newInstance()
     private val sharedData: HashSet<Contact> = hashSetOf()
     private lateinit var email: String
     private val liveDataToObserve: MutableLiveData<Pair<Boolean, Set<Contact>>> =
@@ -22,13 +22,13 @@ class ContactsViewModel : ViewModel() {
 
     fun getLiveData() = liveDataToObserve
 
-    fun setContacts(email: String, contacts: List<Contact>) {
+    fun setContacts(email: String, contacts: List<Contact>, callback: () -> Unit) {
         this.email = email
         liveDataToObserve.value = Pair(false, emptySet())
         sharedData.clear()
         sharedData.addAll(contacts)
-        repository.getData(DOCUMENTS.SHARE, email) { contactsCollection ->
-            repository.getData(DOCUMENTS.USERS, COLLECTION_USERS) { usersCollection ->
+        repository.getData(DOCUMENTS.SHARE, email) { contactsCollection, _ ->
+            repository.getData(DOCUMENTS.USERS, COLLECTION_USERS) { usersCollection, isOffline ->
                 contactsCollection?.values?.forEach { contactMap ->
                     val contact = (contactMap as Map<String, Any>).toDataClass<Contact>()
                     contact.notInContacts = !sharedData.contains(contact)
@@ -47,12 +47,13 @@ class ContactsViewModel : ViewModel() {
                     }
                 }
                 liveDataToObserve.value = Pair(true, sharedData)
+                if (isOffline) callback.invoke()
             }
         }
     }
 
-    fun contactClicked(contact: Contact, toast: () -> Unit) {
-        repository.getData(DOCUMENTS.FRIENDS, contact.email) { contactFriendsCollection ->
+    fun contactClicked(contact: Contact, callback: () -> Unit, toast: () -> Unit) {
+        repository.getData(DOCUMENTS.FRIENDS, contact.email) { contactFriendsCollection, isOffline ->
             var newContact: Contact = contact
             sharedData.forEach { sharedContact ->
                 if (sharedContact.email == contact.email) {
@@ -90,6 +91,7 @@ class ContactsViewModel : ViewModel() {
             sharedData.remove(newContact)
             sharedData.add(newContact)
             liveDataToObserve.value = Pair(true, sharedData)
+            if (isOffline) callback.invoke()
         }
     }
 }

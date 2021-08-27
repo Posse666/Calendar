@@ -5,20 +5,19 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.posse.kotlin1.calendar.databinding.FriendLayoutBinding
-import com.posse.kotlin1.calendar.model.Contact
 import com.posse.kotlin1.calendar.model.Friend
 import com.posse.kotlin1.calendar.utils.DiffUtilCallback
 
 class FriendListRecyclerAdapter(
     private var data: MutableList<Friend>,
-    private val dragListener: OnStartDragListener,
-    private val listener: FriendAdapterListener
-) : RecyclerView.Adapter<FriendViewHolder>(), ItemClickListener {
+    private val listener: FriendAdapterListener,
+    private val dragListener: OnStartDragListener
+) : RecyclerView.Adapter<FriendViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): FriendViewHolder {
         val inflater = LayoutInflater.from(parent.context)
         val friendBinding = FriendLayoutBinding.inflate(inflater, parent, false)
-        return FriendViewHolder(friendBinding, dragListener, this)
+        return FriendViewHolder(friendBinding, dragListener, listener)
     }
 
     override fun onBindViewHolder(holder: FriendViewHolder, position: Int) {
@@ -46,9 +45,10 @@ class FriendListRecyclerAdapter(
         data.addAll(newItems)
     }
 
-    override fun saveItem(friend: Friend) = listener.friendClicked(friend)
-
-    override fun deleteItem(friend: Friend) = listener.friendDeleted(friend)
+    override fun onViewRecycled(holder: FriendViewHolder) {
+        holder.removeListeners()
+        super.onViewRecycled(holder)
+    }
 }
 
 fun interface OnStartDragListener {
@@ -59,4 +59,5 @@ interface FriendAdapterListener {
     fun friendClicked(friend: Friend)
     fun friendMoved(fromPosition: Int, toPosition: Int)
     fun friendDeleted(friend: Friend)
+    fun friendNameChanged(friend: Friend)
 }

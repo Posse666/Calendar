@@ -1,10 +1,13 @@
 package com.posse.kotlin1.calendar.view.settings.share
 
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
+import android.view.inputmethod.EditorInfo
 import android.widget.Toast
 import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.DialogFragment
@@ -12,10 +15,7 @@ import androidx.fragment.app.activityViewModels
 import com.posse.kotlin1.calendar.R
 import com.posse.kotlin1.calendar.databinding.FragmentContactsBinding
 import com.posse.kotlin1.calendar.model.Contact
-import com.posse.kotlin1.calendar.utils.Keyboard
-import com.posse.kotlin1.calendar.utils.hide
-import com.posse.kotlin1.calendar.utils.setWindowSize
-import com.posse.kotlin1.calendar.utils.show
+import com.posse.kotlin1.calendar.utils.*
 import com.posse.kotlin1.calendar.viewModel.ContactsViewModel
 
 class ContactsFragment : DialogFragment(), ContactAdapterListener {
@@ -38,15 +38,66 @@ class ContactsFragment : DialogFragment(), ContactAdapterListener {
         super.onViewCreated(view, savedInstanceState)
         setWindowSize(this, WindowManager.LayoutParams.MATCH_PARENT)
         binding.contactsListClose.setOnClickListener { dismiss() }
+        setupContactSearchField()
+        setupContactAddButton()
+        setupRecyclerAdapter()
+        viewModel.getLiveData().observe(viewLifecycleOwner) { showContacts(it) }
+        keyboard.setListener { binding.contactSearchField.editText?.clearFocus() }
+        isCancelable = true
+    }
+
+    private fun setupContactSearchField() {
         binding.contactSearchField.editText?.doOnTextChanged { _, _, _, count ->
             if (count > 0) binding.contactSearchField.error = null
         }
+        binding.contactSearchField.editText?.let {
+            it.setOnEditorActionListener { textView, actionId, _ ->
+                if (actionId == EditorInfo.IME_ACTION_DONE) {
+                    textView.clearFocus()
+                }
+                false
+            }
+        }
+        binding.contactSearchField.setEndIconOnClickListener {
+            binding.contactSearchField.editText?.setText("")
+            binding.contactSearchField.error = null
+        }
+    }
+
+    private fun setupRecyclerAdapter() {
+        adapter = ContactsListRecyclerAdapter(mutableListOf(), this)
+        binding.contactsRecyclerView.adapter = adapter
+    }
+
+    private fun showContacts(pair: Pair<Boolean, Set<Contact>>) {
+        if (pair.first) {
+            if (pair.second.isEmpty()) {
+                binding.noContacts.show()
+                binding.contactsRecyclerCard.hide()
+            } else {
+                contacts.clear()
+                contacts.addAll(pair.second)
+                val sortedContacts = pair.second.toSortedSet(compareBy(
+                    { !it.notInContacts },
+                    { !it.selected },
+                    { it.names[0] }
+                ))
+                adapter.setData(
+                    sortedContacts.toList().filter { !(it.notInContacts && !it.selected) })
+                Handler(Looper.getMainLooper()).postDelayed({
+                    binding.contactsRecyclerView.smoothScrollToPosition(0)
+                }, 300)
+            }
+        }
+    }
+
+    private fun setupContactAddButton() {
         binding.contactAddButton.setOnClickListener {
             binding.contactSearchField.editText?.let { editText ->
                 var isContactFound = false
                 contacts.forEach {
                     if (it.email == editText.text.toString() && it.notInContacts) {
-                        viewModel.contactClicked(it) {}
+                        contactClicked(it)
                         isContactFound = true
                         keyboard.hide(editText)
                         editText.text.clear()
@@ -56,34 +107,13 @@ class ContactsFragment : DialogFragment(), ContactAdapterListener {
                     getString(R.string.email_not_found)
             }
         }
-        adapter = ContactsListRecyclerAdapter(mutableListOf(), this)
-        binding.contactsRecyclerView.adapter = adapter
-        viewModel.getLiveData().observe(viewLifecycleOwner, { pair ->
-            if (pair.first) {
-                if (pair.second.isEmpty()) {
-                    binding.noContacts.show()
-                    binding.contactsRecyclerCard.hide()
-                } else {
-                    contacts.clear()
-                    contacts.addAll(pair.second)
-                    val sortedContacts = pair.second.toSortedSet(compareBy(
-                        { !it.notInContacts },
-                        { !it.selected },
-                        { it.names[0] }
-                    ))
-                    adapter.setData(
-                        sortedContacts.toList().filter { !(it.notInContacts && !it.selected) })
-                }
-            }
-        })
-        isCancelable = true
     }
 
     override fun contactClicked(contact: Contact) {
-        viewModel.contactClicked(contact) {
+        viewModel.contactClicked(contact, { context?.showOfflineToast() }) {
             Toast.makeText(
                 requireContext(),
-                "You are in black list of this user",
+                getString(R.string.you_are_in_black_list),
                 Toast.LENGTH_SHORT
             ).show()
         }
@@ -92,6 +122,8 @@ class ContactsFragment : DialogFragment(), ContactAdapterListener {
     override fun onDestroyView() {
         super.onDestroyView()
         keyboard.hide(binding.root)
+        keyboard.setListener(null)
+        keyboard.removeGlobalListener()
         _binding = null
     }
 

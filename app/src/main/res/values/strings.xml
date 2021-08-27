@@ -59,5 +59,9 @@
     <string name="enter_e_mail">Enter e-mail</string>
     <string name="email_not_found">Email not found</string>
     <string name="nick_name">Nickname</string>
+    <string name="black_list">Black list</string>
+    <string name="empty_black_list">Black list is empty</string>
+    <string name="you_are_in_black_list">You are in black list of this user</string>
+    <string name="no_connection">No connection! Get offline data…</string>
 
 </resources>

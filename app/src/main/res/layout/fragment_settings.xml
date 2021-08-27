@@ -38,6 +38,7 @@
                             android:id="@+id/userLogo"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
+                            android:layout_gravity="center_vertical"
                             tools:srcCompat="@drawable/common_google_signin_btn_icon_light_normal" />
 
                         <com.google.android.material.textfield.TextInputLayout
@@ -45,15 +46,20 @@
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
-                            app:boxBackgroundColor="@android:color/transparent"
-                            app:endIconMode="clear_text"
-                            android:visibility="gone">
+                            android:visibility="gone"
+                            app:boxBackgroundMode="none"
+                            app:endIconMode="clear_text">
 
                             <com.google.android.material.textfield.TextInputEditText
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
                                 android:hint="@string/nick_name"
-                                android:maxLines="1" />
+                                android:imeOptions="actionDone"
+                                android:maxLines="1"
+                                android:paddingTop="16dp"
+                                android:scrollHorizontally="true"
+                                android:singleLine="true"
+                                tools:ignore="TouchTargetSizeCheck"/>
                         </com.google.android.material.textfield.TextInputLayout>
 
                     </androidx.appcompat.widget.LinearLayoutCompat>
@@ -63,7 +69,6 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center_vertical"
-                        android:layout_marginStart="10dp"
                         tools:text="@string/login_to_sync" />
 
                     <androidx.appcompat.widget.LinearLayoutCompat
@@ -75,6 +80,7 @@
                             android:id="@+id/loginButton"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
+                            android:visibility="visible"
                             app:buttonSize="wide" />
 
                         <com.google.android.material.button.MaterialButton
@@ -82,8 +88,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="@string/logout"
-                            android:visibility="gone"
-                            tools:visibility="visible" />
+                            android:visibility="gone" />
 
                     </androidx.appcompat.widget.LinearLayoutCompat>
 
@@ -99,17 +104,33 @@
             android:visibility="gone"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/loginCardFrame">
+            app:layout_constraintTop_toBottomOf="@id/loginCardFrame"
+            tools:visibility="visible">
 
             <com.google.android.material.card.MaterialCardView
                 style="@style/CardLayoutStyle"
                 android:layout_height="wrap_content">
 
-                <androidx.fragment.app.FragmentContainerView
-                    android:id="@+id/shareFragmentContainer"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content" />
+                <androidx.appcompat.widget.LinearLayoutCompat
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
 
+                    <androidx.fragment.app.FragmentContainerView
+                        android:id="@+id/shareFragmentContainer"
+                        android:name="com.posse.kotlin1.calendar.view.settings.share.ShareFragment"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        tools:layout="@layout/fragment_share" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/settingsBlackList"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/black_list"
+                        app:icon="@android:drawable/ic_delete" />
+
+                </androidx.appcompat.widget.LinearLayoutCompat>
             </com.google.android.material.card.MaterialCardView>
         </FrameLayout>
 

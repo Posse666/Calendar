@@ -9,17 +9,18 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.recyclerview.widget.ItemTouchHelper
 import com.posse.kotlin1.calendar.R
-import com.posse.kotlin1.calendar.databinding.FragmentFriendsListBinding
+import com.posse.kotlin1.calendar.databinding.FragmentRecyclerListBinding
 import com.posse.kotlin1.calendar.model.Friend
 import com.posse.kotlin1.calendar.utils.Account
 import com.posse.kotlin1.calendar.utils.disappear
+import com.posse.kotlin1.calendar.utils.putText
 import com.posse.kotlin1.calendar.utils.show
 import com.posse.kotlin1.calendar.view.deleteConfirmation.DeleteFragmentDialog
 import com.posse.kotlin1.calendar.viewModel.FriendsViewModel
 
 class FriendsListFragment : Fragment(), FriendAdapterListener {
 
-    private var _binding: FragmentFriendsListBinding? = null
+    private var _binding: FragmentRecyclerListBinding? = null
     private val binding get() = _binding!!
     private val viewModel: FriendsViewModel by activityViewModels()
     private lateinit var adapter: FriendListRecyclerAdapter
@@ -29,7 +30,7 @@ class FriendsListFragment : Fragment(), FriendAdapterListener {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        _binding = FragmentFriendsListBinding.inflate(inflater, container, false)
+        _binding = FragmentRecyclerListBinding.inflate(inflater, container, false)
         return binding.root
     }
 
@@ -37,28 +38,34 @@ class FriendsListFragment : Fragment(), FriendAdapterListener {
         super.onViewCreated(view, savedInstanceState)
         val myMail = Account.getEmail()
         if (myMail != null && myMail.contains("@")) {
-            binding.friendsListClose.setOnClickListener { viewModel.refreshLiveData(myMail) }
-            adapter = FriendListRecyclerAdapter(
-                mutableListOf(),
-                { viewHolder -> itemTouchHelper.startDrag(viewHolder) },
-                this
-            )
-            binding.friendsRecyclerView.adapter = adapter
-            itemTouchHelper = ItemTouchHelper(ItemTouchHelperCallback(adapter))
-            itemTouchHelper.attachToRecyclerView(binding.friendsRecyclerView)
-            viewModel.getLiveData().observe(viewLifecycleOwner, {
-                if (it.first) {
-                    if (it.second.isEmpty()) {
-                        binding.noFriends.show()
-                        binding.friendsRecyclerView.disappear()
-                    } else {
-                        val friends = it.second.toMutableList()
-                        friends.sortBy { friend -> friend.position }
-                        adapter.setData(friends)
-                    }
-                }
-            })
+            binding.listClose.setOnClickListener { viewModel.refreshLiveData(myMail) }
+            setupRecyclerAdapter()
+            viewModel.getLiveData().observe(viewLifecycleOwner, { showFriends(it) })
         }
+    }
+
+    private fun showFriends(friends: Pair<Boolean, Set<Friend>>) {
+        if (friends.first) {
+            if (friends.second.isEmpty()) {
+                binding.noData.show()
+                binding.noDataText.putText(getString(R.string.nobody_shared))
+                binding.listRecyclerView.disappear()
+            } else {
+                val friendsList = friends.second.toMutableList()
+                friendsList.sortBy { it.position }
+                adapter.setData(friendsList)
+            }
+        }
+    }
+
+    private fun setupRecyclerAdapter() {
+        adapter = FriendListRecyclerAdapter(
+            mutableListOf(),
+            this
+        ) { itemTouchHelper.startDrag(it) }
+        binding.listRecyclerView.adapter = adapter
+        itemTouchHelper = ItemTouchHelper(ItemTouchHelperCallback(adapter))
+        itemTouchHelper.attachToRecyclerView(binding.listRecyclerView)
     }
 
     override fun friendClicked(friend: Friend) = viewModel.friendSelected(friend)
@@ -77,12 +84,15 @@ class FriendsListFragment : Fragment(), FriendAdapterListener {
         dialog.show(childFragmentManager, null)
     }
 
+    override fun friendNameChanged(friend: Friend) = viewModel.changeName(friend)
+
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
     }
 
     companion object {
+        @JvmStatic
         fun newInstance() = FriendsListFragment()
     }
 }
