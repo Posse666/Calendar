@@ -38,6 +38,14 @@
                 <include
                     android:id="@+id/cardAllTime"
                     layout="@layout/statistic_card" />
+
+                <include
+                    android:id="@+id/cardFreshThisYear"
+                    layout="@layout/statistic_card" />
+
+                <include
+                    android:id="@+id/cardFreshAllTime"
+                    layout="@layout/statistic_card" />
             </androidx.appcompat.widget.LinearLayoutCompat>
         </androidx.core.widget.NestedScrollView>
     </androidx.constraintlayout.widget.ConstraintLayout>

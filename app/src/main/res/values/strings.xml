@@ -25,8 +25,8 @@
     <string name="sunday">Sun</string>
 
     <string name="in_this_year_you_drank">Days that you drunk in this year</string>
-    <string name="longest_drink_marathon_in_this_year">Longest drink marathon in this year is </string>
-    <string name="longest_drink_marathon_all_time">Longest drink marathon for all time is </string>
+    <string name="longest_drink_marathon_in_this_year">Longest drink marathon in this year is</string>
+    <string name="longest_drink_marathon_all_time">Longest drink marathon for all time is</string>
 
     <string name="login_to_sync">Login to sync</string>
     <string name="login">Login</string>
@@ -63,5 +63,7 @@
     <string name="empty_black_list">Black list is empty</string>
     <string name="you_are_in_black_list">You are in black list of this user</string>
     <string name="no_connection">No connection! Get offline data…</string>
+    <string name="longest_fresh_marathon_in_this_year">Longest fresh marathon in this year is</string>
+    <string name="longest_fresh_marathon_all_time">Longest fresh marathon for all time is</string>
 
 </resources>

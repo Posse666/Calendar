@@ -8,6 +8,7 @@ import com.posse.kotlin1.calendar.model.repository.RepositoryFirestoreImpl
 import com.posse.kotlin1.calendar.utils.convertLongToLocalDale
 import java.time.LocalDate
 import java.time.Year
+import java.time.temporal.ChronoUnit
 
 private const val THIS_YEAR = true
 private const val ALL_TIME = false
@@ -44,6 +45,9 @@ class CalendarViewModel : ViewModel() {
         result[STATISTIC.DRINK_DAYS_THIS_YEAR] = getDrankDaysQuantity(dates)
         result[STATISTIC.DRINK_MAX_ROW_THIS_YEAR] = getDrinkMarathon(dates, THIS_YEAR)
         result[STATISTIC.DRINK_MAX_ROW_TOTAL] = getDrinkMarathon(dates, ALL_TIME)
+        result[STATISTIC.NOT_DRINK_MAX_ROW_THIS_YEAR] =
+            getFreshMarathon(dates?.toHashSet(), THIS_YEAR)
+        result[STATISTIC.NOT_DRINK_MAX_ROW_TOTAL] = getFreshMarathon(dates?.toHashSet(), ALL_TIME)
         return result
     }
 
@@ -87,13 +91,14 @@ class CalendarViewModel : ViewModel() {
                     }
                     days.removeAll(daysToDelete)
                 }
-                if (days.size > 2) days.removeAt(days.size - 1)
+                if (days.size > 1) days.removeAt(days.size - 1)
                 if (maxDays.size <= days.size) {
                     maxDays.clear()
                     maxDays.addAll(days)
                 }
                 days.clear()
                 days.add(it)
+                if (isThisYear && it.isBefore(currentYear)) days.clear()
             }
         }
         return if (maxDays.size > days.size) {
@@ -102,10 +107,43 @@ class CalendarViewModel : ViewModel() {
             days.toSet()
         }
     }
+
+    private fun getFreshMarathon(dates: HashSet<LocalDate>?, isThisYear: Boolean): Set<LocalDate> {
+        val days: ArrayList<LocalDate> = arrayListOf()
+        val maxDays: ArrayList<LocalDate> = arrayListOf()
+        var lastDate: LocalDate? = null
+        val currentYear: LocalDate = LocalDate.ofYearDay(Year.now().value, 1)
+        dates?.add(LocalDate.now())
+        dates?.sorted()?.forEach sortedDates@{
+            if (isThisYear) {
+                if (!it.isBefore(currentYear)) {
+                    if (lastDate?.isBefore(currentYear) == true) lastDate = currentYear.minusDays(1)
+                } else {
+                    lastDate = it
+                    return@sortedDates
+                }
+            }
+            lastDate?.let { lastDate ->
+                val period = ChronoUnit.DAYS.between(lastDate, it) - 1
+                days.clear()
+                for (i in 0 until period) {
+                    days.add(lastDate.plusDays(i + 1))
+                }
+            }
+            lastDate = it
+            if (maxDays.size <= days.size) {
+                maxDays.clear()
+                maxDays.addAll(days)
+            }
+        }
+        return maxDays.toSet()
+    }
 }
 
 enum class STATISTIC {
     DRINK_DAYS_THIS_YEAR,
     DRINK_MAX_ROW_THIS_YEAR,
-    DRINK_MAX_ROW_TOTAL
+    DRINK_MAX_ROW_TOTAL,
+    NOT_DRINK_MAX_ROW_THIS_YEAR,
+    NOT_DRINK_MAX_ROW_TOTAL
 }

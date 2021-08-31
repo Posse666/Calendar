@@ -63,5 +63,7 @@
     <string name="empty_black_list">Чёрный список пуст</string>
     <string name="you_are_in_black_list">Вы в черном списке у этого пользователя</string>
     <string name="no_connection">Нет интернета! Используются последние данные…</string>
+    <string name="longest_fresh_marathon_in_this_year">Самая трезвая серия в этом году</string>
+    <string name="longest_fresh_marathon_all_time">Самая трезвая серия за все время</string>
 
 </resources>

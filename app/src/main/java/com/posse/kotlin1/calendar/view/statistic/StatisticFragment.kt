@@ -38,13 +38,14 @@ class StatisticFragment : Fragment() {
         updateTotal(stats[STATISTIC.DRINK_DAYS_THIS_YEAR])
         updateMarathonThisYear(stats[STATISTIC.DRINK_MAX_ROW_THIS_YEAR])
         updateMarathonAllTime(stats[STATISTIC.DRINK_MAX_ROW_TOTAL])
+        updateFreshMarathonThisYear(stats[STATISTIC.NOT_DRINK_MAX_ROW_THIS_YEAR])
+        updateFreshMarathonAllTime(stats[STATISTIC.NOT_DRINK_MAX_ROW_TOTAL])
     }
 
     private fun updateTotal(stats: Set<LocalDate>?) {
         putStatistic(
-            stats?.size ?: 0,
             getString(R.string.in_this_year_you_drank),
-            stats ?: emptySet(),
+            stats,
             binding.cardTotalYears.statsDescription,
             binding.cardTotalYears.statsValue,
             null
@@ -53,9 +54,8 @@ class StatisticFragment : Fragment() {
 
     private fun updateMarathonThisYear(stats: Set<LocalDate>?) {
         putStatistic(
-            stats?.size ?: 0,
             getString(R.string.longest_drink_marathon_in_this_year),
-            stats ?: emptySet(),
+            stats,
             binding.cardThisYear.statsDescription,
             binding.cardThisYear.statsValue,
             binding.cardThisYear.root
@@ -64,27 +64,46 @@ class StatisticFragment : Fragment() {
 
     private fun updateMarathonAllTime(stats: Set<LocalDate>?) {
         putStatistic(
-            stats?.size ?: 0,
             getString(R.string.longest_drink_marathon_all_time),
-            stats ?: emptySet(),
+            stats,
             binding.cardAllTime.statsDescription,
             binding.cardAllTime.statsValue,
             binding.cardAllTime.root
         )
     }
 
+    private fun updateFreshMarathonThisYear(stats: Set<LocalDate>?) {
+        putStatistic(
+            getString(R.string.longest_fresh_marathon_in_this_year),
+            stats,
+            binding.cardFreshThisYear.statsDescription,
+            binding.cardFreshThisYear.statsValue,
+            binding.cardFreshThisYear.root
+        )
+    }
+
+    private fun updateFreshMarathonAllTime(stats: Set<LocalDate>?) {
+        putStatistic(
+            getString(R.string.longest_fresh_marathon_all_time),
+            stats,
+            binding.cardFreshAllTime.statsDescription,
+            binding.cardFreshAllTime.statsValue,
+            binding.cardFreshAllTime.root
+        )
+    }
+
     private fun putStatistic(
-        statsValue: Int,
         description: String,
-        stats: Set<LocalDate>,
+        stats: Set<LocalDate>?,
         descriptionTextView: TextView,
         valueTextView: TextView,
         cardView: MaterialCardView?
     ) {
+        val stats1 = stats ?: emptySet()
         descriptionTextView.putText(description)
-        valueTextView.putText(statsValue)
+        valueTextView.putText(stats1.size)
         cardView?.setOnClickListener {
-            listener?.cardStatsPressed(stats.minOrNull() ?: LocalDate.now())
+            listener?.cardStatsPressed(stats1.minOrNull() ?: LocalDate.now())
         }
     }
 
