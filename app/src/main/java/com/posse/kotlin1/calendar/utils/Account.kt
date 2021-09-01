@@ -52,19 +52,24 @@ object Account {
         val credential = GoogleAuthProvider.getCredential(googleAccount?.idToken, null)
         FirebaseAuth.getInstance().signInWithCredential(credential)
             .addOnSuccessListener {
-                googleAccount?.email?.let {
-                    val nickName = App.sharedPreferences?.nickName ?: googleAccount?.displayName ?: it
-                    App.sharedPreferences?.nickName = nickName
-                    repository.mergeDates(oldEmail, it, nickName)
+                googleAccount?.email?.let { email ->
+                    var nickName = App.sharedPreferences?.nickName ?: email
+                    repository.getNicknames { users ->
+                        users?.forEach {
+                            if (it.key == email) nickName = it.value
+                        }
+                        App.sharedPreferences?.nickName = nickName
+                        repository.mergeDates(oldEmail, email, nickName)
+                        getAccountState()
+                        Log.d("login", "signInWithCredential:success")
+                    }
                 }
-                getAccountState()
-                Log.d("login", "signInWithCredential:success")
             }
     }
 
     fun getAccountState() {
         liveData.value = googleAccount?.let {
-            AccountState.LoggedIn(it.photoUrl, it.email)
+            AccountState.LoggedIn(it.photoUrl, it.email!!, App.sharedPreferences!!.nickName!!)
         } ?: AccountState.LoggedOut
     }
 
@@ -120,7 +125,8 @@ object Account {
 sealed class AccountState {
     data class LoggedIn(
         val userPicture: Uri?,
-        val userEmail: String?
+        val userEmail: String,
+        val nickname: String
     ) : AccountState()
 
     object LoggedOut : AccountState()

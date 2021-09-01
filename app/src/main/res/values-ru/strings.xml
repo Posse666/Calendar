@@ -65,5 +65,7 @@
     <string name="no_connection">Нет интернета! Используются последние данные…</string>
     <string name="longest_fresh_marathon_in_this_year">Самая трезвая серия в этом году</string>
     <string name="longest_fresh_marathon_all_time">Самая трезвая серия за все время</string>
+    <string name="nickname_is_busy">Это имя занято!</string>
+    <string name="no_internet">Нет интернета!</string>
 
 </resources>

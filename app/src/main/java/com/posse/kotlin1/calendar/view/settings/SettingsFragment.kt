@@ -62,14 +62,48 @@ class SettingsFragment : Fragment() {
         setupNicknameField()
         setupBlackList()
         setupThemeSwitch()
+        setupEditNicknameButton()
+        setupSaveNicknameButton()
         keyboard.setListener { binding.nickName.editText?.clearFocus() }
     }
 
+    private fun setupSaveNicknameButton() {
+        binding.btnSaveNickname.setOnClickListener {
+            viewModel.saveNickname(
+                Account.getEmail()!!,
+                binding.nickName.editText?.text.toString()
+            ) { saved ->
+                when (saved) {
+                    null -> binding.nickName.error = getString(R.string.no_internet)
+                    false -> binding.nickName.error = getString(R.string.nickname_is_busy)
+                    true -> {
+                        binding.nickName.error = null
+                        binding.nickName.disable()
+                        keyboard.hide(it)
+                        binding.btnEditNickname.show()
+                        binding.btnSaveNickname.disappear()
+                    }
+                }
+            }
+        }
+    }
+
+    private fun setupEditNicknameButton() {
+        binding.btnEditNickname.setOnClickListener {
+            binding.nickName.enable()
+            binding.nickName.editText?.let {
+                it.setSelection(it.length())
+            }
+            keyboard.show()
+            binding.btnEditNickname.disappear()
+            binding.btnSaveNickname.show()
+            binding.nickName.error = null
+        }
+    }
+
     private fun setupNicknameField() {
-        App.sharedPreferences?.let { binding.nickName.editText?.setText(it.nickName) }
-        binding.nickName.editText?.doOnTextChanged { text, _, _, _ ->
-            App.sharedPreferences?.nickName = text.toString()
-            viewModel.changeName(account.getEmail()!!, text.toString())
+        binding.nickName.editText?.doOnTextChanged { _, _, _, _ ->
+            binding.nickName.error = null
         }
         binding.nickName.editText?.let {
             it.setOnEditorActionListener { textView, actionId, _ ->
@@ -147,10 +181,13 @@ class SettingsFragment : Fragment() {
         )
         when (accountState) {
             is AccountState.LoggedIn -> {
+                binding.btnEditNickname.show()
+                binding.btnSaveNickname.disappear()
                 binding.loginButton.disappear()
                 binding.logoutButton.show()
                 binding.nickName.show()
-                accountState.userEmail?.let { binding.userEmail.putText(it) }
+                binding.userEmail.putText(accountState.userEmail)
+                binding.nickName.editText?.setText(accountState.nickname)
                 Picasso.get()
                     .load(accountState.userPicture)
                     .resize(

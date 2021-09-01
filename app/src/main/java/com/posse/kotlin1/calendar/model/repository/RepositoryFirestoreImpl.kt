@@ -23,6 +23,7 @@ class RepositoryFirestoreImpl private constructor() : Repository {
         oldUserDocument.get()
             .addOnSuccessListener {
                 onDatesFetchComplete(it, newMail)
+                saveNickname(newMail, nickName)
                 oldUserDocument.delete()
             }
             .addOnFailureListener { Log.e("Firestore", it.toString()) }
@@ -73,20 +74,22 @@ class RepositoryFirestoreImpl private constructor() : Repository {
         users.set(hashMapOf(email to nickName), SetOptions.merge())
     }
 
+    override fun getNicknames(callback: (Map<String, String>?) -> Unit) {
+        if (isNetworkOnline()) {
+            FirebaseFirestore.getInstance().collection(COLLECTION_USERS)
+                .document(DOCUMENTS.USERS.value).get()
+                .addOnSuccessListener { callback.invoke(it.data as Map<String, String>) }
+        } else callback.invoke(null)
+    }
+
     private fun <T> changeItem(document: DOCUMENTS, collection: String, data: T, delete: Boolean) {
         val documentToChange =
             FirebaseFirestore.getInstance().collection(collection).document(document.value)
         val value: Any = if (delete) FieldValue.delete()
         else when (data) {
-            is Person -> {
-                data
-            }
-            is String -> {
-                data
-            }
-            is LocalDate -> {
-                convertLocalDateToLong(data)
-            }
+            is Person -> data
+            is String -> data
+            is LocalDate -> convertLocalDateToLong(data)
             else -> throw RuntimeException("unexpected data Type. data: " + data.toString())
         }
         documentToChange.set(mapOf(Pair(data.toString(), value)), SetOptions.merge())

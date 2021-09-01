@@ -11,4 +11,5 @@ interface Repository {
     fun <T> saveItem(document: DOCUMENTS, collection: String, data: T)
     fun <T> removeItem(document: DOCUMENTS, collection: String, data: T)
     fun saveNickname(email: String, nickName: String)
+    fun getNicknames(callback: (Map<String, String>?) -> Unit)
 }

@@ -4,14 +4,9 @@ import androidx.annotation.StyleRes
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.posse.kotlin1.calendar.app.App
-import com.posse.kotlin1.calendar.model.repository.COLLECTION_USERS
-import com.posse.kotlin1.calendar.model.repository.DOCUMENTS
 import com.posse.kotlin1.calendar.model.repository.Repository
 import com.posse.kotlin1.calendar.model.repository.RepositoryFirestoreImpl
-import com.posse.kotlin1.calendar.utils.Account
-import com.posse.kotlin1.calendar.utils.THEME
-import com.posse.kotlin1.calendar.utils.lightTheme
-import com.posse.kotlin1.calendar.utils.themeSwitch
+import com.posse.kotlin1.calendar.utils.*
 
 class SettingsViewModel : ViewModel() {
     private val repository: Repository = RepositoryFirestoreImpl.newInstance()
@@ -38,12 +33,30 @@ class SettingsViewModel : ViewModel() {
 
     fun getLastTheme() = lastTheme
 
+    fun saveNickname(email: String, nickname: String, callback: (Boolean?) -> Unit) {
+        repository.getNicknames { users ->
+            when {
+                users == null -> callback.invoke(null)
+                nickname == "" -> callback.invoke(false)
+                else -> {
+                    users.forEach {
+                        if (it.value.lowercase() == nickname.lowercase() && it.key != email) {
+                            callback.invoke(false)
+                            return@getNicknames
+                        }
+                    }
+                    App.sharedPreferences?.nickName = nickname
+                    repository.saveNickname(email, nickname)
+                    callback.invoke(true)
+                }
+            }
+        }
+    }
+
     private fun switchTheme() {
         if (App.sharedPreferences?.lightTheme == true) changeTheme(THEME.DAY.themeID)
         else changeTheme(THEME.NIGHT.themeID)
     }
-
-    fun changeName(email:String, name: String) = repository.saveNickname(email, name)
 
     private fun changeTheme(@StyleRes theme: Int) {
         if (theme != lastTheme.value) {
