@@ -128,7 +128,7 @@ class ShareFragment : Fragment() {
         }
         val myMail = Account.getEmail()
         if (myMail != null && myMail.contains("@")) {
-            viewModel.setContacts(myMail, contactsWithEmail) { context?.showOfflineToast() }
+            viewModel.setContacts(myMail, contactsWithEmail) { context?.showToast(getString(R.string.no_connection)) }
             ContactsFragment.newInstance().show(childFragmentManager, null)
         }
     }

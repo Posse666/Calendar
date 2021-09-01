@@ -9,6 +9,7 @@ import com.posse.kotlin1.calendar.app.App
 import com.posse.kotlin1.calendar.model.Person
 import com.posse.kotlin1.calendar.utils.convertLocalDateToLong
 import com.posse.kotlin1.calendar.utils.convertLongToLocalDale
+import com.posse.kotlin1.calendar.utils.isNetworkOnline
 import java.time.LocalDate
 
 
@@ -93,20 +94,6 @@ class RepositoryFirestoreImpl private constructor() : Repository {
             else -> throw RuntimeException("unexpected data Type. data: " + data.toString())
         }
         documentToChange.set(mapOf(Pair(data.toString(), value)), SetOptions.merge())
-    }
-
-    private fun isNetworkOnline(): Boolean {
-        var isOnline = false
-        try {
-            val manager =
-                App.appInstance?.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
-            val capabilities = manager.getNetworkCapabilities(manager.activeNetwork)
-            isOnline =
-                capabilities?.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED) == true
-        } catch (e: Exception) {
-            e.printStackTrace()
-        }
-        return isOnline
     }
 
     companion object {

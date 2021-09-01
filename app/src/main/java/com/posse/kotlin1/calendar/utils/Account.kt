@@ -4,7 +4,6 @@ import android.app.Activity
 import android.content.Intent
 import android.net.Uri
 import android.util.Log
-import android.widget.Toast
 import androidx.activity.result.ActivityResult
 import androidx.activity.result.ActivityResultLauncher
 import androidx.fragment.app.Fragment
@@ -30,7 +29,6 @@ object Account {
         .Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
         .requestIdToken(App.appInstance?.getString(R.string.default_web_client_id))
         .requestEmail()
-        .requestProfile()
         .build()
 
     fun getLiveData() = liveData
@@ -74,16 +72,21 @@ object Account {
     }
 
     fun login(fragment: Fragment, startLogin: ActivityResultLauncher<Intent>) {
-        oldEmail = getEmail()!!
-        val googleSignInClient = GoogleSignIn.getClient(fragment.requireActivity(), gso)
-        startLogin.launch(googleSignInClient.signInIntent)
+        if (isNetworkOnline()) {
+            oldEmail = getEmail()!!
+            val googleSignInClient = GoogleSignIn.getClient(fragment.requireActivity(), gso)
+            startLogin.launch(googleSignInClient.signInIntent)
+        } else fragment.context?.showToast(App.appInstance!!.getString(R.string.network_offline))
     }
 
     fun logout(fragment: Fragment) {
-        val googleSignInClient = GoogleSignIn.getClient(fragment.requireActivity(), gso)
-        googleSignInClient.signOut()
-        googleAccount = null
-        anonymousLogin { getAccountState() }
+        if (isNetworkOnline()) {
+            val googleSignInClient = GoogleSignIn.getClient(fragment.requireActivity(), gso)
+            googleSignInClient.signOut()
+            googleAccount = null
+            App.sharedPreferences?.nickName = null
+            anonymousLogin { getAccountState() }
+        } else fragment.context?.showToast(App.appInstance!!.getString(R.string.network_offline))
     }
 
     fun getEmail(): String? {
@@ -96,29 +99,14 @@ object Account {
         FirebaseAuth.getInstance().signInAnonymously().addOnCompleteListener {
             if (it.isSuccessful) {
                 Log.d("TAG", "signInAnonymously:success")
-                val email = getAvailableMail()!!
+                val email = it.result?.user?.uid!!
                 oldEmail = email
                 callback.invoke(email)
             } else {
                 Log.w("TAG", "signInAnonymously:failure", it.exception)
-                showErrorAuthentication()
+                App.appInstance!!.showToast(App.appInstance!!.getString(R.string.network_offline))
             }
         }
-    }
-
-    private fun showErrorAuthentication() {
-        Toast.makeText(
-            App.appInstance,
-            App.appInstance?.getString(R.string.authentication_failed),
-            Toast.LENGTH_SHORT
-        )
-            .show()
-    }
-
-    private fun getAvailableMail(): String? {
-        var email = googleAccount?.email ?: FirebaseAuth.getInstance().currentUser?.email
-        if (email == "" || email == null) email = FirebaseAuth.getInstance().currentUser?.uid
-        return email
     }
 }
 

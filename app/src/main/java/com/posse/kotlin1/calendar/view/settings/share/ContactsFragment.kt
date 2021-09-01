@@ -47,8 +47,8 @@ class ContactsFragment : DialogFragment(), ContactAdapterListener {
     }
 
     private fun setupContactSearchField() {
-        binding.contactSearchField.editText?.doOnTextChanged { _, _, _, count ->
-            if (count > 0) binding.contactSearchField.error = null
+        binding.contactSearchField.editText?.doOnTextChanged { _, _, _, _ ->
+            binding.contactSearchField.error = null
         }
         binding.contactSearchField.editText?.let {
             it.setOnEditorActionListener { textView, actionId, _ ->
@@ -94,9 +94,10 @@ class ContactsFragment : DialogFragment(), ContactAdapterListener {
     private fun setupContactAddButton() {
         binding.contactAddButton.setOnClickListener {
             binding.contactSearchField.editText?.let { editText ->
+                val searchText = editText.text.toString()
                 var isContactFound = false
                 contacts.forEach {
-                    if (it.email == editText.text.toString() && it.notInContacts) {
+                    if ((it.email == searchText || it.names.contains(searchText)) && it.notInContacts) {
                         contactClicked(it)
                         isContactFound = true
                         keyboard.hide(editText)
@@ -104,13 +105,13 @@ class ContactsFragment : DialogFragment(), ContactAdapterListener {
                     }
                 }
                 if (!isContactFound) binding.contactSearchField.error =
-                    getString(R.string.email_not_found)
+                    getString(R.string.contact_not_found)
             }
         }
     }
 
     override fun contactClicked(contact: Contact) {
-        viewModel.contactClicked(contact, { context?.showOfflineToast() }) {
+        viewModel.contactClicked(contact, { context?.showToast(getString(R.string.no_connection)) }) {
             Toast.makeText(
                 requireContext(),
                 getString(R.string.you_are_in_black_list),

@@ -69,22 +69,21 @@ class SettingsFragment : Fragment() {
 
     private fun setupSaveNicknameButton() {
         binding.btnSaveNickname.setOnClickListener {
-            viewModel.saveNickname(
-                Account.getEmail()!!,
-                binding.nickName.editText?.text.toString()
-            ) { saved ->
-                when (saved) {
-                    null -> binding.nickName.error = getString(R.string.no_internet)
-                    false -> binding.nickName.error = getString(R.string.nickname_is_busy)
-                    true -> {
-                        binding.nickName.error = null
-                        binding.nickName.disable()
-                        keyboard.hide(it)
-                        binding.btnEditNickname.show()
-                        binding.btnSaveNickname.disappear()
+            val nickname = binding.nickName.editText?.text.toString()
+            if (!nickname.contains(" "))
+                viewModel.saveNickname(Account.getEmail()!!, nickname) { saved ->
+                    when (saved) {
+                        null -> binding.nickName.error = getString(R.string.no_internet)
+                        false -> binding.nickName.error = getString(R.string.nickname_is_busy)
+                        true -> {
+                            binding.nickName.error = null
+                            binding.nickName.disable()
+                            keyboard.hide(it)
+                            binding.btnEditNickname.show()
+                            binding.btnSaveNickname.disappear()
+                        }
                     }
                 }
-            }
         }
     }
 
@@ -102,8 +101,10 @@ class SettingsFragment : Fragment() {
     }
 
     private fun setupNicknameField() {
-        binding.nickName.editText?.doOnTextChanged { _, _, _, _ ->
-            binding.nickName.error = null
+        binding.nickName.editText?.doOnTextChanged { text, _, _, _ ->
+            if (text?.contains(" ") == true) {
+                binding.nickName.error = getString(R.string.remove_space)
+            } else  binding.nickName.error = null
         }
         binding.nickName.editText?.let {
             it.setOnEditorActionListener { textView, actionId, _ ->
@@ -199,6 +200,8 @@ class SettingsFragment : Fragment() {
                 else binding.motionSettings.progress = 1f
             }
             is AccountState.LoggedOut -> {
+                binding.btnEditNickname.disappear()
+                binding.btnSaveNickname.disappear()
                 binding.loginButton.show()
                 binding.logoutButton.disappear()
                 binding.nickName.disappear()

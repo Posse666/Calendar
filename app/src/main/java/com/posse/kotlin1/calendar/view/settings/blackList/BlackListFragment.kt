@@ -46,7 +46,7 @@ class BlackListFragment : DialogFragment() {
         ) { viewModel.personSelected(it) }
         binding.blackListCard.listRecyclerView.adapter = adapter
         viewModel.getLiveData().observe(viewLifecycleOwner, { showFriends(it) })
-        viewModel.refreshLiveData(email) { context?.showOfflineToast() }
+        viewModel.refreshLiveData(email) { context?.showToast(getString(R.string.no_connection)) }
         isCancelable = true
     }
 

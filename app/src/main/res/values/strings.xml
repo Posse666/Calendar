@@ -49,15 +49,14 @@
     <string name="settings_bottom">Settings</string>
     <string name="back_again_to_exit">Press \"Back\" again to exit</string>
     <string name="login_to_see_friends_calendars">Login to see friends calendars</string>
-    <string name="authentication_failed">Authentication failed. Please restart Application</string>
     <string name="select_friend">Select friend</string>
     <string name="nobody_shared">Seems like nobody shared calendar with you</string>
     <string name="block_this_person">Block</string>
     <string name="delete_text">Are you sure you want delete</string>
     <string name="delete">Delete</string>
     <string name="no_contacts">No contacts with emails in your phonebook</string>
-    <string name="enter_e_mail">Enter e-mail</string>
-    <string name="email_not_found">Email not found</string>
+    <string name="enter_e_mail">Enter e-mail or Nickname</string>
+    <string name="contact_not_found">Contact not found</string>
     <string name="nick_name">Nickname</string>
     <string name="black_list">Black list</string>
     <string name="empty_black_list">Black list is empty</string>
@@ -67,5 +66,7 @@
     <string name="longest_fresh_marathon_all_time">Longest fresh marathon for all time is</string>
     <string name="nickname_is_busy">Nickname is busy!</string>
     <string name="no_internet">No connection!</string>
+    <string name="remove_space">Remove \"space\"</string>
+    <string name="network_offline">No connection! Try again later.</string>
 
 </resources>

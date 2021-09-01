@@ -83,7 +83,7 @@ class CalendarFragment : Fragment(), StatisticListener {
         binding.calendarLayout.setPadding(0, 0, 0, (getTextSize() * MULTIPLY).toInt())
         setupStatistic()
         setupFAB()
-        viewModel.refreshLiveData(email){ context?.showOfflineToast() }
+        viewModel.refreshLiveData(email){ context?.showToast(getString(R.string.no_connection)) }
         viewModel.getLiveData().observe(viewLifecycleOwner, {
             if (it.first) {
                 actualState.clear()

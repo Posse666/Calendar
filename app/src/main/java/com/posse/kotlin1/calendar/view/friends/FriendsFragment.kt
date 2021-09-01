@@ -12,7 +12,7 @@ import com.posse.kotlin1.calendar.R
 import com.posse.kotlin1.calendar.databinding.FragmentFriendsBinding
 import com.posse.kotlin1.calendar.utils.Account
 import com.posse.kotlin1.calendar.utils.putText
-import com.posse.kotlin1.calendar.utils.showOfflineToast
+import com.posse.kotlin1.calendar.utils.showToast
 import com.posse.kotlin1.calendar.view.SettingsTabSwitcher
 import com.posse.kotlin1.calendar.view.calendar.CalendarFragment
 import com.posse.kotlin1.calendar.view.friends.list.FriendsListFragment
@@ -37,7 +37,7 @@ class FriendsFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         val myMail = Account.getEmail()
         if (myMail != null && myMail.contains("@")) {
-            viewModel.refreshLiveData(myMail) { context?.showOfflineToast() }
+            viewModel.refreshLiveData(myMail) { context?.showToast(getString(R.string.no_connection)) }
             viewModel.getLiveData().observe(viewLifecycleOwner, { data ->
                 if (data.first) {
                     friendsListFragment?.let {

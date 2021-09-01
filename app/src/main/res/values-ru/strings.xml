@@ -49,15 +49,14 @@
     <string name="settings_bottom">Настройки</string>
     <string name="back_again_to_exit">Нажмите \"Назад\" еще раз для выхода</string>
     <string name="login_to_see_friends_calendars">Войдите чтобы увидеть календари друзей</string>
-    <string name="authentication_failed">Ошибка входа! Перезапустите приложение!</string>
     <string name="select_friend">Выберите друга</string>
     <string name="nobody_shared">Похоже, что никто не поделился с Вами календарем</string>
     <string name="block_this_person">Заблокировать</string>
     <string name="delete_text">Точно удалить</string>
     <string name="delete">Удалить</string>
     <string name="no_contacts">Нет контактов с почтой в вашей телефонной книге</string>
-    <string name="enter_e_mail">Введите почту</string>
-    <string name="email_not_found">Почта не найдена</string>
+    <string name="enter_e_mail">Введите почту или Имя</string>
+    <string name="contact_not_found">Контакт не найден</string>
     <string name="nick_name">Имя</string>
     <string name="black_list">Чёрный список</string>
     <string name="empty_black_list">Чёрный список пуст</string>
@@ -67,5 +66,7 @@
     <string name="longest_fresh_marathon_all_time">Самая трезвая серия за все время</string>
     <string name="nickname_is_busy">Это имя занято!</string>
     <string name="no_internet">Нет интернета!</string>
+    <string name="remove_space">Уберите \"пробел\"</string>
+    <string name="network_offline">Нет интернета! Попробуйте позже.</string>
 
 </resources>
