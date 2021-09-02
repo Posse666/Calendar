@@ -83,7 +83,7 @@ class CalendarFragment : Fragment(), StatisticListener {
         binding.calendarLayout.setPadding(0, 0, 0, (getTextSize() * MULTIPLY).toInt())
         setupStatistic()
         setupFAB()
-        viewModel.refreshLiveData(email){ context?.showToast(getString(R.string.no_connection)) }
+        viewModel.refreshLiveData(email) { context?.showToast(getString(R.string.no_connection)) }
         viewModel.getLiveData().observe(viewLifecycleOwner, {
             if (it.first) {
                 actualState.clear()
@@ -113,29 +113,30 @@ class CalendarFragment : Fragment(), StatisticListener {
         bottomSheetBehavior = BottomSheetBehavior.from(bottomSheet)
         bottomSheetBehavior.peekHeight = (getTextSize() * MULTIPLY).toInt()
         bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
-        if (!isStatsUsed) {
-            val callback = object : BottomSheetBehavior.BottomSheetCallback() {
-                override fun onStateChanged(bottomSheet: View, newState: Int) {
-                    if (bottomSheetBehavior.state == BottomSheetBehavior.STATE_EXPANDED) {
-                        isStatsUsed = true
-                        App.sharedPreferences?.statsUsed = true
-                    }
+        bottomSheetBehavior.addBottomSheetCallback(object :
+            BottomSheetBehavior.BottomSheetCallback() {
+            override fun onStateChanged(bottomSheet: View, newState: Int) {
+                if (!isStatsUsed && bottomSheetBehavior.state == BottomSheetBehavior.STATE_EXPANDED) {
+                    isStatsUsed = true
+                    App.sharedPreferences?.statsUsed = true
                 }
-
-                override fun onSlide(bottomSheet: View, slideOffset: Float) {
-                    //not needed
+                if (bottomSheetBehavior.state == BottomSheetBehavior.STATE_HIDDEN) {
+                    bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
                 }
             }
-            bottomSheetBehavior.addBottomSheetCallback(callback)
-        }
+
+            override fun onSlide(bottomSheet: View, slideOffset: Float) { /*not needed*/
+            }
+        })
     }
 
     private fun setBottomSheetAnimation() {
         Thread {
-            while (this@CalendarFragment.isAdded && !isStatsUsed) {
+            while (!isStatsUsed && this@CalendarFragment.isAdded) {
                 Thread.sleep(BOTTOM_ANIMATION_INTERVAL)
-                if (bottomSheetBehavior.state == BottomSheetBehavior.STATE_COLLAPSED
-                    && this@CalendarFragment.isAdded && !isStatsUsed
+                if (!isStatsUsed
+                    && this@CalendarFragment.isAdded
+                    && bottomSheetBehavior.state == BottomSheetBehavior.STATE_COLLAPSED
                 ) {
                     bottomSheetBehavior
                         .setPeekHeight(((getTextSize() * MULTIPLY) * 1.3).toInt(), true)

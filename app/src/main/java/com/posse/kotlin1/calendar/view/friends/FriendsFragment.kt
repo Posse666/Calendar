@@ -50,11 +50,17 @@ class FriendsFragment : Fragment() {
                     }
                     friendsListFragment = null
                     binding.friendName.putText(getString(R.string.select_friend))
+                    var friendSelected = false
                     data.second.forEach { friend ->
                         if (friend.selected) {
                             binding.friendName.putText(friend.name)
                             swapFragment(CalendarFragment.newInstance(friend.email, false))
+                            friendSelected = true
                         }
+                    }
+                    if (!friendSelected) {
+                        friendsListFragment = FriendsListFragment.newInstance()
+                        swapFragment(friendsListFragment!!)
                     }
                     binding.friendsCard.setOnClickListener {
                         if (friendsListFragment == null || !friendsListFragment!!.isVisible) {
