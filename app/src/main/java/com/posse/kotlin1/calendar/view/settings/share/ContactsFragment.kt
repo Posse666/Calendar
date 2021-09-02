@@ -8,7 +8,6 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
 import android.view.inputmethod.EditorInfo
-import android.widget.Toast
 import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.activityViewModels
@@ -94,14 +93,20 @@ class ContactsFragment : DialogFragment(), ContactAdapterListener {
     private fun setupContactAddButton() {
         binding.contactAddButton.setOnClickListener {
             binding.contactSearchField.editText?.let { editText ->
-                val searchText = editText.text.toString()
+                val searchText = editText.text.toString().lowercase()
                 var isContactFound = false
                 contacts.forEach {
-                    if ((it.email == searchText || it.names.contains(searchText)) && it.notInContacts) {
-                        contactClicked(it)
-                        isContactFound = true
-                        keyboard.hide(editText)
-                        editText.text.clear()
+                    if (it.notInContacts) {
+                        var matchFound = false
+                        it.names.forEach { name ->
+                            if (name.lowercase() == searchText) matchFound = true
+                        }
+                        if (it.email.lowercase() == searchText || matchFound) {
+                            contactClicked(it)
+                            isContactFound = true
+                            keyboard.hide(editText)
+                            editText.text.clear()
+                        }
                     }
                 }
                 if (!isContactFound) binding.contactSearchField.error =
@@ -111,12 +116,10 @@ class ContactsFragment : DialogFragment(), ContactAdapterListener {
     }
 
     override fun contactClicked(contact: Contact) {
-        viewModel.contactClicked(contact, { context?.showToast(getString(R.string.no_connection)) }) {
-            Toast.makeText(
-                requireContext(),
-                getString(R.string.you_are_in_black_list),
-                Toast.LENGTH_SHORT
-            ).show()
+        viewModel.contactClicked(
+            contact,
+            { context?.showToast(getString(R.string.no_connection)) }) {
+            context?.showToast(getString(R.string.you_are_in_black_list))
         }
     }
 

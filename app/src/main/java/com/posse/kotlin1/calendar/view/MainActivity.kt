@@ -10,6 +10,7 @@ import androidx.fragment.app.FragmentTransaction
 import com.posse.kotlin1.calendar.R
 import com.posse.kotlin1.calendar.databinding.ActivityMainBinding
 import com.posse.kotlin1.calendar.utils.getAppTheme
+import com.posse.kotlin1.calendar.utils.showToast
 import com.posse.kotlin1.calendar.view.friends.FriendsFragment
 import com.posse.kotlin1.calendar.view.myCalendar.MyCalendarFragment
 import com.posse.kotlin1.calendar.view.settings.SettingsFragment
@@ -69,7 +70,7 @@ class MainActivity : AppCompatActivity(), SettingsTabSwitcher {
     }
 
     private fun checkExit() {
-        Toast.makeText(this, getString(R.string.back_again_to_exit), Toast.LENGTH_SHORT).show()
+        showToast(getString(R.string.back_again_to_exit))
         if (System.currentTimeMillis() - lastTimeBackPressed < BACK_BUTTON_EXIT_DELAY && isBackShown) {
             exitProcess(0)
         }

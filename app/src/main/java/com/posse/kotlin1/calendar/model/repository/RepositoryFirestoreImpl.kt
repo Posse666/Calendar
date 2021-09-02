@@ -1,17 +1,12 @@
 package com.posse.kotlin1.calendar.model.repository
 
-import android.content.Context
-import android.net.ConnectivityManager
-import android.net.NetworkCapabilities
 import android.util.Log
 import com.google.firebase.firestore.*
-import com.posse.kotlin1.calendar.app.App
 import com.posse.kotlin1.calendar.model.Person
 import com.posse.kotlin1.calendar.utils.convertLocalDateToLong
 import com.posse.kotlin1.calendar.utils.convertLongToLocalDale
 import com.posse.kotlin1.calendar.utils.isNetworkOnline
 import java.time.LocalDate
-
 
 const val COLLECTION_USERS = "Collection_of_all_users"
 
