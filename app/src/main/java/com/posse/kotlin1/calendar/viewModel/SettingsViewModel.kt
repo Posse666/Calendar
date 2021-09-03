@@ -33,21 +33,24 @@ class SettingsViewModel : ViewModel() {
 
     fun getLastTheme() = lastTheme
 
-    fun saveNickname(email: String, nickname: String, callback: (Boolean?) -> Unit) {
+    fun saveNickname(email: String, nickname: String, callback: (Nickname) -> Unit) {
         repository.getNicknames { users ->
-            when {
-                users == null -> callback.invoke(null)
-                nickname == "" -> callback.invoke(false)
+            when (users) {
+                null -> callback.invoke(Nickname.Empty)
                 else -> {
                     users.forEach {
-                        if (it.value.lowercase() == nickname.lowercase() && it.key != email) {
-                            callback.invoke(false)
-                            return@getNicknames
+                        try {
+                            if ((it.value as String).lowercase() == nickname.lowercase() && it.key != email) {
+                                callback.invoke(Nickname.Busy)
+                                return@getNicknames
+                            }
+                        } catch (e: Exception) {
+                            callback.invoke(Nickname.Error)
                         }
                     }
                     App.sharedPreferences?.nickName = nickname
                     repository.saveNickname(email, nickname)
-                    callback.invoke(true)
+                    callback.invoke(Nickname.Saved)
                 }
             }
         }
@@ -63,4 +66,11 @@ class SettingsViewModel : ViewModel() {
             lastTheme.value = theme
         }
     }
+}
+
+enum class Nickname {
+    Empty,
+    Saved,
+    Busy,
+    Error
 }

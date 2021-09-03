@@ -26,13 +26,15 @@ class CalendarViewModel : ViewModel() {
 
     fun getLiveStats() = liveStatisticToObserve
 
-    fun refreshLiveData(email: String, callback: () -> Unit) {
+    fun refreshLiveData(email: String, error: () -> Unit, callback: () -> Unit) {
         this.email = email
         liveDataToObserve.value = Pair(false, emptySet())
         repository.getData(DOCUMENTS.DATES, email) { dates, isOffline ->
             datesData.clear()
             dates?.forEach {
-                datesData.add(convertLongToLocalDale(it.value as Long))
+                try {
+                    datesData.add(convertLongToLocalDale(it.value as Long))
+                } catch (e: Exception){ error.invoke() }
             }
             liveDataToObserve.value = Pair(true, datesData)
             liveStatisticToObserve.value = getSats(datesData)

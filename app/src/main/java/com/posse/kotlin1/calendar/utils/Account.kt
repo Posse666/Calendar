@@ -1,6 +1,7 @@
 package com.posse.kotlin1.calendar.utils
 
 import android.app.Activity
+import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.util.Log
@@ -18,22 +19,23 @@ import com.posse.kotlin1.calendar.R
 import com.posse.kotlin1.calendar.app.App
 import com.posse.kotlin1.calendar.model.repository.Repository
 import com.posse.kotlin1.calendar.model.repository.RepositoryFirestoreImpl
+import com.posse.kotlin1.calendar.view.update.UpdateDialog
 
 object Account {
     private val repository: Repository = RepositoryFirestoreImpl.newInstance()
     private val liveData: MutableLiveData<AccountState> = MutableLiveData()
     private lateinit var oldEmail: String
     private var googleAccount: GoogleSignInAccount? =
-        GoogleSignIn.getLastSignedInAccount(App.appInstance)
+        GoogleSignIn.getLastSignedInAccount(App.appInstance as Context)
     private val gso = GoogleSignInOptions
         .Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-        .requestIdToken(App.appInstance?.getString(R.string.default_web_client_id))
+        .requestIdToken(App.appInstance!!.getString(R.string.default_web_client_id))
         .requestEmail()
         .build()
 
     fun getLiveData() = liveData
 
-    fun setAuthResult(result: ActivityResult) {
+    fun setAuthResult(result: ActivityResult, callback: () -> Unit) {
         if (result.resultCode == Activity.RESULT_OK) {
             val task = GoogleSignIn.getSignedInAccountFromIntent(result.data)
             try {
@@ -41,11 +43,11 @@ object Account {
             } catch (e: ApiException) {
                 Log.w("login", "signInResult:failed code=" + e.statusCode)
             }
-            authToFirestore()
+            authToFirestore(callback)
         }
     }
 
-    private fun authToFirestore() {
+    private fun authToFirestore(callback: () -> Unit) {
         FirebaseAuth.getInstance().currentUser?.delete()
         val credential = GoogleAuthProvider.getCredential(googleAccount?.idToken, null)
         FirebaseAuth.getInstance().signInWithCredential(credential)
@@ -54,7 +56,11 @@ object Account {
                     var nickName = App.sharedPreferences?.nickName ?: email
                     repository.getNicknames { users ->
                         users?.forEach {
-                            if (it.key == email) nickName = it.value
+                            try {
+                                if (it.key == email) nickName = it.value as String
+                            } catch (e: Exception){
+                                callback.invoke()
+                            }
                         }
                         App.sharedPreferences?.nickName = nickName
                         repository.mergeDates(oldEmail, email, nickName)

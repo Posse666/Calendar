@@ -16,6 +16,7 @@ import com.posse.kotlin1.calendar.utils.disappear
 import com.posse.kotlin1.calendar.utils.putText
 import com.posse.kotlin1.calendar.utils.show
 import com.posse.kotlin1.calendar.view.deleteConfirmation.DeleteFragmentDialog
+import com.posse.kotlin1.calendar.view.update.UpdateDialog
 import com.posse.kotlin1.calendar.viewModel.FriendsViewModel
 
 class FriendsListFragment : Fragment(), FriendAdapterListener {
@@ -38,7 +39,11 @@ class FriendsListFragment : Fragment(), FriendAdapterListener {
         super.onViewCreated(view, savedInstanceState)
         val myMail = Account.getEmail()
         if (myMail != null && myMail.contains("@")) {
-            binding.listClose.setOnClickListener { viewModel.refreshLiveData(myMail) }
+            binding.listClose.setOnClickListener {
+                viewModel.refreshLiveData(myMail) {
+                    if (it == null) UpdateDialog.newInstance().show(childFragmentManager, null)
+                }
+            }
             setupRecyclerAdapter()
             viewModel.getLiveData().observe(viewLifecycleOwner, { showFriends(it) })
         }
@@ -77,9 +82,11 @@ class FriendsListFragment : Fragment(), FriendAdapterListener {
         val dialogText = "${getString(R.string.delete_text)} ${friend.name}?"
         val dialog = DeleteFragmentDialog
             .newInstance(dialogText, getString(R.string.delete), Color.RED, true)
-        dialog.setListener {
-            friend.blocked = it
-            viewModel.deleteFriend(friend)
+        dialog.setListener { blocked ->
+            friend.blocked = blocked
+            viewModel.deleteFriend(friend) {
+                if (it == null) UpdateDialog.newInstance().show(childFragmentManager, null)
+            }
         }
         dialog.show(childFragmentManager, null)
     }

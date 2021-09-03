@@ -68,5 +68,7 @@
     <string name="no_internet">No connection!</string>
     <string name="remove_space">Remove \"space\"</string>
     <string name="network_offline">No connection! Try again later.</string>
+    <string name="exit">Exit</string>
+    <string name="update">Update app!</string>
 
 </resources>

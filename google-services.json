@@ -22,6 +22,22 @@
           }
         },
         {
+          "client_id": "929390260810-d307sg33nrv7smt080cfjagtg45afs79.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.posse.kotlin1.calendar",
+            "certificate_hash": "d0a43ffcc53469c271c0cefd9023a1dd17bf0d4c"
+          }
+        },
+        {
+          "client_id": "929390260810-h8e3h5lmvgi125io4jj1vg5t6bbhdmq4.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.posse.kotlin1.calendar",
+            "certificate_hash": "0505d23ed46da6cb0fe86095bb0f5499052e4836"
+          }
+        },
+        {
           "client_id": "929390260810-tljvk0njajnhlgvjj0cr6v700ug5alnj.apps.googleusercontent.com",
           "client_type": 3
         }

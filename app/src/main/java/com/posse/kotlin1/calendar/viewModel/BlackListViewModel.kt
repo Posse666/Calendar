@@ -18,14 +18,16 @@ class BlackListViewModel : ViewModel() {
 
     fun getLiveData() = liveDataToObserve
 
-    fun refreshLiveData(email: String, callback: () -> Unit) {
+    fun refreshLiveData(email: String, error: () -> Unit, callback: () -> Unit) {
         this.email = email
         liveDataToObserve.value = Pair(false, emptySet())
         repository.getData(DOCUMENTS.FRIENDS, email) { friends, isOffline ->
             friendsData.clear()
             friends?.values?.forEach { friendMap ->
-                val friend = (friendMap as Map<String, Any>).toDataClass<Friend>()
-                if (friend.blocked) friendsData.add(friend)
+                try {
+                    val friend = (friendMap as Map<String, Any>).toDataClass<Friend>()
+                    if (friend.blocked) friendsData.add(friend)
+                } catch (e: Exception) { error.invoke() }
             }
             liveDataToObserve.value = Pair(true, friendsData)
             if (isOffline) callback.invoke()

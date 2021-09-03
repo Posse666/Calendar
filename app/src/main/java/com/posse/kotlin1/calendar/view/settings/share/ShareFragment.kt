@@ -14,7 +14,10 @@ import com.posse.kotlin1.calendar.R
 import com.posse.kotlin1.calendar.databinding.FragmentShareBinding
 import com.posse.kotlin1.calendar.model.Contact
 import com.posse.kotlin1.calendar.utils.*
+import com.posse.kotlin1.calendar.view.update.UpdateDialog
+import com.posse.kotlin1.calendar.viewModel.ContactStatus
 import com.posse.kotlin1.calendar.viewModel.ContactsViewModel
+import java.lang.RuntimeException
 
 private const val REQUEST_CODE = 66
 
@@ -128,7 +131,13 @@ class ShareFragment : Fragment() {
         }
         val myMail = Account.getEmail()
         if (myMail != null && myMail.contains("@")) {
-            viewModel.setContacts(myMail, contactsWithEmail) { context?.showToast(getString(R.string.no_connection)) }
+            viewModel.setContacts(myMail, contactsWithEmail) {
+                when (it){
+                    ContactStatus.Blocked -> throw RuntimeException ("Unexpected status: Blocked")
+                    ContactStatus.Offline -> context?.showToast(getString(R.string.no_connection))
+                    ContactStatus.Error -> UpdateDialog.newInstance().show(childFragmentManager, null)
+                }
+            }
             ContactsFragment.newInstance().show(childFragmentManager, null)
         }
     }

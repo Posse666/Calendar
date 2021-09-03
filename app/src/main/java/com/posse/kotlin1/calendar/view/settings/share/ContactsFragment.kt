@@ -15,6 +15,8 @@ import com.posse.kotlin1.calendar.R
 import com.posse.kotlin1.calendar.databinding.FragmentContactsBinding
 import com.posse.kotlin1.calendar.model.Contact
 import com.posse.kotlin1.calendar.utils.*
+import com.posse.kotlin1.calendar.view.update.UpdateDialog
+import com.posse.kotlin1.calendar.viewModel.ContactStatus
 import com.posse.kotlin1.calendar.viewModel.ContactsViewModel
 
 class ContactsFragment : DialogFragment(), ContactAdapterListener {
@@ -116,10 +118,12 @@ class ContactsFragment : DialogFragment(), ContactAdapterListener {
     }
 
     override fun contactClicked(contact: Contact) {
-        viewModel.contactClicked(
-            contact,
-            { context?.showToast(getString(R.string.no_connection)) }) {
-            context?.showToast(getString(R.string.you_are_in_black_list))
+        viewModel.contactClicked(contact) {
+            when (it) {
+                ContactStatus.Blocked -> context?.showToast(getString(R.string.you_are_in_black_list))
+                ContactStatus.Offline -> context?.showToast(getString(R.string.no_connection))
+                ContactStatus.Error -> UpdateDialog.newInstance().show(childFragmentManager, null)
+            }
         }
     }
 

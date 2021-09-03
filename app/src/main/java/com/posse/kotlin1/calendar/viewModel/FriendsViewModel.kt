@@ -19,18 +19,20 @@ class FriendsViewModel : ViewModel() {
 
     fun getLiveData() = liveDataToObserve
 
-    fun refreshLiveData(email: String, callback: (() -> Unit)? = null) {
+    fun refreshLiveData(email: String, callback: ((Boolean?) -> Unit)) {
         this.email = email
         liveDataToObserve.value = Pair(false, emptySet())
         repository.getData(DOCUMENTS.FRIENDS, email) { friends, isOffline ->
             friendsData.clear()
-            friends?.values?.forEach { friendMap ->
-                val friend = (friendMap as Map<String, Any>).toDataClass<Friend>()
-                if (!friend.blocked) friendsData.add(friend)
-            }
+            try {
+                friends?.values?.forEach { friendMap ->
+                    val friend = (friendMap as Map<String, Any>).toDataClass<Friend>()
+                    if (!friend.blocked) friendsData.add(friend)
+                }
+            } catch (e: Exception) { callback.invoke(null) }
             sortPositions(friendsData.toList().sortedBy { it.position })
             liveDataToObserve.value = Pair(true, friendsData)
-            if (isOffline) callback?.invoke()
+            if (isOffline) callback.invoke(true)
         }
     }
 
@@ -78,11 +80,11 @@ class FriendsViewModel : ViewModel() {
 
     fun changeName(friend: Friend) = repository.saveItem(DOCUMENTS.FRIENDS, email, friend)
 
-    fun deleteFriend(friend: Friend) {
+    fun deleteFriend(friend: Friend, callback: ((Boolean?) -> Unit)) {
         if (friend.blocked) {
             repository.saveItem(DOCUMENTS.FRIENDS, email, friend)
         } else repository.removeItem(DOCUMENTS.FRIENDS, email, friend)
         repository.removeItem(DOCUMENTS.SHARE, friend.email, Contact(mutableListOf(), email))
-        refreshLiveData(email)
+        refreshLiveData(email, callback)
     }
 }

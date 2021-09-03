@@ -25,6 +25,7 @@ import com.posse.kotlin1.calendar.databinding.FragmentCalendarBinding
 import com.posse.kotlin1.calendar.utils.*
 import com.posse.kotlin1.calendar.view.statistic.StatisticFragment
 import com.posse.kotlin1.calendar.view.statistic.StatisticListener
+import com.posse.kotlin1.calendar.view.update.UpdateDialog
 import com.posse.kotlin1.calendar.viewModel.CalendarViewModel
 import java.time.LocalDate
 import java.time.YearMonth
@@ -83,7 +84,11 @@ class CalendarFragment : Fragment(), StatisticListener {
         binding.calendarLayout.setPadding(0, 0, 0, (getTextSize() * MULTIPLY).toInt())
         setupStatistic()
         setupFAB()
-        viewModel.refreshLiveData(email) { context?.showToast(getString(R.string.no_connection)) }
+        viewModel.refreshLiveData(
+            email,
+            { UpdateDialog.newInstance().show(childFragmentManager, null) }) {
+            context?.showToast(getString(R.string.no_connection))
+        }
         viewModel.getLiveData().observe(viewLifecycleOwner, {
             if (it.first) {
                 actualState.clear()

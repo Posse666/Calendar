@@ -20,6 +20,8 @@ import com.posse.kotlin1.calendar.databinding.FragmentSettingsBinding
 import com.posse.kotlin1.calendar.utils.*
 import com.posse.kotlin1.calendar.view.settings.blackList.BlackListFragment
 import com.posse.kotlin1.calendar.view.settings.share.ShareFragment
+import com.posse.kotlin1.calendar.view.update.UpdateDialog
+import com.posse.kotlin1.calendar.viewModel.Nickname
 import com.posse.kotlin1.calendar.viewModel.SettingsViewModel
 import com.squareup.picasso.Picasso
 
@@ -37,7 +39,11 @@ class SettingsFragment : Fragment() {
     }
     private val startLogin: ActivityResultLauncher<Intent> = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()
-    ) { Account.setAuthResult(it) }
+    ) {
+        Account.setAuthResult(it) {
+            UpdateDialog.newInstance().show(childFragmentManager, null)
+        }
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -70,12 +76,16 @@ class SettingsFragment : Fragment() {
     private fun setupSaveNicknameButton() {
         binding.btnSaveNickname.setOnClickListener {
             val nickname = binding.nickName.editText?.text.toString()
-            if (!nickname.contains(" "))
+            if (!nickname.contains(" ") && nickname.isNotEmpty())
                 viewModel.saveNickname(Account.getEmail()!!, nickname) { saved ->
                     when (saved) {
-                        null -> binding.nickName.error = getString(R.string.no_internet)
-                        false -> binding.nickName.error = getString(R.string.nickname_is_busy)
-                        true -> {
+                        Nickname.Empty -> binding.nickName.error = getString(R.string.no_internet)
+                        Nickname.Busy -> binding.nickName.error =
+                            getString(R.string.nickname_is_busy)
+                        Nickname.Error -> {
+                            UpdateDialog.newInstance().show(childFragmentManager, null)
+                        }
+                        Nickname.Saved -> {
                             binding.nickName.error = null
                             binding.nickName.disable()
                             keyboard.hide(it)
@@ -104,7 +114,7 @@ class SettingsFragment : Fragment() {
         binding.nickName.editText?.doOnTextChanged { text, _, _, _ ->
             if (text?.contains(" ") == true) {
                 binding.nickName.error = getString(R.string.remove_space)
-            } else  binding.nickName.error = null
+            } else binding.nickName.error = null
         }
         binding.nickName.editText?.let {
             it.setOnEditorActionListener { textView, actionId, _ ->

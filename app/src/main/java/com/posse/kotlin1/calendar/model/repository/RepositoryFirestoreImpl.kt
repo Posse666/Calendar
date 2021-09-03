@@ -41,8 +41,7 @@ class RepositoryFirestoreImpl private constructor() : Repository {
                 getDataFromDB(collection, document, callback, true)
                 FirebaseFirestore.getInstance().enableNetwork()
             }
-        }
-        getDataFromDB(collection, document, callback, false)
+        } else getDataFromDB(collection, document, callback, false)
     }
 
     private fun getDataFromDB(
@@ -70,11 +69,11 @@ class RepositoryFirestoreImpl private constructor() : Repository {
         users.set(hashMapOf(email to nickName), SetOptions.merge())
     }
 
-    override fun getNicknames(callback: (Map<String, String>?) -> Unit) {
+    override fun getNicknames(callback: (Map<String, Any>?) -> Unit) {
         if (isNetworkOnline()) {
             FirebaseFirestore.getInstance().collection(COLLECTION_USERS)
                 .document(DOCUMENTS.USERS.value).get()
-                .addOnSuccessListener { callback.invoke(it.data as Map<String, String>) }
+                .addOnSuccessListener { callback.invoke(it.data) }
         } else callback.invoke(null)
     }
 

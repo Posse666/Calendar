@@ -11,6 +11,7 @@ import com.posse.kotlin1.calendar.R
 import com.posse.kotlin1.calendar.databinding.FragmentBlackListBinding
 import com.posse.kotlin1.calendar.model.Friend
 import com.posse.kotlin1.calendar.utils.*
+import com.posse.kotlin1.calendar.view.update.UpdateDialog
 import com.posse.kotlin1.calendar.viewModel.BlackListViewModel
 
 private const val ARG_EMAIL = "Email"
@@ -46,7 +47,11 @@ class BlackListFragment : DialogFragment() {
         ) { viewModel.personSelected(it) }
         binding.blackListCard.listRecyclerView.adapter = adapter
         viewModel.getLiveData().observe(viewLifecycleOwner, { showFriends(it) })
-        viewModel.refreshLiveData(email) { context?.showToast(getString(R.string.no_connection)) }
+        viewModel.refreshLiveData(
+            email,
+            { UpdateDialog.newInstance().show(childFragmentManager, null) }) {
+            context?.showToast(getString(R.string.no_connection))
+        }
         isCancelable = true
     }
 

@@ -22,76 +22,93 @@ class ContactsViewModel : ViewModel() {
 
     fun getLiveData() = liveDataToObserve
 
-    fun setContacts(email: String, contacts: List<Contact>, callback: () -> Unit) {
+    fun setContacts(
+        email: String,
+        contacts: List<Contact>,
+        callback: (ContactStatus) -> Unit
+    ) {
         this.email = email
         liveDataToObserve.value = Pair(false, emptySet())
         sharedData.clear()
         sharedData.addAll(contacts)
         repository.getData(DOCUMENTS.SHARE, email) { contactsCollection, _ ->
             repository.getData(DOCUMENTS.USERS, COLLECTION_USERS) { usersCollection, isOffline ->
-                contactsCollection?.values?.forEach { contactMap ->
-                    val contact = (contactMap as Map<String, Any>).toDataClass<Contact>()
-                    contact.notInContacts = !sharedData.contains(contact)
-                    if (!sharedData.add(contact)) {
-                        sharedData.remove(contact)
+                try {
+                    contactsCollection?.values?.forEach { contactMap ->
+                        val contact = (contactMap as Map<String, Any>).toDataClass<Contact>()
+                        contact.notInContacts = !sharedData.contains(contact)
+                        if (!sharedData.add(contact)) {
+                            sharedData.remove(contact)
+                            sharedData.add(contact)
+                        }
+                    }
+                    val users = usersCollection as Map<String, String>?
+                    users?.forEach { userMap ->
+                        val contact =
+                            Contact(mutableListOf(userMap.value), userMap.key, true, false)
                         sharedData.add(contact)
+                        sharedData.forEach {
+                            if (it.email == contact.email) it.notInBase = false
+                        }
                     }
-                }
-                val users = usersCollection as Map<String, String>?
-                users?.forEach { userMap ->
-                    val contact =
-                        Contact(mutableListOf(userMap.value), userMap.key, true, false)
-                    sharedData.add(contact)
-                    sharedData.forEach {
-                        if (it.email == contact.email) it.notInBase = false
-                    }
-                }
-                liveDataToObserve.value = Pair(true, sharedData)
-                if (isOffline) callback.invoke()
+                    liveDataToObserve.value = Pair(true, sharedData)
+                    if (isOffline) callback.invoke(ContactStatus.Offline)
+                } catch (e: Exception) { callback.invoke(ContactStatus.Error) }
             }
         }
     }
 
-    fun contactClicked(contact: Contact, callback: () -> Unit, toast: () -> Unit) {
-        repository.getData(DOCUMENTS.FRIENDS, contact.email) { contactFriendsCollection, isOffline ->
+    fun contactClicked(contact: Contact, callback: (ContactStatus) -> Unit) {
+        repository.getData(
+            DOCUMENTS.FRIENDS,
+            contact.email
+        ) { contactFriendsCollection, isOffline ->
             var newContact: Contact = contact
             sharedData.forEach { sharedContact ->
                 if (sharedContact.email == contact.email) {
                     newContact = sharedContact.copy()
-                    val youInContactFriends =
-                        (contactFriendsCollection?.get(email) as Map<String, Any>?)?.toDataClass<Friend>()
-                            ?: Friend(
-                                App.sharedPreferences?.nickName ?: email,
-                                email,
-                                false,
-                                false,
-                                contactFriendsCollection?.size ?: Int.MAX_VALUE
-                            )
-                    if (youInContactFriends.blocked) toast.invoke()
-                    else {
-                        newContact.selected = !newContact.selected
-                        if (newContact.selected) {
-                            repository.saveItem(DOCUMENTS.SHARE, email, newContact)
-                            repository.saveItem(
-                                DOCUMENTS.FRIENDS,
-                                newContact.email,
-                                youInContactFriends
-                            )
-                        } else {
-                            repository.removeItem(DOCUMENTS.SHARE, email, newContact)
-                            repository.removeItem(
-                                DOCUMENTS.FRIENDS,
-                                newContact.email,
-                                youInContactFriends
-                            )
+                    try {
+                        val youInContactFriends =
+                            (contactFriendsCollection?.get(email) as Map<String, Any>?)?.toDataClass<Friend>()
+                                ?: Friend(
+                                    App.sharedPreferences?.nickName ?: email,
+                                    email,
+                                    false,
+                                    false,
+                                    contactFriendsCollection?.size ?: Int.MAX_VALUE
+                                )
+                        if (youInContactFriends.blocked) callback.invoke(ContactStatus.Blocked)
+                        else {
+                            newContact.selected = !newContact.selected
+                            if (newContact.selected) {
+                                repository.saveItem(DOCUMENTS.SHARE, email, newContact)
+                                repository.saveItem(
+                                    DOCUMENTS.FRIENDS,
+                                    newContact.email,
+                                    youInContactFriends
+                                )
+                            } else {
+                                repository.removeItem(DOCUMENTS.SHARE, email, newContact)
+                                repository.removeItem(
+                                    DOCUMENTS.FRIENDS,
+                                    newContact.email,
+                                    youInContactFriends
+                                )
+                            }
                         }
-                    }
+                    } catch (e: Exception) { callback.invoke(ContactStatus.Error) }
                 }
             }
             sharedData.remove(newContact)
             sharedData.add(newContact)
             liveDataToObserve.value = Pair(true, sharedData)
-            if (isOffline) callback.invoke()
+            if (isOffline) callback.invoke(ContactStatus.Offline)
         }
     }
+}
+
+enum class ContactStatus {
+    Blocked,
+    Offline,
+    Error
 }
