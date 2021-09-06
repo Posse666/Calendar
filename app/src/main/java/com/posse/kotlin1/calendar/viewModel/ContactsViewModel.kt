@@ -2,9 +2,12 @@ package com.posse.kotlin1.calendar.viewModel
 
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import com.posse.kotlin1.calendar.R
 import com.posse.kotlin1.calendar.app.App
+import com.posse.kotlin1.calendar.firebaseMessagingService.Messenger
 import com.posse.kotlin1.calendar.model.Contact
 import com.posse.kotlin1.calendar.model.Friend
+import com.posse.kotlin1.calendar.model.User
 import com.posse.kotlin1.calendar.model.repository.COLLECTION_USERS
 import com.posse.kotlin1.calendar.model.repository.DOCUMENTS
 import com.posse.kotlin1.calendar.model.repository.Repository
@@ -15,6 +18,7 @@ import java.util.*
 
 class ContactsViewModel : ViewModel() {
     private val repository: Repository = RepositoryFirestoreImpl.newInstance()
+    private val messenger: Messenger = Messenger()
     private val sharedData: HashSet<Contact> = hashSetOf()
     private lateinit var email: String
     private val liveDataToObserve: MutableLiveData<Pair<Boolean, Set<Contact>>> =
@@ -42,10 +46,10 @@ class ContactsViewModel : ViewModel() {
                             sharedData.add(contact)
                         }
                     }
-                    val users = usersCollection as Map<String, String>?
-                    users?.forEach { userMap ->
+                    usersCollection?.forEach { userMap ->
+                        val user = (userMap.value as Map<String, Any>).toDataClass<User>()
                         val contact =
-                            Contact(mutableListOf(userMap.value), userMap.key, true, false)
+                            Contact(mutableListOf(user.nickname), user.email, true, false)
                         sharedData.add(contact)
                         sharedData.forEach {
                             if (it.email == contact.email) it.notInBase = false
@@ -53,7 +57,9 @@ class ContactsViewModel : ViewModel() {
                     }
                     liveDataToObserve.value = Pair(true, sharedData)
                     if (isOffline) callback.invoke(ContactStatus.Offline)
-                } catch (e: Exception) { callback.invoke(ContactStatus.Error) }
+                } catch (e: Exception) {
+                    callback.invoke(ContactStatus.Error)
+                }
             }
         }
     }
@@ -87,6 +93,7 @@ class ContactsViewModel : ViewModel() {
                                     newContact.email,
                                     youInContactFriends
                                 )
+                                sendNotification(newContact, App.appInstance!!.getString(R.string.shared_with_you))
                             } else {
                                 repository.removeItem(DOCUMENTS.SHARE, email, newContact)
                                 repository.removeItem(
@@ -94,15 +101,34 @@ class ContactsViewModel : ViewModel() {
                                     newContact.email,
                                     youInContactFriends
                                 )
+                                sendNotification(newContact, App.appInstance!!.getString(R.string.removed_from_friends))
                             }
                         }
-                    } catch (e: Exception) { callback.invoke(ContactStatus.Error) }
+                    } catch (e: Exception) {
+                        callback.invoke(ContactStatus.Error)
+                    }
                 }
             }
             sharedData.remove(newContact)
             sharedData.add(newContact)
             liveDataToObserve.value = Pair(true, sharedData)
             if (isOffline) callback.invoke(ContactStatus.Offline)
+        }
+    }
+
+    private fun sendNotification(contact: Contact, message: String) {
+        repository.getData(DOCUMENTS.USERS, COLLECTION_USERS) { users, _ ->
+            users?.forEach { userMap ->
+                val user = (userMap.value as Map<String, Any>).toDataClass<User>()
+                if (user.email == contact.email) {
+                    Thread {
+                        messenger.sendPush(
+                            App.sharedPreferences?.nickName + message,
+                            user.token
+                        )
+                    }.start()
+                }
+            }
         }
     }
 }

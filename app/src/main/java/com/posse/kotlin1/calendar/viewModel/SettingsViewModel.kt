@@ -4,6 +4,9 @@ import androidx.annotation.StyleRes
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.posse.kotlin1.calendar.app.App
+import com.posse.kotlin1.calendar.model.User
+import com.posse.kotlin1.calendar.model.repository.COLLECTION_USERS
+import com.posse.kotlin1.calendar.model.repository.DOCUMENTS
 import com.posse.kotlin1.calendar.model.repository.Repository
 import com.posse.kotlin1.calendar.model.repository.RepositoryFirestoreImpl
 import com.posse.kotlin1.calendar.utils.*
@@ -34,22 +37,26 @@ class SettingsViewModel : ViewModel() {
     fun getLastTheme() = lastTheme
 
     fun saveNickname(email: String, nickname: String, callback: (Nickname) -> Unit) {
-        repository.getNicknames { users ->
+        repository.getData(DOCUMENTS.USERS, COLLECTION_USERS) { users, _ ->
             when (users) {
                 null -> callback.invoke(Nickname.Empty)
                 else -> {
-                    users.forEach {
+                    users.forEach { userMap ->
                         try {
-                            if ((it.value as String).lowercase() == nickname.lowercase() && it.key != email) {
+                            val user = (userMap.value as Map<String, Any>).toDataClass<User>()
+                            if ((user.nickname).lowercase() == nickname.lowercase() && user.email != email) {
                                 callback.invoke(Nickname.Busy)
-                                return@getNicknames
+                                return@getData
                             }
                         } catch (e: Exception) {
                             callback.invoke(Nickname.Error)
+                            return@getData
                         }
                     }
                     App.sharedPreferences?.nickName = nickname
-                    repository.saveNickname(email, nickname)
+                    App.sharedPreferences?.token?.let {
+                        repository.saveUser(User(email, nickname, it))
+                    }
                     callback.invoke(Nickname.Saved)
                 }
             }

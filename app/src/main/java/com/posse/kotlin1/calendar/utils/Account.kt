@@ -17,9 +17,11 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.GoogleAuthProvider
 import com.posse.kotlin1.calendar.R
 import com.posse.kotlin1.calendar.app.App
+import com.posse.kotlin1.calendar.model.User
+import com.posse.kotlin1.calendar.model.repository.COLLECTION_USERS
+import com.posse.kotlin1.calendar.model.repository.DOCUMENTS
 import com.posse.kotlin1.calendar.model.repository.Repository
 import com.posse.kotlin1.calendar.model.repository.RepositoryFirestoreImpl
-import com.posse.kotlin1.calendar.view.update.UpdateDialog
 
 object Account {
     private val repository: Repository = RepositoryFirestoreImpl.newInstance()
@@ -54,11 +56,12 @@ object Account {
             .addOnSuccessListener {
                 googleAccount?.email?.let { email ->
                     var nickName = App.sharedPreferences?.nickName ?: email
-                    repository.getNicknames { users ->
-                        users?.forEach {
+                    repository.getData(DOCUMENTS.USERS, COLLECTION_USERS) { users, _ ->
+                        users?.forEach { userMap ->
                             try {
-                                if (it.key == email) nickName = it.value as String
-                            } catch (e: Exception){
+                                val user = (userMap.value as Map<String, Any>).toDataClass<User>()
+                                if (user.email == email) nickName = user.nickname
+                            } catch (e: Exception) {
                                 callback.invoke()
                             }
                         }

@@ -70,5 +70,7 @@
     <string name="network_offline">No connection! Try again later.</string>
     <string name="exit">Exit</string>
     <string name="update">Update app!</string>
+    <string name="shared_with_you">" shared with you!"</string>
+    <string name="removed_from_friends">\" removed you from friends!\"</string>
 
 </resources>

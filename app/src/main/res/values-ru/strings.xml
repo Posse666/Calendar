@@ -70,5 +70,7 @@
     <string name="network_offline">Нет интернета! Попробуйте позже.</string>
     <string name="exit">Выход</string>
     <string name="update">Обновите приложение!</string>
+    <string name="shared_with_you">" поделился с вами!"</string>
+    <string name="removed_from_friends">" удалил Вас из друзей!"</string>
 
 </resources>

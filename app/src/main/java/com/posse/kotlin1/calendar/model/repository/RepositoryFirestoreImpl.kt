@@ -2,10 +2,14 @@ package com.posse.kotlin1.calendar.model.repository
 
 import android.util.Log
 import com.google.firebase.firestore.*
+import com.google.firebase.messaging.FirebaseMessaging
+import com.posse.kotlin1.calendar.app.App
 import com.posse.kotlin1.calendar.model.Person
+import com.posse.kotlin1.calendar.model.User
 import com.posse.kotlin1.calendar.utils.convertLocalDateToLong
 import com.posse.kotlin1.calendar.utils.convertLongToLocalDale
 import com.posse.kotlin1.calendar.utils.isNetworkOnline
+import com.posse.kotlin1.calendar.utils.token
 import java.time.LocalDate
 
 const val COLLECTION_USERS = "Collection_of_all_users"
@@ -13,14 +17,16 @@ const val COLLECTION_USERS = "Collection_of_all_users"
 class RepositoryFirestoreImpl private constructor() : Repository {
 
     override fun mergeDates(oldEmail: String, newMail: String, nickName: String) {
-        saveNickname(newMail, nickName)
         val oldUserDocument =
             FirebaseFirestore.getInstance().collection(oldEmail).document(DOCUMENTS.DATES.value)
         oldUserDocument.get()
             .addOnSuccessListener {
-                onDatesFetchComplete(it, newMail)
-                saveNickname(newMail, nickName)
-                oldUserDocument.delete()
+                FirebaseMessaging.getInstance().token.addOnSuccessListener { token ->
+                    App.sharedPreferences?.token = token
+                    saveUser(User(newMail, nickName, token))
+                    onDatesFetchComplete(it, newMail)
+                    oldUserDocument.delete()
+                }
             }
             .addOnFailureListener { Log.e("Firestore", it.toString()) }
     }
@@ -63,18 +69,8 @@ class RepositoryFirestoreImpl private constructor() : Repository {
     override fun <T> removeItem(document: DOCUMENTS, collection: String, data: T) =
         changeItem(document, collection, data, true)
 
-    override fun saveNickname(email: String, nickName: String) {
-        val users = FirebaseFirestore.getInstance().collection(COLLECTION_USERS)
-            .document(DOCUMENTS.USERS.value)
-        users.set(hashMapOf(email to nickName), SetOptions.merge())
-    }
-
-    override fun getNicknames(callback: (Map<String, Any>?) -> Unit) {
-        if (isNetworkOnline()) {
-            FirebaseFirestore.getInstance().collection(COLLECTION_USERS)
-                .document(DOCUMENTS.USERS.value).get()
-                .addOnSuccessListener { callback.invoke(it.data) }
-        } else callback.invoke(null)
+    override fun saveUser(user: User) {
+        changeItem(DOCUMENTS.USERS, COLLECTION_USERS, user, false)
     }
 
     private fun <T> changeItem(document: DOCUMENTS, collection: String, data: T, delete: Boolean) {
@@ -84,6 +80,7 @@ class RepositoryFirestoreImpl private constructor() : Repository {
         else when (data) {
             is Person -> data
             is String -> data
+            is User -> data
             is LocalDate -> convertLocalDateToLong(data)
             else -> throw RuntimeException("unexpected data Type. data: " + data.toString())
         }
