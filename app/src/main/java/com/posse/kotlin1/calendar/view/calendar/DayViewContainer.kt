@@ -6,6 +6,6 @@ import com.kizitonwose.calendarview.ui.ViewContainer
 import com.posse.kotlin1.calendar.databinding.CalendarDayLayoutBinding
 
 class DayViewContainer(view: View) : ViewContainer(view) {
-    val textView = CalendarDayLayoutBinding.bind(view).calendarDayText
+    val rootView = CalendarDayLayoutBinding.bind(view)
     lateinit var day: CalendarDay
 }

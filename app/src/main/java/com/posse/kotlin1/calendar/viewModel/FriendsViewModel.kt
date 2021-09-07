@@ -32,7 +32,7 @@ class FriendsViewModel : ViewModel() {
             } catch (e: Exception) { callback.invoke(null) }
             sortPositions(friendsData.toList().sortedBy { it.position })
             liveDataToObserve.value = Pair(true, friendsData)
-            if (isOffline) callback.invoke(true)
+            if (isOffline) callback.invoke(isOffline)
         }
     }
 

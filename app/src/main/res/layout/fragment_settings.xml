@@ -45,12 +45,12 @@
                             android:id="@+id/nickName"
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:visibility="invisible"
+                            android:layout_weight="8"
                             android:enabled="false"
-                            app:errorEnabled="true"
+                            android:visibility="invisible"
                             app:boxBackgroundMode="none"
-                            app:endIconMode="clear_text">
+                            app:endIconMode="clear_text"
+                            app:errorEnabled="true">
 
                             <com.google.android.material.textfield.TextInputEditText
                                 android:layout_width="match_parent"
@@ -60,28 +60,15 @@
                                 android:maxLines="1"
                                 android:scrollHorizontally="true"
                                 android:singleLine="true"
-                                tools:ignore="TouchTargetSizeCheck"/>
+                                tools:ignore="TouchTargetSizeCheck" />
                         </com.google.android.material.textfield.TextInputLayout>
 
                         <androidx.appcompat.widget.AppCompatImageButton
                             android:id="@+id/btnEditNickname"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
+                            style="@style/ShotglassStyle"
                             android:layout_gravity="center_vertical"
-                            android:background="@android:color/transparent"
-                            android:src="@android:drawable/ic_menu_edit"
                             android:visibility="gone"
-                            tools:ignore="SpeakableTextPresentCheck,ImageContrastCheck" />
-
-                        <androidx.appcompat.widget.AppCompatImageButton
-                            android:id="@+id/btnSaveNickname"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_gravity="center_vertical"
-                            android:background="@android:color/transparent"
-                            android:src="@android:drawable/ic_menu_save"
-                            android:visibility="gone"
-                            tools:ignore="SpeakableTextPresentCheck,ImageContrastCheck" />
+                            tools:ignore="SpeakableTextPresentCheck,ImageContrastCheck,TouchTargetSizeCheck" />
 
                     </androidx.appcompat.widget.LinearLayoutCompat>
 
@@ -181,7 +168,8 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:checked="true"
-                        android:text="@string/auto_theme_switch" />
+                        android:text="@string/auto_theme_switch"
+                        tools:ignore="TextContrastCheck" />
 
                     <com.google.android.material.chip.ChipGroup
                         android:id="@+id/themeChips"

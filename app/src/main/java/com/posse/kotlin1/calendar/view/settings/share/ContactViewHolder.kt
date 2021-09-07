@@ -1,6 +1,8 @@
 package com.posse.kotlin1.calendar.view.settings.share
 
 import androidx.recyclerview.widget.RecyclerView
+import com.posse.kotlin1.calendar.R
+import com.posse.kotlin1.calendar.app.App
 import com.posse.kotlin1.calendar.databinding.ContactLayoutBinding
 import com.posse.kotlin1.calendar.model.Contact
 import com.posse.kotlin1.calendar.utils.disappear
@@ -33,10 +35,13 @@ class ContactViewHolder(
         if (contact.notInBase) {
             contactBinding.contactCardView.alpha = 0.6f
             contactBinding.contactChecked.disappear()
-        } else contactBinding.contactChecked.setImageResource(
-            if (contact.selected) android.R.drawable.radiobutton_on_background
-            else android.R.drawable.radiobutton_off_background
-        )
+        } else {
+            contactBinding.contactChecked.setImageResource(
+                if (contact.selected) R.drawable.shotglass_full
+                else R.drawable.shotglass_empty
+            )
+            if (contact.selected) contactBinding.contactChecked.drawable.setTint(App.appInstance!!.getColor(R.color.fillColor))
+        }
     }
 }
 

@@ -60,7 +60,10 @@ class RepositoryFirestoreImpl private constructor() : Repository {
             FirebaseFirestore.getInstance().collection(collection).document(document.value)
         documentToFetch.get()
             .addOnSuccessListener { callback.invoke(it.data, isOffline) }
-            .addOnFailureListener { Log.e("Firestore", it.toString()) }
+            .addOnFailureListener {
+                callback.invoke(null, isOffline)
+                Log.e("Firestore", it.toString())
+            }
     }
 
     override fun <T> saveItem(document: DOCUMENTS, collection: String, data: T) =

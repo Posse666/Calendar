@@ -1,14 +1,9 @@
 package com.posse.kotlin1.calendar.view.calendar
 
-import android.content.res.TypedArray
-import android.graphics.Color
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.view.animation.AccelerateInterpolator
-import android.view.animation.DecelerateInterpolator
-import android.widget.TextView
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
@@ -40,6 +35,8 @@ private const val BOTTOM_ANIMATION_INTERVAL: Long = 20000
 class CalendarFragment : Fragment(), StatisticListener {
     private var _binding: FragmentCalendarBinding? = null
     private val binding get() = _binding!!
+    private val cell: Cell = Cell()
+    private val animator = Animator()
     private lateinit var bottomSheetBehavior: BottomSheetBehavior<ConstraintLayout>
     private val calendarView: CalendarView by lazy { binding.calendarView }
     private val viewModel: CalendarViewModel by activityViewModels()
@@ -48,20 +45,6 @@ class CalendarFragment : Fragment(), StatisticListener {
     private lateinit var email: String
     private var isMyCalendar = false
     private var isStatsUsed = App.sharedPreferences?.statsUsed ?: false
-    private val defaultColor: Int
-        get() {
-            val attrs = intArrayOf(android.R.attr.textColorPrimary)
-            val a: TypedArray? = context?.theme?.obtainStyledAttributes(attrs)
-            val result = a?.getColor(0, Color.BLACK) ?: Color.BLACK
-            a?.recycle()
-            return result
-        }
-
-    private val circle =
-        { circle: CircleType, circle2: CircleType, date: LocalDate ->
-            if (date == LocalDate.now()) circle
-            else circle2
-        }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -196,23 +179,25 @@ class CalendarFragment : Fragment(), StatisticListener {
                 override fun create(view: View) = DayViewContainer(view)
                 override fun bind(container: DayViewContainer, day: CalendarDay) {
                     container.day = day
-                    val textView = container.textView
-                    textView.putText(day.date.dayOfMonth)
+                    val rootView = container.rootView
+                    rootView.calendarDayText.putText(day.date.dayOfMonth)
                     if (day.owner == DayOwner.THIS_MONTH) {
-                        textView.show()
+                        rootView.root.show()
                         if (isMyCalendar
                             && (day.date.isBefore(LocalDate.now()) || day.date.isEqual(LocalDate.now()))
                         ) {
                             container.view.setOnClickListener {
                                 viewModel.dayClicked(day.date)
-                                animateButton(textView, day.date)
+                                animator.animate(rootView.root) {
+                                    cell.changeDay(rootView, day.date, actualState)
+                                }
                             }
                         } else {
                             container.view.setOnClickListener(null)
                         }
-                        changeDay(textView, day.date)
+                        cell.changeDay(rootView, day.date, actualState)
                     } else {
-                        textView.hide()
+                        rootView.root.hide()
                     }
                 }
             }
@@ -220,45 +205,6 @@ class CalendarFragment : Fragment(), StatisticListener {
             isInitCompleted = true
             binding.loadingLayout.disappear()
         }
-    }
-
-    private fun animateButton(view: TextView, date: LocalDate) {
-        view
-            .animate()
-            .setDuration(200)
-            .scaleX(0.2f)
-            .scaleY(0.2f)
-            .setInterpolator(DecelerateInterpolator())
-            .withEndAction {
-                changeDay(view, date)
-                view
-                    .animate()
-                    .setDuration(200)
-                    .scaleX(1f)
-                    .scaleY(1f)
-                    .interpolator = AccelerateInterpolator()
-            }
-    }
-
-    private fun changeDay(textView: TextView, date: LocalDate) {
-        val textColor: Int = getTextColor(actualState.contains(date))
-        val circleType: CircleType = getCircleType(actualState.contains(date), date)
-        textView.setTextColor(textColor)
-        textView.background = Background.getCircle(requireContext(), circleType)
-    }
-
-    private fun getCircleType(selected: Boolean, date: LocalDate): CircleType {
-        if (!selected) return circle(
-            CircleType.SELECTED_EMPTY,
-            CircleType.EMPTY,
-            date
-        )
-        return circle(CircleType.SELECTED_FULL, CircleType.FULL, date)
-    }
-
-    private fun getTextColor(selected: Boolean): Int {
-        if (selected) return Color.WHITE
-        return defaultColor
     }
 
     override fun cardStatsPressed(date: LocalDate) {

@@ -25,6 +25,7 @@ class ContactsFragment : DialogFragment(), ContactAdapterListener {
     private val viewModel: ContactsViewModel by activityViewModels()
     private lateinit var adapter: ContactsListRecyclerAdapter
     private val keyboard = Keyboard()
+    private val animator = Animator()
     private val contacts: MutableSet<Contact> = mutableSetOf()
 
     override fun onCreateView(
@@ -93,26 +94,28 @@ class ContactsFragment : DialogFragment(), ContactAdapterListener {
     }
 
     private fun setupContactAddButton() {
-        binding.contactAddButton.setOnClickListener {
-            binding.contactSearchField.editText?.let { editText ->
-                val searchText = editText.text.toString().lowercase()
-                var isContactFound = false
-                contacts.forEach {
-                    if (it.notInContacts) {
-                        var matchFound = false
-                        it.names.forEach { name ->
-                            if (name.lowercase() == searchText) matchFound = true
-                        }
-                        if (it.email.lowercase() == searchText || matchFound) {
-                            contactClicked(it)
-                            isContactFound = true
-                            keyboard.hide(editText)
-                            editText.text.clear()
+        binding.contactAddButton.setOnClickListener { view ->
+            animator.animate(view) {
+                binding.contactSearchField.editText?.let { editText ->
+                    val searchText = editText.text.toString().lowercase()
+                    var isContactFound = false
+                    contacts.forEach {
+                        if (it.notInContacts) {
+                            var matchFound = false
+                            it.names.forEach { name ->
+                                if (name.lowercase() == searchText) matchFound = true
+                            }
+                            if (it.email.lowercase() == searchText || matchFound) {
+                                contactClicked(it)
+                                isContactFound = true
+                                keyboard.hide(editText)
+                                editText.text.clear()
+                            }
                         }
                     }
+                    if (!isContactFound) binding.contactSearchField.error =
+                        getString(R.string.contact_not_found)
                 }
-                if (!isContactFound) binding.contactSearchField.error =
-                    getString(R.string.contact_not_found)
             }
         }
     }

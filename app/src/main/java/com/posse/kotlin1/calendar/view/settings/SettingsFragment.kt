@@ -10,6 +10,8 @@ import android.view.ViewGroup
 import android.view.inputmethod.EditorInfo
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.appcompat.widget.AppCompatImageButton
+import androidx.core.content.ContextCompat.getColor
 import androidx.core.content.ContextCompat.getDrawable
 import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.Fragment
@@ -32,8 +34,10 @@ class SettingsFragment : Fragment() {
     private val binding get() = _binding!!
     private val account = Account
     private val keyboard = Keyboard()
+    private val animator = Animator()
     private var isInitCompleted = false
     private var isLoginPressed = false
+    private var isEditMode = false
     private val viewModel: SettingsViewModel by lazy {
         ViewModelProvider(this).get(SettingsViewModel::class.java)
     }
@@ -69,44 +73,58 @@ class SettingsFragment : Fragment() {
         setupBlackList()
         setupThemeSwitch()
         setupEditNicknameButton()
-        setupSaveNicknameButton()
         keyboard.setListener { binding.nickName.editText?.clearFocus() }
     }
 
-    private fun setupSaveNicknameButton() {
-        binding.btnSaveNickname.setOnClickListener {
-            val nickname = binding.nickName.editText?.text.toString()
-            if (!nickname.contains(" ") && nickname.isNotEmpty())
-                viewModel.saveNickname(Account.getEmail()!!, nickname) { saved ->
-                    when (saved) {
-                        Nickname.Empty -> binding.nickName.error = getString(R.string.no_internet)
-                        Nickname.Busy -> binding.nickName.error =
-                            getString(R.string.nickname_is_busy)
-                        Nickname.Error -> {
-                            UpdateDialog.newInstance().show(childFragmentManager, null)
-                        }
-                        Nickname.Saved -> {
-                            binding.nickName.error = null
-                            binding.nickName.disable()
-                            keyboard.hide(it)
-                            binding.btnEditNickname.show()
-                            binding.btnSaveNickname.disappear()
+    private fun setupEditNicknameButton() {
+        binding.btnEditNickname.setOnClickListener { view ->
+            if (isEditMode) {
+                val nickname = binding.nickName.editText?.text.toString()
+                if (!nickname.contains(" ") && nickname.isNotEmpty())
+                    animator.animate(view) {
+                        viewModel.saveNickname(Account.getEmail()!!, nickname) { saved ->
+                            when (saved) {
+                                Nickname.Empty -> {
+                                    binding.nickName.error = getString(R.string.no_internet)
+                                }
+                                Nickname.Busy -> {
+                                    binding.nickName.error = getString(R.string.nickname_is_busy)
+                                }
+                                Nickname.Error -> {
+                                    UpdateDialog.newInstance().show(childFragmentManager, null)
+                                }
+                                Nickname.Saved -> {
+                                    (view as AppCompatImageButton).setImageDrawable(
+                                        getDrawable(requireContext(), R.drawable.shotglass_empty)
+                                    )
+                                    view.drawable.setTint(
+                                        getColor(requireContext(), R.color.strokeColor)
+                                    )
+                                    keyboard.hide(view)
+                                    binding.nickName.error = null
+                                    isEditMode = false
+                                }
+                            }
                         }
                     }
+            } else {
+                animator.animate(view) {
+                    (view as AppCompatImageButton).setImageDrawable(
+                        getDrawable(
+                            requireContext(),
+                            R.drawable.shotglass_full
+                        )
+                    )
+                    view.drawable.setTint(getColor(requireContext(), R.color.fillColor))
+                    binding.nickName.enable()
+                    binding.nickName.editText?.let {
+                        it.setSelection(it.length())
+                    }
+                    keyboard.show()
+                    binding.nickName.error = null
+                    isEditMode = true
                 }
-        }
-    }
-
-    private fun setupEditNicknameButton() {
-        binding.btnEditNickname.setOnClickListener {
-            binding.nickName.enable()
-            binding.nickName.editText?.let {
-                it.setSelection(it.length())
             }
-            keyboard.show()
-            binding.btnEditNickname.disappear()
-            binding.btnSaveNickname.show()
-            binding.nickName.error = null
         }
     }
 
@@ -193,7 +211,6 @@ class SettingsFragment : Fragment() {
         when (accountState) {
             is AccountState.LoggedIn -> {
                 binding.btnEditNickname.show()
-                binding.btnSaveNickname.disappear()
                 binding.loginButton.disappear()
                 binding.logoutButton.show()
                 binding.nickName.show()
@@ -211,7 +228,6 @@ class SettingsFragment : Fragment() {
             }
             is AccountState.LoggedOut -> {
                 binding.btnEditNickname.disappear()
-                binding.btnSaveNickname.disappear()
                 binding.loginButton.show()
                 binding.logoutButton.disappear()
                 binding.nickName.disappear()

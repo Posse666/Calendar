@@ -45,7 +45,7 @@
                             android:id="@+id/nickName"
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
-                            android:layout_weight="1"
+                            android:layout_weight="8"
                             android:enabled="false"
                             android:visibility="visible"
                             app:boxBackgroundMode="none"
@@ -65,23 +65,10 @@
 
                         <androidx.appcompat.widget.AppCompatImageButton
                             android:id="@+id/btnEditNickname"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
+                            style="@style/ShotglassStyle"
                             android:layout_gravity="center_vertical"
-                            android:background="@android:color/transparent"
-                            android:src="@android:drawable/ic_menu_edit"
                             android:visibility="visible"
                             tools:ignore="SpeakableTextPresentCheck,ImageContrastCheck,TouchTargetSizeCheck" />
-
-                        <androidx.appcompat.widget.AppCompatImageButton
-                            android:id="@+id/btnSaveNickname"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_gravity="center_vertical"
-                            android:background="@android:color/transparent"
-                            android:src="@android:drawable/ic_menu_save"
-                            android:visibility="gone"
-                            tools:ignore="SpeakableTextPresentCheck,ImageContrastCheck" />
 
                     </androidx.appcompat.widget.LinearLayoutCompat>
 

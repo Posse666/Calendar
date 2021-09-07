@@ -22,7 +22,7 @@
                 android:id="@+id/contactSearchField"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
+                android:layout_weight="8"
                 app:boxBackgroundMode="none"
                 app:endIconMode="clear_text"
                 app:errorEnabled="true">
@@ -39,10 +39,10 @@
 
             <androidx.appcompat.widget.AppCompatImageView
                 android:id="@+id/contactAddButton"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                app:srcCompat="@android:drawable/ic_menu_search"
+                style="@style/ShotglassStyle"
+                android:src="@drawable/shotglass_full"
+                android:tint="@color/fillColor"
+                android:layout_gravity="center_vertical"
                 tools:ignore="ImageContrastCheck" />
         </LinearLayout>
 

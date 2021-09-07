@@ -3,9 +3,10 @@ package com.posse.kotlin1.calendar.view.friends.list
 import android.annotation.SuppressLint
 import android.graphics.Color
 import android.view.MotionEvent
-import android.view.View
 import androidx.core.widget.doOnTextChanged
 import androidx.recyclerview.widget.RecyclerView
+import com.posse.kotlin1.calendar.R
+import com.posse.kotlin1.calendar.app.App
 import com.posse.kotlin1.calendar.databinding.FriendLayoutBinding
 import com.posse.kotlin1.calendar.model.Friend
 import com.posse.kotlin1.calendar.utils.Keyboard
@@ -45,9 +46,10 @@ class FriendViewHolder(
 
     private fun setupCheckedView(friend: Friend) {
         friendBinding.friendChecked.setImageResource(
-            if (friend.selected) android.R.drawable.radiobutton_on_background
-            else android.R.drawable.radiobutton_off_background
+            if (friend.selected) R.drawable.shotglass_full
+            else R.drawable.shotglass_empty
         )
+        if (friend.selected) friendBinding.friendChecked.setColorFilter(App.appInstance!!.getColor(R.color.fillColor))
     }
 
     @SuppressLint("ClickableViewAccessibility")

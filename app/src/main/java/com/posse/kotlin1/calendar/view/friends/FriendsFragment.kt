@@ -62,15 +62,16 @@ class FriendsFragment : Fragment() {
                             friendSelected = true
                         }
                     }
-                    if (!friendSelected) {
-                        friendsListFragment = FriendsListFragment.newInstance()
-                        swapFragment(friendsListFragment!!)
-                    }
                     binding.friendsCard.setOnClickListener {
                         if (friendsListFragment == null || !friendsListFragment!!.isVisible) {
-                            friendsListFragment = FriendsListFragment.newInstance()
+                            friendsListFragment = FriendsListFragment.newInstance(false)
                             swapFragment(friendsListFragment!!)
                         }
+                    }
+                    if (!friendSelected) {
+                        friendsListFragment = FriendsListFragment.newInstance(true)
+                        swapFragment(friendsListFragment!!)
+                        if (data.second.isEmpty()) binding.friendsCard.setOnClickListener(null)
                     }
                 }
             })

@@ -19,6 +19,8 @@ import com.posse.kotlin1.calendar.view.deleteConfirmation.DeleteFragmentDialog
 import com.posse.kotlin1.calendar.view.update.UpdateDialog
 import com.posse.kotlin1.calendar.viewModel.FriendsViewModel
 
+private const val ARG_HIDDEN = "Hidden"
+
 class FriendsListFragment : Fragment(), FriendAdapterListener {
 
     private var _binding: FragmentRecyclerListBinding? = null
@@ -26,6 +28,14 @@ class FriendsListFragment : Fragment(), FriendAdapterListener {
     private val viewModel: FriendsViewModel by activityViewModels()
     private lateinit var adapter: FriendListRecyclerAdapter
     private lateinit var itemTouchHelper: ItemTouchHelper
+    private var hiddenBtn = false
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        arguments?.let {
+            hiddenBtn = it.getBoolean(ARG_HIDDEN)
+        }
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -39,13 +49,18 @@ class FriendsListFragment : Fragment(), FriendAdapterListener {
         super.onViewCreated(view, savedInstanceState)
         val myMail = Account.getEmail()
         if (myMail != null && myMail.contains("@")) {
-            binding.listClose.setOnClickListener {
-                viewModel.refreshLiveData(myMail) {
-                    if (it == null) UpdateDialog.newInstance().show(childFragmentManager, null)
-                }
-            }
+            setupCloseBtn(myMail)
             setupRecyclerAdapter()
             viewModel.getLiveData().observe(viewLifecycleOwner, { showFriends(it) })
+        }
+    }
+
+    private fun setupCloseBtn(myMail: String) {
+        if (hiddenBtn) binding.listClose.disappear()
+        else binding.listClose.setOnClickListener {
+            viewModel.refreshLiveData(myMail) {
+                if (it == null) UpdateDialog.newInstance().show(childFragmentManager, null)
+            }
         }
     }
 
@@ -100,6 +115,11 @@ class FriendsListFragment : Fragment(), FriendAdapterListener {
 
     companion object {
         @JvmStatic
-        fun newInstance() = FriendsListFragment()
+        fun newInstance(hiddenBtn: Boolean) = FriendsListFragment()
+            .apply {
+                arguments = Bundle().apply {
+                    putBoolean(ARG_HIDDEN, hiddenBtn)
+                }
+            }
     }
 }

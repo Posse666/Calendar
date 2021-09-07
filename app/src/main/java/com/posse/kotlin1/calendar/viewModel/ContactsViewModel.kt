@@ -93,7 +93,10 @@ class ContactsViewModel : ViewModel() {
                                     newContact.email,
                                     youInContactFriends
                                 )
-                                sendNotification(newContact, App.appInstance!!.getString(R.string.shared_with_you))
+                                sendNotification(
+                                    newContact,
+                                    App.appInstance!!.getString(R.string.shared_with_you)
+                                )
                             } else {
                                 repository.removeItem(DOCUMENTS.SHARE, email, newContact)
                                 repository.removeItem(
@@ -101,7 +104,10 @@ class ContactsViewModel : ViewModel() {
                                     newContact.email,
                                     youInContactFriends
                                 )
-                                sendNotification(newContact, App.appInstance!!.getString(R.string.removed_from_friends))
+                                sendNotification(
+                                    newContact,
+                                    App.appInstance!!.getString(R.string.removed_from_friends)
+                                )
                             }
                         }
                     } catch (e: Exception) {
@@ -122,10 +128,13 @@ class ContactsViewModel : ViewModel() {
                 val user = (userMap.value as Map<String, Any>).toDataClass<User>()
                 if (user.email == contact.email) {
                     Thread {
-                        messenger.sendPush(
-                            App.sharedPreferences?.nickName + message,
-                            user.token
-                        )
+                        try {
+                            messenger.sendPush(
+                                App.sharedPreferences?.nickName + message,
+                                user.token
+                            )
+                        } catch (e: Exception) {
+                        }
                     }.start()
                 }
             }
