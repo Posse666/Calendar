@@ -101,6 +101,7 @@ class SettingsFragment : Fragment() {
                                         getColor(requireContext(), R.color.strokeColor)
                                     )
                                     keyboard.hide(view)
+                                    binding.nickName.disable()
                                     binding.nickName.error = null
                                     isEditMode = false
                                 }

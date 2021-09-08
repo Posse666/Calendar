@@ -81,6 +81,7 @@ class ContactsFragment : DialogFragment(), ContactAdapterListener {
                 contacts.addAll(pair.second)
                 val sortedContacts = pair.second.toSortedSet(compareBy(
                     { !it.notInContacts },
+                    { it.notInBase },
                     { !it.selected },
                     { it.names[0] }
                 ))

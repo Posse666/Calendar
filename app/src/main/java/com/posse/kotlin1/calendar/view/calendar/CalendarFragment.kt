@@ -187,7 +187,9 @@ class CalendarFragment : Fragment(), StatisticListener {
                             && (day.date.isBefore(LocalDate.now()) || day.date.isEqual(LocalDate.now()))
                         ) {
                             container.view.setOnClickListener {
-                                viewModel.dayClicked(day.date)
+                                viewModel.dayClicked(day.date) {
+                                    UpdateDialog.newInstance().show(childFragmentManager, null)
+                                }
                                 animator.animate(rootView.root) {
                                     cell.changeDay(rootView, day.date, actualState)
                                 }

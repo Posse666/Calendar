@@ -72,5 +72,6 @@
     <string name="update">Update app!</string>
     <string name="shared_with_you">" shared with you!"</string>
     <string name="removed_from_friends">\" removed you from friends!\"</string>
+    <string name="drunk_today">" drunk today!"</string>
 
 </resources>

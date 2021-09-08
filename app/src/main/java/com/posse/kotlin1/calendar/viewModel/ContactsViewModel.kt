@@ -12,6 +12,7 @@ import com.posse.kotlin1.calendar.model.repository.COLLECTION_USERS
 import com.posse.kotlin1.calendar.model.repository.DOCUMENTS
 import com.posse.kotlin1.calendar.model.repository.Repository
 import com.posse.kotlin1.calendar.model.repository.RepositoryFirestoreImpl
+import com.posse.kotlin1.calendar.utils.isNetworkOnline
 import com.posse.kotlin1.calendar.utils.nickName
 import com.posse.kotlin1.calendar.utils.toDataClass
 import java.util.*
@@ -123,19 +124,21 @@ class ContactsViewModel : ViewModel() {
     }
 
     private fun sendNotification(contact: Contact, message: String) {
-        repository.getData(DOCUMENTS.USERS, COLLECTION_USERS) { users, _ ->
-            users?.forEach { userMap ->
-                val user = (userMap.value as Map<String, Any>).toDataClass<User>()
-                if (user.email == contact.email) {
-                    Thread {
-                        try {
-                            messenger.sendPush(
-                                App.sharedPreferences?.nickName + message,
-                                user.token
-                            )
-                        } catch (e: Exception) {
-                        }
-                    }.start()
+        if (isNetworkOnline()) {
+            repository.getData(DOCUMENTS.USERS, COLLECTION_USERS) { users, _ ->
+                users?.forEach { userMap ->
+                    val user = (userMap.value as Map<String, Any>).toDataClass<User>()
+                    if (user.email == contact.email) {
+                        Thread {
+                            try {
+                                messenger.sendPush(
+                                    App.sharedPreferences?.nickName + message,
+                                    user.token
+                                )
+                            } catch (e: Exception) {
+                            }
+                        }.start()
+                    }
                 }
             }
         }

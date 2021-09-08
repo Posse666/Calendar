@@ -37,7 +37,6 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
     private fun showNotification(title: String, message: String) {
         val notificationBuilder =
             NotificationCompat.Builder(applicationContext, CHANNEL_ID).apply {
-                setSmallIcon(android.R.drawable.checkbox_on_background)
                 setContentTitle(title)
 //                setContentText(message)
                 priority = NotificationCompat.PRIORITY_DEFAULT

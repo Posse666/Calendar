@@ -72,5 +72,6 @@
     <string name="update">Обновите приложение!</string>
     <string name="shared_with_you">" поделился с вами!"</string>
     <string name="removed_from_friends">" удалил Вас из друзей!"</string>
+    <string name="drunk_today">" выпил сегодня!"</string>
 
 </resources>

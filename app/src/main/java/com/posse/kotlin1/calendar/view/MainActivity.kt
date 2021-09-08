@@ -2,7 +2,6 @@ package com.posse.kotlin1.calendar.view
 
 import android.os.Bundle
 import android.os.PersistableBundle
-import android.widget.Toast
 import androidx.annotation.IdRes
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
@@ -81,11 +80,11 @@ class MainActivity : AppCompatActivity(), SettingsTabSwitcher {
         binding.bottomNavigation.selectedItemId = R.id.bottomSettings
     }
 
-    companion object{
+    companion object {
         var instance: MainActivity? = null
     }
 }
 
-interface SettingsTabSwitcher{
+interface SettingsTabSwitcher {
     fun switchToSettings()
 }

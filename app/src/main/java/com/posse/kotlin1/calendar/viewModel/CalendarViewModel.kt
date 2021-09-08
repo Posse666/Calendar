@@ -2,10 +2,18 @@ package com.posse.kotlin1.calendar.viewModel
 
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import com.posse.kotlin1.calendar.R
+import com.posse.kotlin1.calendar.app.App
+import com.posse.kotlin1.calendar.firebaseMessagingService.Messenger
+import com.posse.kotlin1.calendar.model.Friend
+import com.posse.kotlin1.calendar.model.User
+import com.posse.kotlin1.calendar.model.repository.COLLECTION_USERS
 import com.posse.kotlin1.calendar.model.repository.DOCUMENTS
 import com.posse.kotlin1.calendar.model.repository.Repository
 import com.posse.kotlin1.calendar.model.repository.RepositoryFirestoreImpl
 import com.posse.kotlin1.calendar.utils.convertLongToLocalDale
+import com.posse.kotlin1.calendar.utils.isNetworkOnline
+import com.posse.kotlin1.calendar.utils.toDataClass
 import java.time.LocalDate
 import java.time.Year
 import java.time.temporal.ChronoUnit
@@ -16,6 +24,7 @@ private const val ALL_TIME = false
 class CalendarViewModel : ViewModel() {
     private val repository: Repository = RepositoryFirestoreImpl.newInstance()
     private val datesData: java.util.HashSet<LocalDate> = hashSetOf()
+    private val messenger = Messenger()
     private lateinit var email: String
     private val liveDataToObserve: MutableLiveData<Pair<Boolean, Set<LocalDate>>> =
         MutableLiveData(Pair(false, emptySet()))
@@ -34,7 +43,9 @@ class CalendarViewModel : ViewModel() {
             dates?.forEach {
                 try {
                     datesData.add(convertLongToLocalDale(it.value as Long))
-                } catch (e: Exception){ error.invoke() }
+                } catch (e: Exception) {
+                    error.invoke()
+                }
             }
             liveDataToObserve.value = Pair(true, datesData)
             liveStatisticToObserve.value = getSats(datesData)
@@ -53,16 +64,48 @@ class CalendarViewModel : ViewModel() {
         return result
     }
 
-    fun dayClicked(date: LocalDate) {
+    fun dayClicked(date: LocalDate, update: () -> Unit) {
         if (!checkDate(date)) {
             datesData.add(date)
             repository.saveItem(DOCUMENTS.DATES, email, date)
+            if (isNetworkOnline())
+                try {
+                    sendNotification(App.appInstance!!.getString(R.string.drunk_today))
+                } catch (e: Exception) {
+                    update.invoke()
+                }
         } else {
             datesData.remove(date)
             repository.removeItem(DOCUMENTS.DATES, email, date)
         }
         liveDataToObserve.value = Pair(true, datesData)
         liveStatisticToObserve.value = getSats(datesData)
+    }
+
+    private fun sendNotification(message: String) {
+        repository.getData(DOCUMENTS.SHARE, email) { contactsCollection, _ ->
+            repository.getData(DOCUMENTS.USERS, COLLECTION_USERS) { usersCollection, _ ->
+                contactsCollection?.forEach { contactMap ->
+                    repository.getData(DOCUMENTS.FRIENDS, contactMap.key) { friendsCollection, _ ->
+                        val friendMap = friendsCollection?.get(email)
+                        friendMap?.let {
+                            val friend = (it as Map<String, Any>).toDataClass<Friend>()
+                            val user =
+                                (usersCollection?.get(contactMap.key) as Map<String, Any>).toDataClass<User>()
+                            Thread {
+                                try {
+                                    messenger.sendPush(
+                                        friend.name + message,
+                                        user.token
+                                    )
+                                } catch (e: Exception) {
+                                }
+                            }.start()
+                        }
+                    }
+                }
+            }
+        }
     }
 
     private fun checkDate(date: LocalDate): Boolean = datesData.contains(date)
