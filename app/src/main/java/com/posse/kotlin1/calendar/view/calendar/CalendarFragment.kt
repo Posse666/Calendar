@@ -129,7 +129,7 @@ class CalendarFragment : Fragment(), StatisticListener {
                     bottomSheetBehavior
                         .setPeekHeight(((getTextSize() * MULTIPLY) * 1.3).toInt(), true)
                     Thread.sleep(200)
-                    bottomSheetBehavior.setPeekHeight((getTextSize() * MULTIPLY).toInt(), true)
+                    if (this@CalendarFragment.isAdded) bottomSheetBehavior.setPeekHeight((getTextSize() * MULTIPLY).toInt(), true)
                 }
             }
         }.start()

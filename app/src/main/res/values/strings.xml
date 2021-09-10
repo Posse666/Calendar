@@ -70,8 +70,14 @@
     <string name="network_offline">No connection! Try again later.</string>
     <string name="exit">Exit</string>
     <string name="update">Update app!</string>
-    <string name="shared_with_you">" shared with you!"</string>
-    <string name="removed_from_friends">\" removed you from friends!\"</string>
-    <string name="drunk_today">" drunk today!"</string>
+    <string name="shared_with_you">"shared with you!"</string>
+    <string name="removed_from_friends">removed you from friends!</string>
+    <string name="drunk">"drunk"</string>
+    <string name="today">today</string>
+    <string name="yesterday">yesterday</string>
+    <string name="shared">Shared</string>
+    <string name="shared_notifications">Notifications when someone shared with you.</string>
+    <string name="drunk_channel">Drunk</string>
+    <string name="drunk_notifications">Notifications when friend drunk.</string>
 
 </resources>

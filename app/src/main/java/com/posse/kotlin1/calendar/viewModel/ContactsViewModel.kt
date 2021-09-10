@@ -2,9 +2,10 @@ package com.posse.kotlin1.calendar.viewModel
 
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.posse.kotlin1.calendar.R
 import com.posse.kotlin1.calendar.app.App
+import com.posse.kotlin1.calendar.firebaseMessagingService.ADDED_YOU
 import com.posse.kotlin1.calendar.firebaseMessagingService.Messenger
+import com.posse.kotlin1.calendar.firebaseMessagingService.REMOVED_YOU
 import com.posse.kotlin1.calendar.model.Contact
 import com.posse.kotlin1.calendar.model.Friend
 import com.posse.kotlin1.calendar.model.User
@@ -12,6 +13,7 @@ import com.posse.kotlin1.calendar.model.repository.COLLECTION_USERS
 import com.posse.kotlin1.calendar.model.repository.DOCUMENTS
 import com.posse.kotlin1.calendar.model.repository.Repository
 import com.posse.kotlin1.calendar.model.repository.RepositoryFirestoreImpl
+import com.posse.kotlin1.calendar.utils.getLocale
 import com.posse.kotlin1.calendar.utils.isNetworkOnline
 import com.posse.kotlin1.calendar.utils.nickName
 import com.posse.kotlin1.calendar.utils.toDataClass
@@ -70,60 +72,59 @@ class ContactsViewModel : ViewModel() {
             DOCUMENTS.FRIENDS,
             contact.email
         ) { contactFriendsCollection, isOffline ->
-            var newContact: Contact = contact
-            sharedData.forEach { sharedContact ->
-                if (sharedContact.email == contact.email) {
-                    newContact = sharedContact.copy()
-                    try {
-                        val youInContactFriends =
-                            (contactFriendsCollection?.get(email) as Map<String, Any>?)?.toDataClass<Friend>()
-                                ?: Friend(
-                                    App.sharedPreferences?.nickName ?: email,
-                                    email,
-                                    false,
-                                    false,
-                                    contactFriendsCollection?.size ?: Int.MAX_VALUE
-                                )
-                        if (youInContactFriends.blocked) callback.invoke(ContactStatus.Blocked)
-                        else {
-                            newContact.selected = !newContact.selected
-                            if (newContact.selected) {
-                                repository.saveItem(DOCUMENTS.SHARE, email, newContact)
-                                repository.saveItem(
-                                    DOCUMENTS.FRIENDS,
-                                    newContact.email,
-                                    youInContactFriends
-                                )
-                                sendNotification(
-                                    newContact,
-                                    App.appInstance!!.getString(R.string.shared_with_you)
-                                )
-                            } else {
-                                repository.removeItem(DOCUMENTS.SHARE, email, newContact)
-                                repository.removeItem(
-                                    DOCUMENTS.FRIENDS,
-                                    newContact.email,
-                                    youInContactFriends
-                                )
-                                sendNotification(
-                                    newContact,
-                                    App.appInstance!!.getString(R.string.removed_from_friends)
-                                )
+            repository.getData(DOCUMENTS.USERS, COLLECTION_USERS) { usersMap, _ ->
+                var newContact: Contact = contact
+                sharedData.forEach { sharedContact ->
+                    if (sharedContact.email == contact.email) {
+                        newContact = sharedContact.copy()
+                        try {
+                            val youInContactFriends =
+                                (contactFriendsCollection?.get(email) as Map<String, Any>?)?.toDataClass<Friend>()
+                                    ?: Friend(
+                                        App.sharedPreferences?.nickName ?: email,
+                                        email,
+                                        false,
+                                        false,
+                                        contactFriendsCollection?.size ?: Int.MAX_VALUE
+                                    )
+                            if (youInContactFriends.blocked) callback.invoke(ContactStatus.Blocked)
+                            else {
+                                val user =
+                                    (usersMap?.get(newContact.email) as Map<String, Any>).toDataClass<User>()
+                                val locale = getLocale(user.locale)
+                                newContact.selected = !newContact.selected
+                                if (newContact.selected) {
+                                    repository.saveItem(DOCUMENTS.SHARE, email, newContact)
+                                    repository.saveItem(
+                                        DOCUMENTS.FRIENDS,
+                                        newContact.email,
+                                        youInContactFriends
+                                    )
+                                    sendNotification(newContact, ADDED_YOU, locale)
+                                } else {
+                                    repository.removeItem(DOCUMENTS.SHARE, email, newContact)
+                                    repository.removeItem(
+                                        DOCUMENTS.FRIENDS,
+                                        newContact.email,
+                                        youInContactFriends
+                                    )
+                                    sendNotification(newContact, REMOVED_YOU, locale)
+                                }
                             }
+                        } catch (e: Exception) {
+                            callback.invoke(ContactStatus.Error)
                         }
-                    } catch (e: Exception) {
-                        callback.invoke(ContactStatus.Error)
                     }
                 }
+                sharedData.remove(newContact)
+                sharedData.add(newContact)
+                liveDataToObserve.value = Pair(true, sharedData)
+                if (isOffline) callback.invoke(ContactStatus.Offline)
             }
-            sharedData.remove(newContact)
-            sharedData.add(newContact)
-            liveDataToObserve.value = Pair(true, sharedData)
-            if (isOffline) callback.invoke(ContactStatus.Offline)
         }
     }
 
-    private fun sendNotification(contact: Contact, message: String) {
+    private fun sendNotification(contact: Contact, message: Long, locale: Locale) {
         if (isNetworkOnline()) {
             repository.getData(DOCUMENTS.USERS, COLLECTION_USERS) { users, _ ->
                 users?.forEach { userMap ->
@@ -132,8 +133,10 @@ class ContactsViewModel : ViewModel() {
                         Thread {
                             try {
                                 messenger.sendPush(
-                                    App.sharedPreferences?.nickName + message,
-                                    user.token
+                                    App.sharedPreferences!!.nickName!!,
+                                    message.toString(),
+                                    user.token,
+                                    locale
                                 )
                             } catch (e: Exception) {
                             }

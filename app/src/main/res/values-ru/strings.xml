@@ -70,8 +70,14 @@
     <string name="network_offline">Нет интернета! Попробуйте позже.</string>
     <string name="exit">Выход</string>
     <string name="update">Обновите приложение!</string>
-    <string name="shared_with_you">" поделился с вами!"</string>
-    <string name="removed_from_friends">" удалил Вас из друзей!"</string>
-    <string name="drunk_today">" выпил сегодня!"</string>
+    <string name="shared_with_you">поделился с вами!</string>
+    <string name="removed_from_friends">удалил Вас из друзей!</string>
+    <string name="drunk">выпил</string>
+    <string name="today">сегодня</string>
+    <string name="yesterday">вчера</string>
+    <string name="shared">Поделился</string>
+    <string name="shared_notifications">Уведомление, когда кто-то поделился с Вами.</string>
+    <string name="drunk_channel">Выпил</string>
+    <string name="drunk_notifications">Уведомление, когда друг выпил.</string>
 
 </resources>

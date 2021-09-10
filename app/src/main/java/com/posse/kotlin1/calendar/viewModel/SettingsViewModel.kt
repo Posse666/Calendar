@@ -10,6 +10,7 @@ import com.posse.kotlin1.calendar.model.repository.DOCUMENTS
 import com.posse.kotlin1.calendar.model.repository.Repository
 import com.posse.kotlin1.calendar.model.repository.RepositoryFirestoreImpl
 import com.posse.kotlin1.calendar.utils.*
+import java.util.*
 
 class SettingsViewModel : ViewModel() {
     private val repository: Repository = RepositoryFirestoreImpl.newInstance()
@@ -55,7 +56,7 @@ class SettingsViewModel : ViewModel() {
                     }
                     App.sharedPreferences?.nickName = nickname
                     App.sharedPreferences?.token?.let {
-                        repository.saveUser(User(email, nickname, it))
+                        repository.saveUser(User(email, nickname, getStringLocale(), it))
                     }
                     callback.invoke(Nickname.Saved)
                 }

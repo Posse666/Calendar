@@ -18,6 +18,7 @@
         <activity
             android:name=".view.MainActivity"
             android:label="@string/app_name"
+            android:exported="true"
             android:screenOrientation="portrait"
             android:theme="@style/Theme.AlcoCalendar.Splash">
             <intent-filter>
@@ -30,6 +31,7 @@
         <service
             android:name=".firebaseMessagingService.MyFirebaseMessagingService"
             android:enabled="true"
+            android:directBootAware="true"
             android:exported="false">
             <intent-filter>
                 <action android:name="com.google.firebase.MESSAGING_EVENT" />

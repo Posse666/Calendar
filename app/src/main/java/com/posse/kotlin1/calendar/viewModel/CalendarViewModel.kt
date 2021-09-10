@@ -11,9 +11,7 @@ import com.posse.kotlin1.calendar.model.repository.COLLECTION_USERS
 import com.posse.kotlin1.calendar.model.repository.DOCUMENTS
 import com.posse.kotlin1.calendar.model.repository.Repository
 import com.posse.kotlin1.calendar.model.repository.RepositoryFirestoreImpl
-import com.posse.kotlin1.calendar.utils.convertLongToLocalDale
-import com.posse.kotlin1.calendar.utils.isNetworkOnline
-import com.posse.kotlin1.calendar.utils.toDataClass
+import com.posse.kotlin1.calendar.utils.*
 import java.time.LocalDate
 import java.time.Year
 import java.time.temporal.ChronoUnit
@@ -70,7 +68,7 @@ class CalendarViewModel : ViewModel() {
             repository.saveItem(DOCUMENTS.DATES, email, date)
             if (isNetworkOnline())
                 try {
-                    sendNotification(App.appInstance!!.getString(R.string.drunk_today))
+                    sendNotification(convertLocalDateToLong(date))
                 } catch (e: Exception) {
                     update.invoke()
                 }
@@ -82,7 +80,7 @@ class CalendarViewModel : ViewModel() {
         liveStatisticToObserve.value = getSats(datesData)
     }
 
-    private fun sendNotification(message: String) {
+    private fun sendNotification(message: Long) {
         repository.getData(DOCUMENTS.SHARE, email) { contactsCollection, _ ->
             repository.getData(DOCUMENTS.USERS, COLLECTION_USERS) { usersCollection, _ ->
                 contactsCollection?.forEach { contactMap ->
@@ -95,8 +93,10 @@ class CalendarViewModel : ViewModel() {
                             Thread {
                                 try {
                                     messenger.sendPush(
-                                        friend.name + message,
-                                        user.token
+                                        friend.name,
+                                        message.toString(),
+                                        user.token,
+                                        getLocale(user.locale)
                                     )
                                 } catch (e: Exception) {
                                 }

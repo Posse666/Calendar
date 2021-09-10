@@ -6,18 +6,24 @@ import android.content.Context
 import androidx.core.app.NotificationCompat
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
+import com.posse.kotlin1.calendar.R
 import com.posse.kotlin1.calendar.app.App
 import com.posse.kotlin1.calendar.model.User
 import com.posse.kotlin1.calendar.model.repository.COLLECTION_USERS
 import com.posse.kotlin1.calendar.model.repository.DOCUMENTS
 import com.posse.kotlin1.calendar.model.repository.Repository
 import com.posse.kotlin1.calendar.model.repository.RepositoryFirestoreImpl
-import com.posse.kotlin1.calendar.utils.nickName
-import com.posse.kotlin1.calendar.utils.toDataClass
-import com.posse.kotlin1.calendar.utils.token
+import com.posse.kotlin1.calendar.utils.*
+import java.time.LocalDate
+
+const val ADDED_YOU: Long = -1
+const val REMOVED_YOU: Long = -2
 
 class MyFirebaseMessagingService : FirebaseMessagingService() {
     private val repository: Repository = RepositoryFirestoreImpl.newInstance()
+    private lateinit var channelName: String
+    private lateinit var channelDescriptionText: String
+    private lateinit var channelID: String
 
     override fun onMessageReceived(remoteMessage: RemoteMessage) {
         val remoteMessageData = remoteMessage.data
@@ -35,9 +41,12 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
     }
 
     private fun showNotification(title: String, message: String) {
+        channelID = getString(R.string.drunk_channel)
+        if (message == ADDED_YOU.toString() || message == REMOVED_YOU.toString()) channelID = getString(R.string.shared)
         val notificationBuilder =
-            NotificationCompat.Builder(applicationContext, CHANNEL_ID).apply {
-                setContentTitle(title)
+            NotificationCompat.Builder(applicationContext, channelID).apply {
+                setSmallIcon(R.drawable.ic_splash_screen)
+                setContentTitle(getText(title, message))
 //                setContentText(message)
                 priority = NotificationCompat.PRIORITY_DEFAULT
             }
@@ -48,12 +57,36 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
         notificationManager.notify(NOTIFICATION_ID, notificationBuilder.build())
     }
 
+    private fun getText(title: String, message: String): String {
+        channelName = getString(R.string.shared)
+        channelDescriptionText = getString(R.string.shared_notifications)
+        val text: String = when (message) {
+            ADDED_YOU.toString() -> getString(R.string.shared_with_you)
+            REMOVED_YOU.toString() -> getString(R.string.removed_from_friends)
+            else -> {
+                channelName = getString(R.string.drunk_channel)
+                channelDescriptionText = getString(R.string.drunk_notifications)
+                val drunk = getString(R.string.drunk)
+                when (val date = convertLongToLocalDale(message.toLong())) {
+                    LocalDate.now() -> {
+                        "$drunk ${getString(R.string.today)}!"
+                    }
+                    LocalDate.now().minusDays(1) -> {
+                        "$drunk ${getString(R.string.yesterday)}!"
+                    }
+                    else -> {
+                        "$drunk $date!"
+                    }
+                }
+            }
+        }
+        return "$title $text"
+    }
+
     private fun createNotificationChannel(notificationManager: NotificationManager) {
-        val name = "Channel name"
-        val descriptionText = "Channel description"
         val importance = NotificationManager.IMPORTANCE_DEFAULT
-        val channel = NotificationChannel(CHANNEL_ID, name, importance).apply {
-            description = descriptionText
+        val channel = NotificationChannel(channelID, channelName, importance).apply {
+            description = channelDescriptionText
         }
         notificationManager.createNotificationChannel(channel)
     }
@@ -65,7 +98,7 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
                 users?.forEach { userMap ->
                     try {
                         val user = (userMap.value as Map<String, Any>).toDataClass<User>()
-                        if (user.nickname == it) repository.saveUser(User(user.email, it, token))
+                        if (user.nickname == it) repository.saveUser(User(user.email, it, getStringLocale(), token))
                     } catch (e: Exception) {
                     }
                 }
@@ -76,7 +109,6 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
     companion object {
         private const val PUSH_KEY_TITLE = "title"
         private const val PUSH_KEY_MESSAGE = "message"
-        private const val CHANNEL_ID = "channel_id"
         private const val NOTIFICATION_ID = 68
     }
 }

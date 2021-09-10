@@ -6,10 +6,7 @@ import com.google.firebase.messaging.FirebaseMessaging
 import com.posse.kotlin1.calendar.app.App
 import com.posse.kotlin1.calendar.model.Person
 import com.posse.kotlin1.calendar.model.User
-import com.posse.kotlin1.calendar.utils.convertLocalDateToLong
-import com.posse.kotlin1.calendar.utils.convertLongToLocalDale
-import com.posse.kotlin1.calendar.utils.isNetworkOnline
-import com.posse.kotlin1.calendar.utils.token
+import com.posse.kotlin1.calendar.utils.*
 import java.time.LocalDate
 
 const val COLLECTION_USERS = "Collection_of_all_users"
@@ -23,7 +20,7 @@ class RepositoryFirestoreImpl private constructor() : Repository {
             .addOnSuccessListener {
                 FirebaseMessaging.getInstance().token.addOnSuccessListener { token ->
                     App.sharedPreferences?.token = token
-                    saveUser(User(newMail, nickName, token))
+                    saveUser(User(newMail, nickName, getStringLocale(), token))
                     onDatesFetchComplete(it, newMail)
                     oldUserDocument.delete()
                 }
