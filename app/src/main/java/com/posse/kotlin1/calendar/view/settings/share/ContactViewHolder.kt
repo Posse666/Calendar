@@ -40,7 +40,7 @@ class ContactViewHolder(
                 if (contact.selected) R.drawable.shotglass_full
                 else R.drawable.shotglass_empty
             )
-            if (contact.selected) contactBinding.contactChecked.drawable.setTint(App.appInstance!!.getColor(R.color.fillColor))
+            if (contact.selected) contactBinding.contactChecked.drawable.setTint(App.appInstance.getColor(R.color.fillColor))
         }
     }
 }

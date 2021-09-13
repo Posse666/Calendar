@@ -15,7 +15,7 @@ import java.util.*
 class SettingsViewModel : ViewModel() {
     private val repository: Repository = RepositoryFirestoreImpl.newInstance()
     private val lastTheme: MutableLiveData<Int> = MutableLiveData(
-        if (App.sharedPreferences?.lightTheme == true) {
+        if (App.sharedPreferences.lightTheme) {
             THEME.DAY.themeID
         } else {
             THEME.NIGHT.themeID
@@ -23,49 +23,49 @@ class SettingsViewModel : ViewModel() {
     )
 
     var switchState: Boolean
-        get() = App.sharedPreferences?.themeSwitch ?: true
+        get() = App.sharedPreferences.themeSwitch
         set(value) {
-            App.sharedPreferences?.themeSwitch = value
+            App.sharedPreferences.themeSwitch = value
         }
 
     var lightTheme: Boolean
-        get() = App.sharedPreferences?.lightTheme ?: true
+        get() = App.sharedPreferences.lightTheme
         set(value) {
-            App.sharedPreferences?.lightTheme = value
+            App.sharedPreferences.lightTheme = value
             switchTheme()
         }
 
     fun getLastTheme() = lastTheme
 
-    fun saveNickname(email: String, nickname: String, callback: (Nickname) -> Unit) {
+    fun saveNickname(email: String, nickname: String, callback: (NICKNAME) -> Unit) {
         repository.getData(DOCUMENTS.USERS, COLLECTION_USERS) { users, _ ->
             when (users) {
-                null -> callback.invoke(Nickname.Empty)
+                null -> callback.invoke(NICKNAME.EMPTY)
                 else -> {
                     users.forEach { userMap ->
                         try {
                             val user = (userMap.value as Map<String, Any>).toDataClass<User>()
                             if ((user.nickname).lowercase() == nickname.lowercase() && user.email != email) {
-                                callback.invoke(Nickname.Busy)
+                                callback.invoke(NICKNAME.BUSY)
                                 return@getData
                             }
                         } catch (e: Exception) {
-                            callback.invoke(Nickname.Error)
+                            callback.invoke(NICKNAME.ERROR)
                             return@getData
                         }
                     }
-                    App.sharedPreferences?.nickName = nickname
-                    App.sharedPreferences?.token?.let {
+                    App.sharedPreferences.nickName = nickname
+                    App.sharedPreferences.token?.let {
                         repository.saveUser(User(email, nickname, getStringLocale(), it))
                     }
-                    callback.invoke(Nickname.Saved)
+                    callback.invoke(NICKNAME.SAVED)
                 }
             }
         }
     }
 
     private fun switchTheme() {
-        if (App.sharedPreferences?.lightTheme == true) changeTheme(THEME.DAY.themeID)
+        if (App.sharedPreferences.lightTheme) changeTheme(THEME.DAY.themeID)
         else changeTheme(THEME.NIGHT.themeID)
     }
 
@@ -76,9 +76,9 @@ class SettingsViewModel : ViewModel() {
     }
 }
 
-enum class Nickname {
-    Empty,
-    Saved,
-    Busy,
-    Error
+enum class NICKNAME {
+    EMPTY,
+    SAVED,
+    BUSY,
+    ERROR
 }

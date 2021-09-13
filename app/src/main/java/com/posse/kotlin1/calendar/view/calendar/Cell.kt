@@ -1,9 +1,6 @@
 package com.posse.kotlin1.calendar.view.calendar
 
 import android.graphics.Color
-import android.view.View
-import android.view.animation.AccelerateInterpolator
-import android.view.animation.DecelerateInterpolator
 import androidx.core.content.res.ResourcesCompat
 import com.posse.kotlin1.calendar.R
 import com.posse.kotlin1.calendar.app.App
@@ -29,7 +26,8 @@ class Cell {
                 strokeColor = getColor(R.color.strokeColor)
             }
             CellType.FULL -> {
-                strokeColor = getColor(R.color.fillColor)
+//                strokeColor = getColor(R.color.fillColor)
+                strokeColor = getColor(R.color.strokeColor)
                 full = true
             }
             CellType.SELECTED_EMPTY -> {
@@ -48,7 +46,7 @@ class Cell {
     }
 
     private fun getColor(colorResource: Int) =
-        ResourcesCompat.getColor(App.appInstance!!.resources, colorResource, null)
+        ResourcesCompat.getColor(App.appInstance.resources, colorResource, null)
 
     fun changeDay(
         view: CalendarDayLayoutBinding,

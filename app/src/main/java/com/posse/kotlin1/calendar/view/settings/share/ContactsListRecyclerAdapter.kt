@@ -50,19 +50,19 @@ class ContactsListRecyclerAdapter(
                     if (!newData.selected) {
                         animator.animate(view) {
                             view.setImageDrawable(
-                                ContextCompat.getDrawable(App.appInstance!!, R.drawable.shotglass_empty)
+                                ContextCompat.getDrawable(App.appInstance, R.drawable.shotglass_empty)
                             )
                             view.drawable.setTint(
-                                ContextCompat.getColor(App.appInstance!!, R.color.strokeColor)
+                                ContextCompat.getColor(App.appInstance, R.color.strokeColor)
                             )
                         }
                     } else {
                         animator.animate(view) {
                             view.setImageDrawable(
-                                ContextCompat.getDrawable(App.appInstance!!, R.drawable.shotglass_full)
+                                ContextCompat.getDrawable(App.appInstance, R.drawable.shotglass_full)
                             )
                             view.drawable.setTint(
-                                ContextCompat.getColor(App.appInstance!!, R.color.fillColor)
+                                ContextCompat.getColor(App.appInstance, R.color.fillColor)
                             )
                         }
                     }

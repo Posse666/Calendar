@@ -18,6 +18,9 @@ import java.time.LocalDate
 
 const val ADDED_YOU: Long = -1
 const val REMOVED_YOU: Long = -2
+private const val PUSH_KEY_TITLE = "title"
+private const val PUSH_KEY_MESSAGE = "message"
+private const val NOTIFICATION_ID = 68
 
 class MyFirebaseMessagingService : FirebaseMessagingService() {
     private val repository: Repository = RepositoryFirestoreImpl.newInstance()
@@ -92,8 +95,8 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
     }
 
     override fun onNewToken(token: String) {
-        App.sharedPreferences?.token = token
-        App.sharedPreferences?.nickName?.let {
+        App.sharedPreferences.token = token
+        App.sharedPreferences.nickName?.let {
             repository.getData(DOCUMENTS.USERS, COLLECTION_USERS) { users, _ ->
                 users?.forEach { userMap ->
                     try {
@@ -104,11 +107,5 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
                 }
             }
         }
-    }
-
-    companion object {
-        private const val PUSH_KEY_TITLE = "title"
-        private const val PUSH_KEY_MESSAGE = "message"
-        private const val NOTIFICATION_ID = 68
     }
 }

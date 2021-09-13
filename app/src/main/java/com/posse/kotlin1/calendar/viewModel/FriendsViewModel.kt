@@ -29,7 +29,9 @@ class FriendsViewModel : ViewModel() {
                     val friend = (friendMap as Map<String, Any>).toDataClass<Friend>()
                     if (!friend.blocked) friendsData.add(friend)
                 }
-            } catch (e: Exception) { callback.invoke(null) }
+            } catch (e: Exception) {
+                callback.invoke(null)
+            }
             sortPositions(friendsData.toList().sortedBy { it.position })
             liveDataToObserve.value = Pair(true, friendsData)
             if (isOffline) callback.invoke(isOffline)

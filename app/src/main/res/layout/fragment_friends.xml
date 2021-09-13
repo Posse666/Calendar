@@ -11,6 +11,7 @@
 
         <TextView
             android:id="@+id/friendName"
+            android:textSize="@dimen/stats_text_size"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"/>
     </com.google.android.material.card.MaterialCardView>

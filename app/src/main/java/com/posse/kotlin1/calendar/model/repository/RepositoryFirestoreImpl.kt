@@ -19,7 +19,7 @@ class RepositoryFirestoreImpl private constructor() : Repository {
         oldUserDocument.get()
             .addOnSuccessListener {
                 FirebaseMessaging.getInstance().token.addOnSuccessListener { token ->
-                    App.sharedPreferences?.token = token
+                    App.sharedPreferences.token = token
                     saveUser(User(newMail, nickName, getStringLocale(), token))
                     onDatesFetchComplete(it, newMail)
                     oldUserDocument.delete()

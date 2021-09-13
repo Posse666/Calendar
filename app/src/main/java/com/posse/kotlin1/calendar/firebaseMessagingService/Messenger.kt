@@ -23,7 +23,7 @@ class Messenger {
         .create(FirebaseAPI::class.java)
 
     fun sendPush(title: String, message: String, id: String, locale: Locale) {
-        val resources = getLocalizedResources(App.appInstance!!, locale)
+        val resources = getLocalizedResources(locale)
         val text: String = when (message) {
             ADDED_YOU.toString() -> resources.getString(R.string.shared_with_you)
             REMOVED_YOU.toString() -> resources.getString(R.string.removed_from_friends)
@@ -48,7 +48,8 @@ class Messenger {
         firebaseAPI.sendMessage(messageToSend).execute()
     }
 
-    private fun getLocalizedResources(context: Context, desiredLocale: Locale?): Resources {
+    private fun getLocalizedResources(desiredLocale: Locale?): Resources {
+        val context = App.appInstance
         var conf: Configuration = context.resources.configuration
         conf = Configuration(conf)
         conf.setLocale(desiredLocale)

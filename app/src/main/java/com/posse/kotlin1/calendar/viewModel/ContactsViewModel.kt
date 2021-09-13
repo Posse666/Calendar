@@ -52,7 +52,11 @@ class ContactsViewModel : ViewModel() {
                     usersCollection?.forEach { userMap ->
                         val user = (userMap.value as Map<String, Any>).toDataClass<User>()
                         val contact =
-                            Contact(mutableListOf(user.nickname), user.email, true, false)
+                            Contact(mutableListOf(user.nickname),
+                                user.email,
+                                notInContacts = true,
+                                notInBase = false
+                            )
                         sharedData.add(contact)
                         sharedData.forEach {
                             if (it.email == contact.email) it.notInBase = false
@@ -81,10 +85,10 @@ class ContactsViewModel : ViewModel() {
                             val youInContactFriends =
                                 (contactFriendsCollection?.get(email) as Map<String, Any>?)?.toDataClass<Friend>()
                                     ?: Friend(
-                                        App.sharedPreferences?.nickName ?: email,
+                                        App.sharedPreferences.nickName ?: email,
                                         email,
-                                        false,
-                                        false,
+                                        selected = false,
+                                        blocked = false,
                                         contactFriendsCollection?.size ?: Int.MAX_VALUE
                                     )
                             if (youInContactFriends.blocked) callback.invoke(ContactStatus.Blocked)
@@ -133,7 +137,7 @@ class ContactsViewModel : ViewModel() {
                         Thread {
                             try {
                                 messenger.sendPush(
-                                    App.sharedPreferences!!.nickName!!,
+                                    App.sharedPreferences.nickName!!,
                                     message.toString(),
                                     user.token,
                                     locale

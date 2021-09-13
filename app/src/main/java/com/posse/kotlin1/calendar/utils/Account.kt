@@ -55,7 +55,7 @@ object Account {
         FirebaseAuth.getInstance().signInWithCredential(credential)
             .addOnSuccessListener {
                 googleAccount?.email?.let { email ->
-                    var nickName = App.sharedPreferences?.nickName ?: email
+                    var nickName = App.sharedPreferences.nickName ?: email
                     repository.getData(DOCUMENTS.USERS, COLLECTION_USERS) { users, _ ->
                         users?.forEach { userMap ->
                             try {
@@ -65,7 +65,7 @@ object Account {
                                 callback.invoke()
                             }
                         }
-                        App.sharedPreferences?.nickName = nickName
+                        App.sharedPreferences.nickName = nickName
                         repository.mergeDates(oldEmail, email, nickName)
                         getAccountState()
                         Log.d("login", "signInWithCredential:success")
@@ -76,7 +76,7 @@ object Account {
 
     fun getAccountState() {
         liveData.value = googleAccount?.let {
-            AccountState.LoggedIn(it.photoUrl, it.email!!, App.sharedPreferences!!.nickName!!)
+            AccountState.LoggedIn(it.photoUrl, it.email!!, App.sharedPreferences.nickName!!)
         } ?: AccountState.LoggedOut
     }
 
@@ -85,7 +85,7 @@ object Account {
             oldEmail = getEmail()!!
             val googleSignInClient = GoogleSignIn.getClient(fragment.requireActivity(), gso)
             startLogin.launch(googleSignInClient.signInIntent)
-        } else fragment.context?.showToast(App.appInstance!!.getString(R.string.network_offline))
+        } else fragment.context?.showToast(App.appInstance.getString(R.string.network_offline))
     }
 
     fun logout(fragment: Fragment) {
@@ -93,9 +93,9 @@ object Account {
             val googleSignInClient = GoogleSignIn.getClient(fragment.requireActivity(), gso)
             googleSignInClient.signOut()
             googleAccount = null
-            App.sharedPreferences?.nickName = null
+            App.sharedPreferences.nickName = null
             anonymousLogin { getAccountState() }
-        } else fragment.context?.showToast(App.appInstance!!.getString(R.string.network_offline))
+        } else fragment.context?.showToast(App.appInstance.getString(R.string.network_offline))
     }
 
     fun getEmail(): String? {
@@ -113,7 +113,7 @@ object Account {
                 callback.invoke(email)
             } else {
                 Log.w("TAG", "signInAnonymously:failure", it.exception)
-                App.appInstance!!.showToast(App.appInstance!!.getString(R.string.network_offline))
+                App.appInstance.showToast(App.appInstance.getString(R.string.network_offline))
             }
         }
     }

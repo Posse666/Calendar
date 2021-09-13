@@ -4,7 +4,6 @@ import android.content.Context
 import android.view.Gravity
 import android.widget.TextView
 import android.widget.Toast
-import com.posse.kotlin1.calendar.R
 
 fun Context.showToast(text: String) {
     val toast = Toast.makeText(this, text, Toast.LENGTH_SHORT)

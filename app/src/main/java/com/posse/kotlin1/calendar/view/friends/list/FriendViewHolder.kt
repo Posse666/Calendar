@@ -49,7 +49,7 @@ class FriendViewHolder(
             if (friend.selected) R.drawable.shotglass_full
             else R.drawable.shotglass_empty
         )
-        if (friend.selected) friendBinding.friendChecked.setColorFilter(App.appInstance!!.getColor(R.color.fillColor))
+        if (friend.selected) friendBinding.friendChecked.setColorFilter(App.appInstance.getColor(R.color.fillColor))
     }
 
     @SuppressLint("ClickableViewAccessibility")

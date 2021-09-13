@@ -13,14 +13,14 @@ fun getAppTheme(): Int {
     var theme: Int = THEME.DAY.themeID
 
     if (Build.VERSION.SDK_INT >= NIGHT_THEME_SDK) {
-        if (App.sharedPreferences?.themeSwitch == true){
-            when (App.appInstance?.resources?.configuration?.uiMode?.and(Configuration.UI_MODE_NIGHT_MASK)) {
+        if (App.sharedPreferences.themeSwitch){
+            when (App.appInstance.resources?.configuration?.uiMode?.and(Configuration.UI_MODE_NIGHT_MASK)) {
                 Configuration.UI_MODE_NIGHT_YES -> theme = THEME.NIGHT.themeID
             }
             return theme
         }
     }
-    if (App.sharedPreferences?.lightTheme == false){
+    if (!App.sharedPreferences.lightTheme){
         theme = THEME.NIGHT.themeID
     }
     return theme

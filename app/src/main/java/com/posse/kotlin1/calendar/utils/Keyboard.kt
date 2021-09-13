@@ -29,12 +29,7 @@ class Keyboard {
     }
 
     fun show() {
-        if (!isKeyboardOpened) {
-            inputMethodManager.toggleSoftInput(
-                InputMethodManager.SHOW_FORCED,
-                0
-            )
-        }
+        if (!isKeyboardOpened) inputMethodManager.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0)
     }
 
     fun hide(view: View) {

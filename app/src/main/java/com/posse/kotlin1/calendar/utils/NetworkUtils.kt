@@ -9,7 +9,7 @@ fun isNetworkOnline(): Boolean {
     var isOnline = false
     try {
         val manager =
-            App.appInstance?.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+            App.appInstance.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
         val capabilities = manager.getNetworkCapabilities(manager.activeNetwork)
         isOnline =
             capabilities?.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED) == true

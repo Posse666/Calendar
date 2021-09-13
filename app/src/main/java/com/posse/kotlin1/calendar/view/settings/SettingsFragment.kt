@@ -23,7 +23,7 @@ import com.posse.kotlin1.calendar.utils.*
 import com.posse.kotlin1.calendar.view.settings.blackList.BlackListFragment
 import com.posse.kotlin1.calendar.view.settings.share.ShareFragment
 import com.posse.kotlin1.calendar.view.update.UpdateDialog
-import com.posse.kotlin1.calendar.viewModel.Nickname
+import com.posse.kotlin1.calendar.viewModel.NICKNAME
 import com.posse.kotlin1.calendar.viewModel.SettingsViewModel
 import com.squareup.picasso.Picasso
 
@@ -84,16 +84,16 @@ class SettingsFragment : Fragment() {
                     animator.animate(view) {
                         viewModel.saveNickname(Account.getEmail()!!, nickname) { saved ->
                             when (saved) {
-                                Nickname.Empty -> {
+                                NICKNAME.EMPTY -> {
                                     binding.nickName.error = getString(R.string.no_internet)
                                 }
-                                Nickname.Busy -> {
+                                NICKNAME.BUSY -> {
                                     binding.nickName.error = getString(R.string.nickname_is_busy)
                                 }
-                                Nickname.Error -> {
+                                NICKNAME.ERROR -> {
                                     UpdateDialog.newInstance().show(childFragmentManager, null)
                                 }
-                                Nickname.Saved -> {
+                                NICKNAME.SAVED -> {
                                     (view as AppCompatImageButton).setImageDrawable(
                                         getDrawable(requireContext(), R.drawable.shotglass_empty)
                                     )
@@ -174,7 +174,7 @@ class SettingsFragment : Fragment() {
     }
 
     private fun setupThemeSwitch() {
-        val themeSwitch = App.sharedPreferences?.themeSwitch ?: true
+        val themeSwitch = App.sharedPreferences.themeSwitch
         if (Build.VERSION.SDK_INT >= NIGHT_THEME_SDK) {
             binding.switchTheme.isChecked = themeSwitch
             binding.switchTheme.setOnCheckedChangeListener { _, isChecked ->
@@ -193,7 +193,7 @@ class SettingsFragment : Fragment() {
         binding.chipDay.isEnabled = !themeSwitch
         binding.chipNight.isEnabled = !themeSwitch
 
-        if (App.sharedPreferences?.lightTheme == true) binding.themeChips.check(THEME.DAY.resID)
+        if (App.sharedPreferences.lightTheme) binding.themeChips.check(THEME.DAY.resID)
         else binding.themeChips.check(THEME.NIGHT.resID)
 
         binding.themeChips.setOnCheckedChangeListener { _, checkedId ->

@@ -15,7 +15,7 @@ class App : Application() {
 
     companion object {
 
-        var appInstance: App? = null
-        var sharedPreferences: SharedPreferences? = null
+        lateinit var appInstance: App
+        lateinit var sharedPreferences: SharedPreferences
     }
 }

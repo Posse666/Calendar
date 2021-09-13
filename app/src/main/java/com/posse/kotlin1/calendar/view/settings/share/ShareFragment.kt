@@ -1,6 +1,7 @@
 package com.posse.kotlin1.calendar.view.settings.share
 
 import android.Manifest
+import android.annotation.SuppressLint
 import android.content.ContentResolver
 import android.database.Cursor
 import android.os.Bundle
@@ -78,6 +79,7 @@ class ShareFragment : Fragment() {
         }
     }
 
+    @SuppressLint("Range")
     private fun getContacts() {
         contactsWithEmail.clear()
         context?.let {

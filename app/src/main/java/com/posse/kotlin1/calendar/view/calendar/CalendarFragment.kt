@@ -44,7 +44,7 @@ class CalendarFragment : Fragment(), StatisticListener {
     private var isInitCompleted: Boolean = false
     private lateinit var email: String
     private var isMyCalendar = false
-    private var isStatsUsed = App.sharedPreferences?.statsUsed ?: false
+    private var isStatsUsed = App.sharedPreferences.statsUsed
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -106,7 +106,7 @@ class CalendarFragment : Fragment(), StatisticListener {
             override fun onStateChanged(bottomSheet: View, newState: Int) {
                 if (!isStatsUsed && bottomSheetBehavior.state == BottomSheetBehavior.STATE_EXPANDED) {
                     isStatsUsed = true
-                    App.sharedPreferences?.statsUsed = true
+                    App.sharedPreferences.statsUsed = true
                 }
                 if (bottomSheetBehavior.state == BottomSheetBehavior.STATE_HIDDEN) {
                     bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
@@ -129,7 +129,10 @@ class CalendarFragment : Fragment(), StatisticListener {
                     bottomSheetBehavior
                         .setPeekHeight(((getTextSize() * MULTIPLY) * 1.3).toInt(), true)
                     Thread.sleep(200)
-                    if (this@CalendarFragment.isAdded) bottomSheetBehavior.setPeekHeight((getTextSize() * MULTIPLY).toInt(), true)
+                    if (this@CalendarFragment.isAdded) bottomSheetBehavior.setPeekHeight(
+                        (getTextSize() * MULTIPLY).toInt(),
+                        true
+                    )
                 }
             }
         }.start()
