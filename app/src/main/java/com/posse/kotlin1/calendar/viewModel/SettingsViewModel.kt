@@ -32,7 +32,7 @@ class SettingsViewModel : ViewModel() {
         get() = App.sharedPreferences.lightTheme
         set(value) {
             App.sharedPreferences.lightTheme = value
-            switchTheme()
+            switchTheme(value)
         }
 
     fun getLastTheme() = lastTheme
@@ -64,8 +64,8 @@ class SettingsViewModel : ViewModel() {
         }
     }
 
-    private fun switchTheme() {
-        if (App.sharedPreferences.lightTheme) changeTheme(THEME.DAY.themeID)
+    private fun switchTheme(day: Boolean) {
+        if (day) changeTheme(THEME.DAY.themeID)
         else changeTheme(THEME.NIGHT.themeID)
     }
 

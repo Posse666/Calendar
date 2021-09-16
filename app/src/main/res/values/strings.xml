@@ -79,5 +79,8 @@
     <string name="shared_notifications">Notifications when someone shared with you.</string>
     <string name="drunk_channel">Drunk</string>
     <string name="drunk_notifications">Notifications when friend drunk.</string>
+    <string name="language">Language</string>
+    <string name="english" translatable="false">English</string>
+    <string name="russian" translatable="false">Русский</string>
 
 </resources>

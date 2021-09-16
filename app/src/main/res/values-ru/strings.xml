@@ -79,5 +79,6 @@
     <string name="shared_notifications">Уведомление, когда кто-то поделился с Вами.</string>
     <string name="drunk_channel">Выпил</string>
     <string name="drunk_notifications">Уведомление, когда друг выпил.</string>
+    <string name="language">Язык</string>
 
 </resources>

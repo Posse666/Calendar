@@ -41,3 +41,11 @@ var SharedPreferences.token: String?
             .putString("token", value)
             .apply()
     }
+
+var SharedPreferences.locale: String?
+    get() = this.getString("locale", null)
+    set(value) {
+        this.edit()
+            .putString("locale", value)
+            .apply()
+    }

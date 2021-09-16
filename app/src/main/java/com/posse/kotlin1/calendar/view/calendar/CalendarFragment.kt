@@ -67,23 +67,33 @@ class CalendarFragment : Fragment(), StatisticListener {
         binding.calendarLayout.setPadding(0, 0, 0, (getTextSize() * MULTIPLY).toInt())
         setupStatistic()
         setupFAB()
-        viewModel.refreshLiveData(
-            email,
-            { UpdateDialog.newInstance().show(childFragmentManager, null) }) {
-            context?.showToast(getString(R.string.no_connection))
-        }
-        viewModel.getLiveData().observe(viewLifecycleOwner, {
-            if (it.first) {
-                actualState.clear()
-                actualState.addAll(it.second)
-                if (!isInitCompleted) updateCalendar()
+        viewModel.refreshLiveData(email) {
+            when (it) {
+                Result.Error -> UpdateDialog.newInstance().show(childFragmentManager, null)
+                is Result.Offline -> {
+                    context?.showToast(getString(R.string.no_connection))
+                    setupLiveData()
+                }
+                is Result.Success -> setupLiveData()
             }
-        })
+        }
+    }
+
+    private fun setupLiveData() {
+        if (this.isVisible) {
+            viewModel.getLiveData().observe(viewLifecycleOwner, {
+                if (it.first) {
+                    actualState.clear()
+                    actualState.addAll(it.second)
+                    if (!isInitCompleted) updateCalendar()
+                }
+            })
+        }
     }
 
     private fun setupStatistic() {
         val statisticFragment = StatisticFragment.newInstance()
-        statisticFragment.setListener(this)
+            .apply { setListener(this@CalendarFragment) }
         childFragmentManager
             .beginTransaction()
             .setReorderingAllowed(true)
@@ -231,4 +241,10 @@ class CalendarFragment : Fragment(), StatisticListener {
             }
         }
     }
+}
+
+sealed class Result {
+    data class Success(val holidays: MutableSet<LocalDate>?) : Result()
+    data class Offline(val holidays: MutableSet<LocalDate>?) : Result()
+    object Error : Result()
 }

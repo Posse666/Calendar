@@ -29,6 +29,8 @@
             android:paddingStart="5dp"
             app:boxBackgroundMode="none"
             app:endIconMode="clear_text"
+            app:counterEnabled="true"
+            app:counterMaxLength="30"
             app:layout_constraintBottom_toTopOf="@id/friendEmail"
             app:layout_constraintEnd_toStartOf="@id/deleteFriend"
             app:layout_constraintHorizontal_bias="0.0"
@@ -46,6 +48,7 @@
                 android:paddingTop="12dp"
                 android:scrollHorizontally="true"
                 android:singleLine="true"
+                android:maxLength="30"
                 android:textSize="20sp"
                 tools:ignore="RtlSymmetry,TouchTargetSizeCheck"
                 tools:text="Friend" />

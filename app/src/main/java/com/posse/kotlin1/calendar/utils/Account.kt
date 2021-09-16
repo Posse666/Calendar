@@ -31,7 +31,7 @@ object Account {
         GoogleSignIn.getLastSignedInAccount(App.appInstance as Context)
     private val gso = GoogleSignInOptions
         .Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-        .requestIdToken(App.appInstance!!.getString(R.string.default_web_client_id))
+        .requestIdToken(App.appInstance.getString(R.string.default_web_client_id))
         .requestEmail()
         .build()
 

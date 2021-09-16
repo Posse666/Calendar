@@ -1,5 +1,6 @@
 package com.posse.kotlin1.calendar.view.settings
 
+import android.content.Context
 import android.content.Intent
 import android.content.res.Configuration
 import android.os.Build
@@ -20,6 +21,7 @@ import com.posse.kotlin1.calendar.R
 import com.posse.kotlin1.calendar.app.App
 import com.posse.kotlin1.calendar.databinding.FragmentSettingsBinding
 import com.posse.kotlin1.calendar.utils.*
+import com.posse.kotlin1.calendar.view.ActivityRefresher
 import com.posse.kotlin1.calendar.view.settings.blackList.BlackListFragment
 import com.posse.kotlin1.calendar.view.settings.share.ShareFragment
 import com.posse.kotlin1.calendar.view.update.UpdateDialog
@@ -38,6 +40,7 @@ class SettingsFragment : Fragment() {
     private var isInitCompleted = false
     private var isLoginPressed = false
     private var isEditMode = false
+    private var activityRefresher: ActivityRefresher? = null
     private val viewModel: SettingsViewModel by lazy {
         ViewModelProvider(this).get(SettingsViewModel::class.java)
     }
@@ -73,7 +76,24 @@ class SettingsFragment : Fragment() {
         setupBlackList()
         setupThemeSwitch()
         setupEditNicknameButton()
+        setupLocaleSwitch()
         keyboard.setListener { binding.nickName.editText?.clearFocus() }
+    }
+
+    private fun setupLocaleSwitch() {
+        when (getStringLocale()) {
+            LOCALE_RU -> binding.languageChips.check(R.id.chipRu)
+            LOCALE_EN -> binding.languageChips.check(R.id.chipEn)
+        }
+        binding.languageChips.setOnCheckedChangeListener { _, checkedId ->
+            val stringLocale = when (checkedId) {
+                R.id.chipEn -> LOCALE_EN
+                R.id.chipRu -> LOCALE_RU
+                else -> LOCALE_EN
+            }
+            setAppLocale(stringLocale)
+            activityRefresher?.refreshNavBar()
+        }
     }
 
     private fun setupEditNicknameButton() {
@@ -176,6 +196,8 @@ class SettingsFragment : Fragment() {
     private fun setupThemeSwitch() {
         val themeSwitch = App.sharedPreferences.themeSwitch
         if (Build.VERSION.SDK_INT >= NIGHT_THEME_SDK) {
+            binding.chipDay.isEnabled = !themeSwitch
+            binding.chipNight.isEnabled = !themeSwitch
             binding.switchTheme.isChecked = themeSwitch
             binding.switchTheme.setOnCheckedChangeListener { _, isChecked ->
                 binding.chipDay.isEnabled = !isChecked
@@ -188,10 +210,11 @@ class SettingsFragment : Fragment() {
                     }
                 }
             }
-        } else binding.switchTheme.disappear()
-
-        binding.chipDay.isEnabled = !themeSwitch
-        binding.chipNight.isEnabled = !themeSwitch
+        } else {
+            binding.switchTheme.disappear()
+            binding.chipDay.isEnabled = true
+            binding.chipNight.isEnabled = true
+        }
 
         if (App.sharedPreferences.lightTheme) binding.themeChips.check(THEME.DAY.resID)
         else binding.themeChips.check(THEME.NIGHT.resID)
@@ -238,6 +261,11 @@ class SettingsFragment : Fragment() {
                 else binding.motionSettings.progress = 0f
             }
         }
+    }
+
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        activityRefresher = context as ActivityRefresher
     }
 
     override fun onDestroyView() {

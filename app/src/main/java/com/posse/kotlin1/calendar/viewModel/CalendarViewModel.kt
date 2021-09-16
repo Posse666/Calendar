@@ -10,6 +10,7 @@ import com.posse.kotlin1.calendar.model.repository.DOCUMENTS
 import com.posse.kotlin1.calendar.model.repository.Repository
 import com.posse.kotlin1.calendar.model.repository.RepositoryFirestoreImpl
 import com.posse.kotlin1.calendar.utils.*
+import com.posse.kotlin1.calendar.view.calendar.Result
 import java.time.LocalDate
 import java.time.Year
 import java.time.temporal.ChronoUnit
@@ -19,7 +20,7 @@ private const val ALL_TIME = false
 
 class CalendarViewModel : ViewModel() {
     private val repository: Repository = RepositoryFirestoreImpl.newInstance()
-    private val datesData: java.util.HashSet<LocalDate> = hashSetOf()
+    private val datesData: HashSet<LocalDate> = hashSetOf()
     private val messenger = Messenger()
     private lateinit var email: String
     private val liveDataToObserve: MutableLiveData<Pair<Boolean, Set<LocalDate>>> =
@@ -31,7 +32,7 @@ class CalendarViewModel : ViewModel() {
 
     fun getLiveStats() = liveStatisticToObserve
 
-    fun refreshLiveData(email: String, error: () -> Unit, callback: () -> Unit) {
+    fun refreshLiveData(email: String, callback: (Result) -> Unit) {
         this.email = email
         liveDataToObserve.value = Pair(false, emptySet())
         repository.getData(DOCUMENTS.DATES, email) { dates, isOffline ->
@@ -40,12 +41,13 @@ class CalendarViewModel : ViewModel() {
                 try {
                     datesData.add(convertLongToLocalDale(it.value as Long))
                 } catch (e: Exception) {
-                    error.invoke()
+                    callback(Result.Error)
                 }
             }
             liveDataToObserve.value = Pair(true, datesData)
             liveStatisticToObserve.value = getSats(datesData)
-            if (isOffline) callback.invoke()
+            if (isOffline) callback(Result.Offline(null))
+            else callback(Result.Success(null))
         }
     }
 

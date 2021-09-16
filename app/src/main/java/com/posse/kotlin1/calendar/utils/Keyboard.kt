@@ -10,8 +10,8 @@ class Keyboard {
     private var isKeyboardOpened: Boolean = false
     private var listener: KeyboardListener? = null
     private val inputMethodManager =
-        MainActivity.instance!!.getSystemService(android.content.Context.INPUT_METHOD_SERVICE) as InputMethodManager
-    private val rootView: View = MainActivity.instance!!.window.decorView.rootView
+        MainActivity.instance.getSystemService(android.content.Context.INPUT_METHOD_SERVICE) as InputMethodManager
+    private val rootView: View = MainActivity.instance.window.decorView.rootView
     private val globalListener = ViewTreeObserver.OnGlobalLayoutListener {
         val r = Rect()
         rootView.getWindowVisibleDisplayFrame(r)

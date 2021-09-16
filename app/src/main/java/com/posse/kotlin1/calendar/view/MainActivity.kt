@@ -7,8 +7,11 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentTransaction
 import com.posse.kotlin1.calendar.R
+import com.posse.kotlin1.calendar.app.App
 import com.posse.kotlin1.calendar.databinding.ActivityMainBinding
 import com.posse.kotlin1.calendar.utils.getAppTheme
+import com.posse.kotlin1.calendar.utils.locale
+import com.posse.kotlin1.calendar.utils.setAppLocale
 import com.posse.kotlin1.calendar.utils.showToast
 import com.posse.kotlin1.calendar.view.friends.FriendsFragment
 import com.posse.kotlin1.calendar.view.myCalendar.MyCalendarFragment
@@ -18,15 +21,23 @@ import kotlin.system.exitProcess
 private const val KEY_SELECTED = "Selected item"
 private const val BACK_BUTTON_EXIT_DELAY = 3000
 
-class MainActivity : AppCompatActivity(), SettingsTabSwitcher {
-    private val binding: ActivityMainBinding by lazy { ActivityMainBinding.inflate(layoutInflater) }
+class MainActivity : AppCompatActivity(), SettingsTabSwitcher, ActivityRefresher {
+    private lateinit var binding: ActivityMainBinding
     private var isBackShown = false
     private var lastTimeBackPressed: Long = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         instance = this
+        setAppLocale(App.sharedPreferences.locale)
         setTheme(getAppTheme())
+        @IdRes
+        val startPage: Int = savedInstanceState?.getInt(KEY_SELECTED) ?: R.id.bottomCalendar
+        initView(startPage)
+    }
+
+    private fun initView(@IdRes startPage: Int) {
+        binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
         binding.bottomNavigation.setOnItemSelectedListener { item ->
@@ -39,8 +50,6 @@ class MainActivity : AppCompatActivity(), SettingsTabSwitcher {
             true
         }
 
-        @IdRes
-        val startPage: Int = savedInstanceState?.getInt(KEY_SELECTED) ?: R.id.bottomCalendar
         binding.bottomNavigation.selectedItemId = startPage
     }
 
@@ -80,11 +89,17 @@ class MainActivity : AppCompatActivity(), SettingsTabSwitcher {
         binding.bottomNavigation.selectedItemId = R.id.bottomSettings
     }
 
+    override fun refreshNavBar() = initView(R.id.bottomSettings)
+
     companion object {
-        var instance: MainActivity? = null
+        lateinit var instance: MainActivity
     }
 }
 
 interface SettingsTabSwitcher {
     fun switchToSettings()
+}
+
+interface ActivityRefresher {
+    fun refreshNavBar()
 }
