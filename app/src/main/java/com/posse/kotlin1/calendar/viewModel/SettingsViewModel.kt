@@ -13,7 +13,7 @@ import com.posse.kotlin1.calendar.utils.*
 import java.util.*
 
 class SettingsViewModel : ViewModel() {
-    private val repository: Repository = RepositoryFirestoreImpl.newInstance()
+//    private val repository: Repository = RepositoryFirestoreImpl.newInstance()
     private val lastTheme: MutableLiveData<Int> = MutableLiveData(
         if (App.sharedPreferences.lightTheme) {
             THEME.DAY.themeID
@@ -38,30 +38,30 @@ class SettingsViewModel : ViewModel() {
     fun getLastTheme() = lastTheme
 
     fun saveNickname(email: String, nickname: String, callback: (NICKNAME) -> Unit) {
-        repository.getData(DOCUMENTS.USERS, COLLECTION_USERS) { users, _ ->
-            when (users) {
-                null -> callback.invoke(NICKNAME.EMPTY)
-                else -> {
-                    users.forEach { userMap ->
-                        try {
-                            val user = (userMap.value as Map<String, Any>).toDataClass<User>()
-                            if ((user.nickname).lowercase() == nickname.lowercase() && user.email != email) {
-                                callback.invoke(NICKNAME.BUSY)
-                                return@getData
-                            }
-                        } catch (e: Exception) {
-                            callback.invoke(NICKNAME.ERROR)
-                            return@getData
-                        }
-                    }
-                    App.sharedPreferences.nickName = nickname
-                    App.sharedPreferences.token?.let {
-                        repository.saveUser(User(email, nickname, getStringLocale(), it))
-                    }
+//        repository.getData(DOCUMENTS.USERS, COLLECTION_USERS) { users, _ ->
+//            when (users) {
+//                null -> callback.invoke(NICKNAME.EMPTY)
+//                else -> {
+//                    users.forEach { userMap ->
+//                        try {
+//                            val user = (userMap.value as Map<String, Any>).toDataClass<User>()
+//                            if ((user.nickname).lowercase() == nickname.lowercase() && user.email != email) {
+//                                callback.invoke(NICKNAME.BUSY)
+//                                return@getData
+//                            }
+//                        } catch (e: Exception) {
+//                            callback.invoke(NICKNAME.ERROR)
+//                            return@getData
+//                        }
+//                    }
+//                    App.sharedPreferences.nickName = nickname
+//                    App.sharedPreferences.token?.let {
+//                        repository.saveUser(User(email, nickname, getStringLocale(), it))
+//                    }
                     callback.invoke(NICKNAME.SAVED)
-                }
-            }
-        }
+//                }
+//            }
+//        }
     }
 
     private fun switchTheme(day: Boolean) {

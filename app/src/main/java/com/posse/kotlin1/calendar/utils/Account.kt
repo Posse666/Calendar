@@ -3,6 +3,7 @@ package com.posse.kotlin1.calendar.utils
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
+import android.graphics.drawable.Drawable
 import android.net.Uri
 import android.util.Log
 import androidx.activity.result.ActivityResult
@@ -75,9 +76,10 @@ object Account {
     }
 
     fun getAccountState() {
-        liveData.value = googleAccount?.let {
-            AccountState.LoggedIn(it.photoUrl, it.email!!, App.sharedPreferences.nickName!!)
-        } ?: AccountState.LoggedOut
+        liveData.value = AccountState.LoggedIn(R.drawable.ic_splash_screen, "mymail@gmail.com", "SuperUser")
+//            googleAccount?.let {
+//            AccountState.LoggedIn(it.photoUrl, it.email!!, App.sharedPreferences.nickName!!)
+//        } ?: AccountState.LoggedOut
     }
 
     fun login(fragment: Fragment, startLogin: ActivityResultLauncher<Intent>) {
@@ -99,9 +101,10 @@ object Account {
     }
 
     fun getEmail(): String? {
-        var email = googleAccount?.email ?: FirebaseAuth.getInstance().currentUser?.email
-        if (email == "" || email == null) email = FirebaseAuth.getInstance().currentUser?.uid
-        return email
+//        var email = googleAccount?.email ?: FirebaseAuth.getInstance().currentUser?.email
+//        if (email == "" || email == null) email = FirebaseAuth.getInstance().currentUser?.uid
+//        return email
+        return "mymail@gmail.com"
     }
 
     fun anonymousLogin(callback: (String) -> Unit) {
@@ -121,7 +124,8 @@ object Account {
 
 sealed class AccountState {
     data class LoggedIn(
-        val userPicture: Uri?,
+//        val userPicture: Uri?,
+        val userPicture: Int,
         val userEmail: String,
         val nickname: String
     ) : AccountState()

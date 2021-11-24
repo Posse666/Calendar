@@ -89,7 +89,7 @@ class ContactsFragment : DialogFragment(), ContactAdapterListener {
                     sortedContacts.toList().filter { !(it.notInContacts && !it.selected) })
                 Handler(Looper.getMainLooper()).postDelayed({
                     binding.contactsRecyclerView.smoothScrollToPosition(0)
-                }, 300)
+                }, 500)
             }
         }
     }

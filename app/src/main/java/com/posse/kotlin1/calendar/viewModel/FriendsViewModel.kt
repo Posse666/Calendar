@@ -5,13 +5,10 @@ import androidx.lifecycle.ViewModel
 import com.posse.kotlin1.calendar.model.Contact
 import com.posse.kotlin1.calendar.model.Friend
 import com.posse.kotlin1.calendar.model.repository.DOCUMENTS
-import com.posse.kotlin1.calendar.model.repository.Repository
-import com.posse.kotlin1.calendar.model.repository.RepositoryFirestoreImpl
-import com.posse.kotlin1.calendar.utils.toDataClass
 import java.util.*
 
 class FriendsViewModel : ViewModel() {
-    private val repository: Repository = RepositoryFirestoreImpl.newInstance()
+    //    private val repository: Repository = RepositoryFirestoreImpl.newInstance()
     private val friendsData: HashSet<Friend> = hashSetOf()
     private lateinit var email: String
     private val liveDataToObserve: MutableLiveData<Pair<Boolean, Set<Friend>>> =
@@ -22,27 +19,34 @@ class FriendsViewModel : ViewModel() {
     fun refreshLiveData(email: String, callback: ((Boolean?) -> Unit)) {
         this.email = email
         liveDataToObserve.value = Pair(false, emptySet())
-        repository.getData(DOCUMENTS.FRIENDS, email) { friends, isOffline ->
-            friendsData.clear()
-            try {
-                friends?.values?.forEach { friendMap ->
-                    val friend = (friendMap as Map<String, Any>).toDataClass<Friend>()
-                    if (!friend.blocked) friendsData.add(friend)
-                }
-            } catch (e: Exception) {
-                callback.invoke(null)
-            }
-            sortPositions(friendsData.toList().sortedBy { it.position })
-            liveDataToObserve.value = Pair(true, friendsData)
-            if (isOffline) callback.invoke(isOffline)
-        }
+//        repository.getData(DOCUMENTS.FRIENDS, email) { friends, isOffline ->
+        friendsData.clear()
+//            try {
+//                friends?.values?.forEach { friendMap ->
+//                    val friend = (friendMap as Map<String, Any>).toDataClass<Friend>()
+//                    if (!friend.blocked) friendsData.add(friend)
+//                }
+//            } catch (e: Exception) {
+//                callback.invoke(null)
+//            }
+        friendsData.add(Friend("Best Friend", "bestfriend@gmail.com", false, false, 1))
+        friendsData.add(Friend("Brother", "brother@gmail.com", false, false, 2))
+        friendsData.add(Friend("Neighbor", "neighbor@gmail.com", false, false, 3))
+        friendsData.add(Friend("Familiar", "familiar@gmail.com", false, false, 4))
+        friendsData.add(Friend("RoomMate", "roommate@gmail.com", false, false, 5))
+        friendsData.add(Friend("Some random guy", "somerandomguy@gmail.com", false, false, 6))
+        friendsData.add(Friend("Girlfriend", "girlfriend@gmail.com", false, false, 7))
+        sortPositions(friendsData.toList().sortedBy { it.position })
+        liveDataToObserve.value = Pair(true, friendsData)
+//            if (isOffline) callback.invoke(isOffline)
+//        }
     }
 
     private fun sortPositions(list: List<Friend>) {
         for (i in list.indices) {
             if (list[i].position != i) {
                 list[i].position = i
-                repository.saveItem(DOCUMENTS.FRIENDS, email, list[i])
+//                repository.saveItem(DOCUMENTS.FRIENDS, email, list[i])
             }
         }
         friendsData.clear()
@@ -58,10 +62,10 @@ class FriendsViewModel : ViewModel() {
                 if (it.selected == friend.selected) update = true
                 it.name = friend.name
                 it.selected = friend.selected
-                repository.saveItem(DOCUMENTS.FRIENDS, email, it)
+//                repository.saveItem(DOCUMENTS.FRIENDS, email, it)
             } else if (friend.selected && it.selected) {
                 it.selected = false
-                repository.saveItem(DOCUMENTS.FRIENDS, email, it)
+//                repository.saveItem(DOCUMENTS.FRIENDS, email, it)
                 update = true
             }
         }
@@ -72,21 +76,23 @@ class FriendsViewModel : ViewModel() {
         friendsData.forEach {
             if (it.position == fromPosition) {
                 it.position = toPosition
-                repository.saveItem(DOCUMENTS.FRIENDS, email, it)
+//                repository.saveItem(DOCUMENTS.FRIENDS, email, it)
             } else if (it.position == toPosition) {
                 it.position = fromPosition
-                repository.saveItem(DOCUMENTS.FRIENDS, email, it)
+//                repository.saveItem(DOCUMENTS.FRIENDS, email, it)
             }
         }
     }
 
-    fun changeName(friend: Friend) = repository.saveItem(DOCUMENTS.FRIENDS, email, friend)
+    fun changeName(friend: Friend) {
+//        repository.saveItem(DOCUMENTS.FRIENDS, email, friend)
+    }
 
     fun deleteFriend(friend: Friend, callback: ((Boolean?) -> Unit)) {
-        if (friend.blocked) {
-            repository.saveItem(DOCUMENTS.FRIENDS, email, friend)
-        } else repository.removeItem(DOCUMENTS.FRIENDS, email, friend)
-        repository.removeItem(DOCUMENTS.SHARE, friend.email, Contact(mutableListOf(), email))
+//        if (friend.blocked) {
+//            repository.saveItem(DOCUMENTS.FRIENDS, email, friend)
+//        } else repository.removeItem(DOCUMENTS.FRIENDS, email, friend)
+//        repository.removeItem(DOCUMENTS.SHARE, friend.email, Contact(mutableListOf(), email))
         refreshLiveData(email, callback)
     }
 }

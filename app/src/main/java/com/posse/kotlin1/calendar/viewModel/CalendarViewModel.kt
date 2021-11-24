@@ -19,7 +19,7 @@ private const val THIS_YEAR = true
 private const val ALL_TIME = false
 
 class CalendarViewModel : ViewModel() {
-    private val repository: Repository = RepositoryFirestoreImpl.newInstance()
+//    private val repository: Repository = RepositoryFirestoreImpl.newInstance()
     private val datesData: HashSet<LocalDate> = hashSetOf()
     private val messenger = Messenger()
     private lateinit var email: String
@@ -33,22 +33,34 @@ class CalendarViewModel : ViewModel() {
     fun getLiveStats() = liveStatisticToObserve
 
     fun refreshLiveData(email: String, callback: (Result) -> Unit) {
-        this.email = email
+//        this.email = email
         liveDataToObserve.value = Pair(false, emptySet())
-        repository.getData(DOCUMENTS.DATES, email) { dates, isOffline ->
-            datesData.clear()
-            dates?.forEach {
-                try {
-                    datesData.add(convertLongToLocalDale(it.value as Long))
-                } catch (e: Exception) {
-                    callback(Result.Error)
-                }
-            }
-            liveDataToObserve.value = Pair(true, datesData)
-            liveStatisticToObserve.value = getSats(datesData)
-            if (isOffline) callback(Result.Offline(null))
-            else callback(Result.Success(null))
-        }
+//        repository.getData(DOCUMENTS.DATES, email) { dates, isOffline ->
+        datesData.clear()
+//            dates?.forEach {
+//                try {
+        datesData.add(LocalDate.now())
+        datesData.add(LocalDate.now().minusDays(2))
+        datesData.add(LocalDate.now().minusDays(4))
+        datesData.add(LocalDate.now().minusDays(5))
+        datesData.add(LocalDate.now().minusDays(7))
+        datesData.add(LocalDate.now().minusDays(8))
+        datesData.add(LocalDate.now().minusDays(9))
+        datesData.add(LocalDate.now().minusDays(14))
+        datesData.add(LocalDate.now().minusDays(16))
+        datesData.add(LocalDate.now().minusDays(22))
+        datesData.add(LocalDate.now().minusDays(24))
+
+//                } catch (e: Exception) {
+//                    callback(Result.Error)
+//                }
+//            }
+        liveDataToObserve.value = Pair(true, datesData)
+        liveStatisticToObserve.value = getSats(datesData)
+//            if (isOffline) callback(Result.Offline(null))
+//            else
+        callback(Result.Success(null))
+//        }
     }
 
     private fun getSats(dates: Set<LocalDate>?): Map<STATISTIC, Set<LocalDate>> {
@@ -65,48 +77,48 @@ class CalendarViewModel : ViewModel() {
     fun dayClicked(date: LocalDate, update: () -> Unit) {
         if (!checkDate(date)) {
             datesData.add(date)
-            repository.saveItem(DOCUMENTS.DATES, email, date)
+//            repository.saveItem(DOCUMENTS.DATES, email, date)
             if (isNetworkOnline())
                 try {
-                    sendNotification(convertLocalDateToLong(date))
+//                    sendNotification(convertLocalDateToLong(date))
                 } catch (e: Exception) {
                     update.invoke()
                 }
         } else {
             datesData.remove(date)
-            repository.removeItem(DOCUMENTS.DATES, email, date)
+//            repository.removeItem(DOCUMENTS.DATES, email, date)
         }
         liveDataToObserve.value = Pair(true, datesData)
         liveStatisticToObserve.value = getSats(datesData)
     }
 
-    private fun sendNotification(message: Long) {
-        repository.getData(DOCUMENTS.SHARE, email) { contactsCollection, _ ->
-            repository.getData(DOCUMENTS.USERS, COLLECTION_USERS) { usersCollection, _ ->
-                contactsCollection?.forEach { contactMap ->
-                    repository.getData(DOCUMENTS.FRIENDS, contactMap.key) { friendsCollection, _ ->
-                        val friendMap = friendsCollection?.get(email)
-                        friendMap?.let {
-                            val friend = (it as Map<String, Any>).toDataClass<Friend>()
-                            val user =
-                                (usersCollection?.get(contactMap.key) as Map<String, Any>).toDataClass<User>()
-                            Thread {
-                                try {
-                                    messenger.sendPush(
-                                        friend.name,
-                                        message.toString(),
-                                        user.token,
-                                        getLocale(user.locale)
-                                    )
-                                } catch (e: Exception) {
-                                }
-                            }.start()
-                        }
-                    }
-                }
-            }
-        }
-    }
+//    private fun sendNotification(message: Long) {
+//        repository.getData(DOCUMENTS.SHARE, email) { contactsCollection, _ ->
+//            repository.getData(DOCUMENTS.USERS, COLLECTION_USERS) { usersCollection, _ ->
+//                contactsCollection?.forEach { contactMap ->
+//                    repository.getData(DOCUMENTS.FRIENDS, contactMap.key) { friendsCollection, _ ->
+//                        val friendMap = friendsCollection?.get(email)
+//                        friendMap?.let {
+//                            val friend = (it as Map<String, Any>).toDataClass<Friend>()
+//                            val user =
+//                                (usersCollection?.get(contactMap.key) as Map<String, Any>).toDataClass<User>()
+//                            Thread {
+//                                try {
+//                                    messenger.sendPush(
+//                                        friend.name,
+//                                        message.toString(),
+//                                        user.token,
+//                                        getLocale(user.locale)
+//                                    )
+//                                } catch (e: Exception) {
+//                                }
+//                            }.start()
+//                        }
+//                    }
+//                }
+//            }
+//        }
+//    }
 
     private fun checkDate(date: LocalDate): Boolean = datesData.contains(date)
 
