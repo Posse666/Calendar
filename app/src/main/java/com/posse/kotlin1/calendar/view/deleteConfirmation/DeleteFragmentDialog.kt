@@ -16,10 +16,10 @@ import com.posse.kotlin1.calendar.utils.putText
 import com.posse.kotlin1.calendar.utils.setWindowSize
 import com.posse.kotlin1.calendar.utils.show
 
-private const val ARG_DIALOG_TEXT = "DialogText"
-private const val ARG_CONFIRM_TEXT = "ConfirmText"
-private const val ARG_CONFIRM_COLOR = "ConfirmColor"
-private const val ARG_BLOCK_BOX = "BlockBox"
+const val ARG_DIALOG_TEXT = "DialogText"
+const val ARG_CONFIRM_TEXT = "ConfirmText"
+const val ARG_CONFIRM_COLOR = "ConfirmColor"
+const val ARG_BLOCK_BOX = "BlockBox"
 
 class DeleteFragmentDialog : DialogFragment() {
     private var _binding: FragmentDeleteDialogBinding? = null
