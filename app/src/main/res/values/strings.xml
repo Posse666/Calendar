@@ -82,5 +82,9 @@
     <string name="language">Language</string>
     <string name="english" translatable="false">English</string>
     <string name="russian" translatable="false">Русский</string>
+    <string name="how_much_did_you_drink">How much did you drink?</string>
+    <string name="a_lot">A lot</string>
+    <string name="a_little">A little</string>
+    <string name="i_didn_t">I didn\'t</string>
 
 </resources>

@@ -4,10 +4,11 @@ import android.util.Log
 import com.google.firebase.firestore.*
 import com.google.firebase.messaging.FirebaseMessaging
 import com.posse.kotlin1.calendar.app.App
-import com.posse.kotlin1.calendar.model.Person
 import com.posse.kotlin1.calendar.model.User
-import com.posse.kotlin1.calendar.utils.*
-import java.time.LocalDate
+import com.posse.kotlin1.calendar.utils.convertLongToLocalDale
+import com.posse.kotlin1.calendar.utils.getStringLocale
+import com.posse.kotlin1.calendar.utils.isNetworkOnline
+import com.posse.kotlin1.calendar.utils.token
 
 const val COLLECTION_USERS = "Collection_of_all_users"
 
@@ -76,14 +77,15 @@ class RepositoryFirestoreImpl private constructor() : Repository {
     private fun <T> changeItem(document: DOCUMENTS, collection: String, data: T, delete: Boolean) {
         val documentToChange =
             FirebaseFirestore.getInstance().collection(collection).document(document.value)
-        val value: Any = if (delete) FieldValue.delete()
-        else when (data) {
-            is Person -> data
-            is String -> data
-            is User -> data
-            is LocalDate -> convertLocalDateToLong(data)
-            else -> throw RuntimeException("unexpected data Type. data: " + data.toString())
-        }
+        val value: Any? = if (delete) FieldValue.delete()
+        else data
+//        else when (data) {
+//            is Person -> data
+//            is String -> data
+//            is User -> data
+//            is DataModel -> data
+//            else -> throw RuntimeException("unexpected data Type. data: " + data.toString())
+//        }
         documentToChange.set(mapOf(Pair(data.toString(), value)), SetOptions.merge())
     }
 

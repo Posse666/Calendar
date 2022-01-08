@@ -42,7 +42,7 @@ class SettingsFragment : Fragment() {
     private var isEditMode = false
     private var activityRefresher: ActivityRefresher? = null
     private val viewModel: SettingsViewModel by lazy {
-        ViewModelProvider(this).get(SettingsViewModel::class.java)
+        ViewModelProvider(this)[SettingsViewModel::class.java]
     }
     private val startLogin: ActivityResultLauncher<Intent> = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()

@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="DesignSurface">
+    <option name="filePathToZoomLevelMap">
+      <map>
+        <entry key="..\:/Users/posse/AndroidStudioProjects/Calendar/app/src/main/res/drawable/ic___________2.xml" value="0.5" />
+        <entry key="..\:/Users/posse/AndroidStudioProjects/Calendar/app/src/main/res/drawable/ic____________________2341.xml" value="0.37864583333333335" />
+        <entry key="..\:/Users/posse/AndroidStudioProjects/Calendar/app/src/main/res/drawable/ic_________________________white.xml" value="0.37864583333333335" />
+        <entry key="..\:/Users/posse/AndroidStudioProjects/Calendar/app/src/main/res/drawable/ic____________________all.xml" value="0.37864583333333335" />
+        <entry key="..\:/Users/posse/AndroidStudioProjects/Calendar/app/src/main/res/drawable/shotglass_empty.xml" value="0.37864583333333335" />
+        <entry key="..\:/Users/posse/AndroidStudioProjects/Calendar/app/src/main/res/drawable/shotglass_fill.xml" value="0.37864583333333335" />
+        <entry key="..\:/Users/posse/AndroidStudioProjects/Calendar/app/src/main/res/drawable/shotglass_fill_1.xml" value="0.37864583333333335" />
+        <entry key="..\:/Users/posse/AndroidStudioProjects/Calendar/app/src/main/res/drawable/some.xml" value="0.75" />
+        <entry key="..\:/Users/posse/AndroidStudioProjects/Calendar/app/src/main/res/layout/calendar_day_layout.xml" value="0.33" />
+        <entry key="..\:/Users/posse/AndroidStudioProjects/Calendar/app/src/main/res/layout/drink_picker_layout.xml" value="0.5" />
+        <entry key="..\:/Users/posse/AndroidStudioProjects/Calendar/app/src/main/res/layout/fragment_delete_dialog.xml" value="0.3625" />
+        <entry key="..\:/Users/posse/AndroidStudioProjects/Calendar/app/src/main/res/layout/friend_layout.xml" value="0.3625" />
+        <entry key="..\:/Users/posse/AndroidStudioProjects/Calendar/app/src/main/res/layout/shot_glass_layout.xml" value="0.3625" />
+      </map>
+    </option>
+  </component>
+  <component name="ExternalStorageConfigurationManager" enabled="true" />
+  <component name="ProjectRootManager" version="2" languageLevel="JDK_11" default="true" project-jdk-name="1.8" project-jdk-type="JavaSDK">
+    <output url="file://$PROJECT_DIR$/build/classes" />
+  </component>
+  <component name="ProjectType">
+    <option name="id" value="Android" />
+  </component>
+</project>

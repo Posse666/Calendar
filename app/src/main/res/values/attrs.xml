@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="ShotGlass">
+        <attr name="hideInner" format="boolean" />
+        <attr name="setInnerColor" format="color" />
+        <attr name="setText" format="string" />
+        <attr name="setTextColor" format="color" />
+    </declare-styleable>
+</resources>

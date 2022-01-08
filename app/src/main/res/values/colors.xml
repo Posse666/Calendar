@@ -9,6 +9,8 @@
     <color name="white">#FFFFFFFF</color>
 
     <color name="strokeColor">@color/black</color>
-    <color name="strokeColor_selected">#FF0FF000</color>
     <color name="fillColor">#FFFF0000</color>
+    <color name="halfFillColor">#FFEA5699</color>
+    <color name="emptyFillColor">@color/white</color>
+
 </resources>

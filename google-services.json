@@ -30,6 +30,14 @@
           }
         },
         {
+          "client_id": "929390260810-h4fronpe17mnkd37mg6mk2cb3ml04d29.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.posse.kotlin1.calendar",
+            "certificate_hash": "1a1f32e2e10a1420aff7f5314fc462e58fe25357"
+          }
+        },
+        {
           "client_id": "929390260810-h8e3h5lmvgi125io4jj1vg5t6bbhdmq4.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {

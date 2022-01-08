@@ -1,6 +1,7 @@
 package com.posse.kotlin1.calendar.view.calendar
 
 import android.os.Bundle
+import android.os.Parcelable
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -17,30 +18,27 @@ import com.kizitonwose.calendarview.ui.MonthHeaderFooterBinder
 import com.posse.kotlin1.calendar.R
 import com.posse.kotlin1.calendar.app.App
 import com.posse.kotlin1.calendar.databinding.FragmentCalendarBinding
+import com.posse.kotlin1.calendar.model.DataModel
 import com.posse.kotlin1.calendar.utils.*
+import com.posse.kotlin1.calendar.view.calendar.chooseLayout.ChooseFragment
 import com.posse.kotlin1.calendar.view.statistic.StatisticFragment
 import com.posse.kotlin1.calendar.view.statistic.StatisticListener
 import com.posse.kotlin1.calendar.view.update.UpdateDialog
 import com.posse.kotlin1.calendar.viewModel.CalendarViewModel
+import kotlinx.parcelize.Parcelize
 import java.time.LocalDate
 import java.time.YearMonth
 import java.time.temporal.WeekFields
 import java.util.*
 
-private const val ARG_MY_CALENDAR = "My calendar"
-private const val ARG_MAIL = "eMail"
-private const val MULTIPLY: Double = 3.5
-private const val BOTTOM_ANIMATION_INTERVAL: Long = 20000
-
 class CalendarFragment : Fragment(), StatisticListener {
     private var _binding: FragmentCalendarBinding? = null
     private val binding get() = _binding!!
-    private val cell: Cell = Cell()
     private val animator = Animator()
     private lateinit var bottomSheetBehavior: BottomSheetBehavior<ConstraintLayout>
     private val calendarView: CalendarView by lazy { binding.calendarView }
     private val viewModel: CalendarViewModel by activityViewModels()
-    private val actualState: HashSet<LocalDate> = hashSetOf()
+    private val actualState: MutableSet<DataModel> = mutableSetOf()
     private var isInitCompleted: Boolean = false
     private lateinit var email: String
     private var isMyCalendar = false
@@ -48,6 +46,10 @@ class CalendarFragment : Fragment(), StatisticListener {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        restoreArguments()
+    }
+
+    private fun restoreArguments() {
         arguments?.let {
             email = it.getString(ARG_MAIL)!!
             isMyCalendar = it.getBoolean(ARG_MY_CALENDAR)
@@ -159,19 +161,17 @@ class CalendarFragment : Fragment(), StatisticListener {
         }
     }
 
-    private fun getTextSize(): Int {
-        return resources.getDimension(R.dimen.stats_text_size).toInt()
-    }
+    private fun getTextSize() = resources.getDimension(R.dimen.stats_text_size).toInt()
 
     private fun updateCalendar() {
         binding.loadingLayout.show()
         val currentMonth = YearMonth.now()
         var firstMonth = if (isMyCalendar) currentMonth.minusMonths(12) else currentMonth
         if (actualState.isNotEmpty()) {
-            val minMonth = YearMonth.from(Collections.min(actualState))
-            if (minMonth.isBefore(firstMonth)) {
-                firstMonth = minMonth
-            }
+            val minDate = actualState.minByOrNull { it.date }?.date
+            val minMonth = if (minDate == null) currentMonth
+            else YearMonth.from(convertLongToLocalDale(minDate))
+            if (minMonth.isBefore(firstMonth)) firstMonth = minMonth
         }
 
         calendarView.setupAsync(
@@ -193,27 +193,37 @@ class CalendarFragment : Fragment(), StatisticListener {
                 override fun bind(container: DayViewContainer, day: CalendarDay) {
                     container.day = day
                     val rootView = container.rootView
-                    rootView.calendarDayText.putText(day.date.dayOfMonth)
+                    rootView.shotGlassText.putText(day.date.dayOfMonth)
                     if (day.owner == DayOwner.THIS_MONTH) {
                         rootView.root.show()
+
+                        val currentDayType = DrinkType.values().find { type ->
+                            type.value == actualState.find {
+                                convertLongToLocalDale(it.date) == day.date
+                            }?.drinkType
+                        }
+
                         if (isMyCalendar
                             && (day.date.isBefore(LocalDate.now()) || day.date.isEqual(LocalDate.now()))
                         ) {
                             container.view.setOnClickListener {
-                                viewModel.dayClicked(day.date) {
-                                    UpdateDialog.newInstance().show(childFragmentManager, null)
-                                }
-                                animator.animate(rootView.root) {
-                                    cell.changeDay(rootView, day.date, actualState)
-                                }
+                                ChooseFragment.newInstance(day.date.dayOfMonth) {
+                                    viewModel.dayClicked(
+                                        DataModel(convertLocalDateToLong(day.date), it?.value)
+                                    ) {
+                                        UpdateDialog.newInstance()
+                                            .show(childFragmentManager, null)
+                                    }
+                                    animator.animate(rootView.root) {
+                                        container.changeDay(day.date, it)
+                                    }
+                                }.show(childFragmentManager, null)
                             }
                         } else {
                             container.view.setOnClickListener(null)
                         }
-                        cell.changeDay(rootView, day.date, actualState)
-                    } else {
-                        rootView.root.hide()
-                    }
+                        container.changeDay(day.date, currentDayType)
+                    } else rootView.root.hide()
                 }
             }
             calendarView.scrollToMonth(currentMonth)
@@ -240,6 +250,11 @@ class CalendarFragment : Fragment(), StatisticListener {
                 putBoolean(ARG_MY_CALENDAR, isMyCalendar)
             }
         }
+
+        private const val ARG_MY_CALENDAR = "My calendar"
+        private const val ARG_MAIL = "eMail"
+        private const val MULTIPLY: Double = 3.5
+        private const val BOTTOM_ANIMATION_INTERVAL: Long = 20000
     }
 }
 
@@ -247,4 +262,10 @@ sealed class Result {
     data class Success(val holidays: MutableSet<LocalDate>?) : Result()
     data class Offline(val holidays: MutableSet<LocalDate>?) : Result()
     object Error : Result()
+}
+
+@Parcelize
+enum class DrinkType(val value: String) : Parcelable {
+    Full("Full"),
+    Half("Half")
 }
