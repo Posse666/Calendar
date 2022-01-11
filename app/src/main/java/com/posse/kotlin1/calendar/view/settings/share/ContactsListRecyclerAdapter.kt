@@ -2,11 +2,13 @@ package com.posse.kotlin1.calendar.view.settings.share
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import androidx.annotation.ColorInt
+import androidx.annotation.DrawableRes
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.color.MaterialColors
 import com.posse.kotlin1.calendar.R
-import com.posse.kotlin1.calendar.app.App
 import com.posse.kotlin1.calendar.databinding.ContactLayoutBinding
 import com.posse.kotlin1.calendar.model.Contact
 import com.posse.kotlin1.calendar.utils.Animator
@@ -36,35 +38,32 @@ class ContactsListRecyclerAdapter(
         position: Int,
         payloads: MutableList<Any>
     ) {
-        if (payloads.isEmpty())
-            super.onBindViewHolder(holder, position, payloads)
+        if (payloads.isEmpty()) super.onBindViewHolder(holder, position, payloads)
         else {
-            val combinedChange =
-                createCombinedPayload(payloads as List<Change<Contact>>)
+            val combinedChange = createCombinedPayload(payloads as List<Change<Contact>>)
             val oldData = combinedChange.oldData
             val newData = combinedChange.newData
 
             if (newData.selected != oldData.selected) {
-                animator.animate(holder.contactBinding.contactChecked) {
-                    val view = holder.contactBinding.contactChecked
+                val view = holder.contactBinding.contactChecked
+                animator.animate(view) {
+                    @DrawableRes val drawable: Int
+                    @ColorInt val color: Int
                     if (!newData.selected) {
-                        animator.animate(view) {
-                            view.setImageDrawable(
-                                ContextCompat.getDrawable(App.appInstance, R.drawable.shotglass_empty)
-                            )
-                            view.drawable.setTint(
-                                ContextCompat.getColor(App.appInstance, R.color.strokeColor)
-                            )
-                        }
+                        drawable = R.drawable.shotglass_empty
+                        color = MaterialColors.getColor(
+                            view.context,
+                            R.attr.strokeColor,
+                            "Should set color attribute first"
+                        )
                     } else {
-                        animator.animate(view) {
-                            view.setImageDrawable(
-                                ContextCompat.getDrawable(App.appInstance, R.drawable.shotglass_full)
-                            )
-                            view.drawable.setTint(
-                                ContextCompat.getColor(App.appInstance, R.color.fillColor)
-                            )
-                        }
+                        drawable = R.drawable.shotglass_full
+                        color = ContextCompat.getColor(view.context, R.color.fillColor)
+                    }
+
+                    animator.animate(view) {
+                        view.setImageDrawable(ContextCompat.getDrawable(view.context, drawable))
+                        view.drawable.setTint(color)
                     }
                 }
             }

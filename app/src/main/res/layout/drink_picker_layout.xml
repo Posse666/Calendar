@@ -50,7 +50,8 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/drink_picker_caption"
                 app:setInnerColor="@color/fillColor"
-                app:setTextColor="@color/emptyFillColor" />
+                app:setOuterColor="?strokeColor"
+                app:setTextColor="?emptyFillColor" />
 
             <com.posse.kotlin1.calendar.view.ShotGlass
                 android:id="@+id/drink_picker_half_icon"
@@ -62,19 +63,20 @@
                 app:layout_constraintStart_toStartOf="@id/guide_line_1"
                 app:layout_constraintTop_toBottomOf="@id/drink_picker_caption"
                 app:setInnerColor="@color/halfFillColor"
-                app:setTextColor="@color/emptyFillColor" />
+                app:setOuterColor="?strokeColor"
+                app:setTextColor="?emptyFillColor" />
 
             <com.posse.kotlin1.calendar.view.ShotGlass
                 android:id="@+id/drink_picker_empty_icon"
                 android:layout_width="0dp"
                 android:layout_height="0dp"
-                app:hideInner="false"
+                app:hideInner="true"
                 app:layout_constraintDimensionRatio="H,1:1"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="@id/guide_line_2"
                 app:layout_constraintTop_toBottomOf="@id/drink_picker_caption"
-                app:setInnerColor="@color/emptyFillColor"
-                app:setTextColor="@color/strokeColor" />
+                app:setOuterColor="?strokeColor"
+                app:setTextColor="?strokeColor" />
 
             <com.google.android.material.textview.MaterialTextView
                 android:id="@+id/drink_picker_full_caption"

@@ -5,5 +5,9 @@
         <attr name="setInnerColor" format="color" />
         <attr name="setText" format="string" />
         <attr name="setTextColor" format="color" />
+        <attr name="setOuterColor" format="color" />
     </declare-styleable>
+
+    <attr name="strokeColor" format="color" />
+    <attr name="emptyFillColor" format="color" />
 </resources>

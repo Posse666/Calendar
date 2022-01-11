@@ -8,18 +8,15 @@ import android.view.WindowManager
 import androidx.annotation.ColorInt
 import androidx.appcompat.widget.AppCompatImageView
 import androidx.core.content.ContextCompat
+import androidx.core.os.bundleOf
 import androidx.fragment.app.DialogFragment
+import com.google.android.material.color.MaterialColors
 import com.posse.kotlin1.calendar.R
 import com.posse.kotlin1.calendar.databinding.FragmentDeleteDialogBinding
 import com.posse.kotlin1.calendar.utils.Animator
 import com.posse.kotlin1.calendar.utils.putText
 import com.posse.kotlin1.calendar.utils.setWindowSize
 import com.posse.kotlin1.calendar.utils.show
-
-private const val ARG_DIALOG_TEXT = "DialogText"
-private const val ARG_CONFIRM_TEXT = "ConfirmText"
-private const val ARG_CONFIRM_COLOR = "ConfirmColor"
-private const val ARG_BLOCK_BOX = "BlockBox"
 
 class DeleteFragmentDialog : DialogFragment() {
     private var _binding: FragmentDeleteDialogBinding? = null
@@ -29,13 +26,17 @@ class DeleteFragmentDialog : DialogFragment() {
     private val animator = Animator()
     private var isBlock = false
     private var blocked = false
-    private var listener: DialogConfirmationListener? = null
+    private var callback: ((isBlock: Boolean) -> Unit)? = null
 
     @ColorInt
     private var confirmColor: Int = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        initFieldsFromBundle()
+    }
+
+    private fun initFieldsFromBundle() {
         arguments?.let {
             dialogText = it.getString(ARG_DIALOG_TEXT) ?: ""
             confirmText = it.getString(ARG_CONFIRM_TEXT) ?: ""
@@ -49,74 +50,77 @@ class DeleteFragmentDialog : DialogFragment() {
         savedInstanceState: Bundle?
     ): View {
         _binding = FragmentDeleteDialogBinding.inflate(inflater, container, false)
-        if (isBlock) binding.blockBox.show()
-        binding.dialogText.putText(dialogText)
-        binding.confirmButton.putText(confirmText)
-        binding.confirmButton.setBackgroundColor(confirmColor)
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        binding.cancelButton.setOnClickListener { dismiss() }
-        binding.blockBtn.setOnClickListener {
-            if (blocked) {
-                animator.animate(it) {
-                    (it as AppCompatImageView).setImageDrawable(
-                        ContextCompat.getDrawable(requireContext(), R.drawable.shotglass_empty)
-                    )
-                    it.drawable.setTint(
-                        ContextCompat.getColor(requireContext(), R.color.strokeColor)
-                    )
-                }
-            } else {
-                animator.animate(it) {
-                    (it as AppCompatImageView).setImageDrawable(
-                        ContextCompat.getDrawable(requireContext(), R.drawable.shotglass_full)
-                    )
-                    it.drawable.setTint(
-                        ContextCompat.getColor(requireContext(), R.color.fillColor)
-                    )
-                }
-            }
-            blocked = !blocked
-        }
-        binding.confirmButton.setOnClickListener {
-            listener?.onConfirmClick(blocked)
-            dismiss()
-        }
-        setWindowSize(this, WindowManager.LayoutParams.WRAP_CONTENT)
+        setButtonListeners()
+        setDialogView()
     }
 
-    fun setListener(listener: DialogConfirmationListener) {
-        this.listener = listener
+    private fun setDialogView() = with(binding) {
+        if (isBlock) blockBox.show()
+        dialogText.putText(dialogText)
+        confirmButton.putText(confirmText)
+        confirmButton.setBackgroundColor(confirmColor)
+        cancelButton.setOnClickListener { dismiss() }
+        setWindowSize(this@DeleteFragmentDialog, WindowManager.LayoutParams.WRAP_CONTENT)
+    }
+
+    private fun setButtonListeners() = with(binding) {
+        blockBtn.setOnClickListener {
+            val color = if (blocked) MaterialColors.getColor(
+                context,
+                R.attr.strokeColor,
+                "Should set color attribute first"
+            )
+            else ContextCompat.getColor(requireContext(), R.color.fillColor)
+            animateBlockedStatus(it, color)
+            blocked = !blocked
+        }
+        confirmButton.setOnClickListener {
+            callback?.invoke(blocked)
+            dismiss()
+        }
+    }
+
+    private fun animateBlockedStatus(view: View, @ColorInt color: Int) {
+        animator.animate(view) {
+            (view as AppCompatImageView).setImageDrawable(
+                ContextCompat.getDrawable(requireContext(), R.drawable.shotglass_empty)
+            )
+            view.drawable.setTint(color)
+        }
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
-        listener = null
+        callback = null
     }
 
     companion object {
+        private const val ARG_DIALOG_TEXT = "DialogText"
+        private const val ARG_CONFIRM_TEXT = "ConfirmText"
+        private const val ARG_CONFIRM_COLOR = "ConfirmColor"
+        private const val ARG_BLOCK_BOX = "BlockBox"
+
         @JvmStatic
         fun newInstance(
             dialogText: String,
             confirmText: String,
             @ColorInt confirmColor: Int,
-            isBlock: Boolean = false
-        ) =
-            DeleteFragmentDialog().apply {
-                arguments = Bundle().apply {
-                    putString(ARG_DIALOG_TEXT, dialogText)
-                    putString(ARG_CONFIRM_TEXT, confirmText)
-                    putInt(ARG_CONFIRM_COLOR, confirmColor)
-                    putBoolean(ARG_BLOCK_BOX, isBlock)
-                }
-            }
+            isBlock: Boolean = false,
+            callback: ((isBlock: Boolean) -> Unit)
+        ) = DeleteFragmentDialog().apply {
+            arguments = bundleOf(
+                ARG_DIALOG_TEXT to dialogText,
+                ARG_CONFIRM_TEXT to confirmText,
+                ARG_CONFIRM_COLOR to confirmColor,
+                ARG_BLOCK_BOX to isBlock
+            )
+            this.callback = callback
+        }
     }
-}
-
-fun interface DialogConfirmationListener {
-    fun onConfirmClick(isBlock: Boolean)
 }

@@ -21,7 +21,7 @@
             android:id="@+id/statsLine"
             android:layout_width="2dp"
             android:layout_height="@dimen/stats_text_size"
-            android:background="@color/strokeColor"
+            android:background="?strokeColor"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@id/statsValue"
             app:layout_constraintTop_toTopOf="parent" />

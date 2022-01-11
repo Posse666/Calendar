@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.recyclerview.widget.ItemTouchHelper
@@ -95,15 +96,13 @@ class FriendsListFragment : Fragment(), FriendAdapterListener {
 
     override fun friendDeleted(friend: Friend) {
         val dialogText = "${getString(R.string.delete_text)} ${friend.name}?"
-        val dialog = DeleteFragmentDialog
-            .newInstance(dialogText, getString(R.string.delete), Color.RED, true)
-        dialog.setListener { blocked ->
-            friend.blocked = blocked
-            viewModel.deleteFriend(friend) {
-                if (it == null) UpdateDialog.newInstance().show(childFragmentManager, null)
-            }
-        }
-        dialog.show(childFragmentManager, null)
+        DeleteFragmentDialog
+            .newInstance(dialogText, getString(R.string.delete), Color.RED, true) { blocked ->
+                friend.blocked = blocked
+                viewModel.deleteFriend(friend) {
+                    if (it == null) UpdateDialog.newInstance().show(childFragmentManager, null)
+                }
+            }.show(childFragmentManager, null)
     }
 
     override fun friendNameChanged(friend: Friend) = viewModel.changeName(friend)
@@ -116,10 +115,6 @@ class FriendsListFragment : Fragment(), FriendAdapterListener {
     companion object {
         @JvmStatic
         fun newInstance(hiddenBtn: Boolean) = FriendsListFragment()
-            .apply {
-                arguments = Bundle().apply {
-                    putBoolean(ARG_HIDDEN, hiddenBtn)
-                }
-            }
+            .apply { arguments = bundleOf(ARG_HIDDEN to hiddenBtn) }
     }
 }

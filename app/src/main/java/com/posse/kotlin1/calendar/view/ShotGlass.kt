@@ -7,7 +7,7 @@ import android.widget.FrameLayout
 import androidx.annotation.AttrRes
 import androidx.annotation.ColorInt
 import androidx.annotation.StyleRes
-import androidx.core.content.getSystemService
+import com.google.android.material.color.MaterialColors
 import com.posse.kotlin1.calendar.R
 import com.posse.kotlin1.calendar.databinding.ShotGlassLayoutBinding
 import com.posse.kotlin1.calendar.utils.hide
@@ -50,14 +50,29 @@ class ShotGlass @JvmOverloads constructor(
                         setText(text)
                     }
 
+                    R.styleable.ShotGlass_setOuterColor -> {
+                        val color = typedArray.getColor(
+                            R.styleable.ShotGlass_setOuterColor,
+                            MaterialColors.getColor(
+                                context,
+                                R.attr.strokeColor,
+                                "Should set color attribute first"
+                            )
+                        )
+                        setOuterColor(color)
+                    }
+
                     R.styleable.ShotGlass_setTextColor -> {
                         val color = typedArray.getColor(
                             R.styleable.ShotGlass_setTextColor,
-                            resources.getColor(R.color.strokeColor, null)
+                            MaterialColors.getColor(
+                                context,
+                                R.attr.strokeColor,
+                                "Should set color attribute first"
+                            )
                         )
                         setTextColor(color)
                     }
-
                 }
             }
             typedArray.recycle()
@@ -71,6 +86,10 @@ class ShotGlass @JvmOverloads constructor(
 
     fun setInnerColor(@ColorInt color: Int) {
         binding.shotGlassInner.setColorFilter(color)
+    }
+
+    fun setOuterColor(@ColorInt color: Int) {
+        binding.shotGlassOuter.setColorFilter(color)
     }
 
     fun setTextColor(@ColorInt color: Int) {

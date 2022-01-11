@@ -37,6 +37,6 @@
         android:layout_marginBottom="7dp"
         tools:ignore="SpUsage,TextContrastCheck"
         tools:text="22"
-        tools:textColor="@color/white"
+        tools:textColor="?strokeColor"
         tools:visibility="visible" />
 </FrameLayout>
