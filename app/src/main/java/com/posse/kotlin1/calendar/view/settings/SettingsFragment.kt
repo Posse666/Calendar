@@ -2,6 +2,7 @@ package com.posse.kotlin1.calendar.view.settings
 
 import android.content.Context
 import android.content.Intent
+import android.content.SharedPreferences
 import android.content.res.Configuration
 import android.os.Build
 import android.os.Bundle
@@ -20,38 +21,56 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import com.google.android.material.color.MaterialColors
 import com.posse.kotlin1.calendar.R
-import com.posse.kotlin1.calendar.app.App
 import com.posse.kotlin1.calendar.databinding.FragmentSettingsBinding
 import com.posse.kotlin1.calendar.utils.*
+import com.posse.kotlin1.calendar.utils.LocaleUtils.Companion.LOCALE_EN
+import com.posse.kotlin1.calendar.utils.LocaleUtils.Companion.LOCALE_RU
 import com.posse.kotlin1.calendar.view.ActivityRefresher
 import com.posse.kotlin1.calendar.view.settings.blackList.BlackListFragment
 import com.posse.kotlin1.calendar.view.settings.share.ShareFragment
 import com.posse.kotlin1.calendar.view.update.UpdateDialog
-import com.posse.kotlin1.calendar.viewModel.NICKNAME
 import com.posse.kotlin1.calendar.viewModel.SettingsViewModel
 import com.squareup.picasso.Picasso
-
-const val NIGHT_THEME_SDK = 29
+import dagger.android.support.AndroidSupportInjection
+import javax.inject.Inject
 
 class SettingsFragment : Fragment() {
+    @Inject
+    lateinit var localeUtils: LocaleUtils
+
+    @Inject
+    lateinit var sharedPreferences: SharedPreferences
+
+    @Inject
+    lateinit var account: Account
+
+    @Inject
+    lateinit var viewModelFactory: ViewModelProvider.Factory
+
+    @Inject
+    lateinit var picasso: Picasso
     private var _binding: FragmentSettingsBinding? = null
     private val binding get() = _binding!!
-    private val account = Account
-    private val keyboard = Keyboard()
     private val animator = Animator()
     private var isInitCompleted = false
     private var isLoginPressed = false
     private var isEditMode = false
+    private val keyboard = Keyboard()
     private var activityRefresher: ActivityRefresher? = null
     private val viewModel: SettingsViewModel by lazy {
-        ViewModelProvider(this)[SettingsViewModel::class.java]
+        viewModelFactory.create(SettingsViewModel::class.java)
     }
     private val startLogin: ActivityResultLauncher<Intent> = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()
     ) {
-        Account.setAuthResult(it) {
+        account.setAuthResult(it) {
             UpdateDialog.newInstance().show(childFragmentManager, null)
         }
+    }
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        AndroidSupportInjection.inject(this)
     }
 
     override fun onCreateView(
@@ -78,11 +97,12 @@ class SettingsFragment : Fragment() {
         setupThemeSwitch()
         setupEditNicknameButton()
         setupLocaleSwitch()
+        keyboard.setGlobalListener(activity?.window?.decorView?.rootView)
         keyboard.setListener { binding.nickName.editText?.clearFocus() }
     }
 
     private fun setupLocaleSwitch() {
-        when (getStringLocale()) {
+        when (localeUtils.getStringLocale()) {
             LOCALE_RU -> binding.languageChips.check(R.id.chipRu)
             LOCALE_EN -> binding.languageChips.check(R.id.chipEn)
         }
@@ -92,7 +112,7 @@ class SettingsFragment : Fragment() {
                 R.id.chipRu -> LOCALE_RU
                 else -> LOCALE_EN
             }
-            setAppLocale(stringLocale)
+            localeUtils.setAppLocale(stringLocale)
             activityRefresher?.refreshNavBar()
         }
     }
@@ -103,18 +123,18 @@ class SettingsFragment : Fragment() {
                 val nickname = nickName.editText?.text.toString()
                 if (!nickname.contains(" ") && nickname.isNotEmpty())
                     animator.animate(view) {
-                        viewModel.saveNickname(Account.getEmail()!!, nickname) { saved ->
+                        viewModel.saveNickname(account.getEmail()!!, nickname) { saved ->
                             when (saved) {
-                                NICKNAME.EMPTY -> {
+                                SettingsViewModel.Nickname.Empty -> {
                                     nickName.error = getString(R.string.no_internet)
                                 }
-                                NICKNAME.BUSY -> {
+                                SettingsViewModel.Nickname.Busy -> {
                                     nickName.error = getString(R.string.nickname_is_busy)
                                 }
-                                NICKNAME.ERROR -> {
+                                SettingsViewModel.Nickname.Error -> {
                                     UpdateDialog.newInstance().show(childFragmentManager, null)
                                 }
-                                NICKNAME.SAVED -> {
+                                SettingsViewModel.Nickname.Saved -> {
                                     (view as AppCompatImageButton).setImageDrawable(
                                         getDrawable(requireContext(), R.drawable.shotglass_empty)
                                     )
@@ -146,7 +166,7 @@ class SettingsFragment : Fragment() {
                     nickName.editText?.let {
                         it.setSelection(it.length())
                     }
-                    keyboard.show()
+                    keyboard.show(activity)
                     nickName.error = null
                     isEditMode = true
                 }
@@ -160,7 +180,11 @@ class SettingsFragment : Fragment() {
             else nickName.error = null
         }
         nickName.editText?.setOnEditorActionListener { textView, actionId, _ ->
-            if (actionId == EditorInfo.IME_ACTION_DONE) textView.clearFocus()
+            if (actionId == EditorInfo.IME_ACTION_DONE) {
+                btnEditNickname.performClick()
+                textView.clearFocus()
+                return@setOnEditorActionListener true
+            }
             false
         }
     }
@@ -193,9 +217,9 @@ class SettingsFragment : Fragment() {
     }
 
     private fun setupThemeSwitch() = with(binding) {
-        val themeSwitch = App.sharedPreferences.themeSwitch
+        val themeSwitch = sharedPreferences.themeSwitch
         if (Build.VERSION.SDK_INT >= NIGHT_THEME_SDK) {
-            if (themeSwitch) App.sharedPreferences.lightTheme =
+            if (themeSwitch) sharedPreferences.lightTheme =
                 context?.resources?.configuration?.uiMode?.and(Configuration.UI_MODE_NIGHT_MASK) == Configuration.UI_MODE_NIGHT_NO
             chipDay.isEnabled = !themeSwitch
             chipNight.isEnabled = !themeSwitch
@@ -206,8 +230,8 @@ class SettingsFragment : Fragment() {
                 viewModel.switchState = isChecked
                 if (isChecked) {
                     when (context?.resources?.configuration?.uiMode?.and(Configuration.UI_MODE_NIGHT_MASK)) {
-                        Configuration.UI_MODE_NIGHT_NO -> binding.themeChips.check(THEME.DAY.resID)
-                        Configuration.UI_MODE_NIGHT_YES -> binding.themeChips.check(THEME.NIGHT.resID)
+                        Configuration.UI_MODE_NIGHT_NO -> binding.themeChips.check(ThemeUtils.THEME.DAY.resID)
+                        Configuration.UI_MODE_NIGHT_YES -> binding.themeChips.check(ThemeUtils.THEME.NIGHT.resID)
                     }
                 }
             }
@@ -217,13 +241,13 @@ class SettingsFragment : Fragment() {
             chipNight.isEnabled = true
         }
 
-        if (App.sharedPreferences.lightTheme) themeChips.check(THEME.DAY.resID)
-        else themeChips.check(THEME.NIGHT.resID)
+        if (sharedPreferences.lightTheme) themeChips.check(ThemeUtils.THEME.DAY.resID)
+        else themeChips.check(ThemeUtils.THEME.NIGHT.resID)
 
         themeChips.setOnCheckedChangeListener { _, checkedId ->
             when (checkedId) {
-                THEME.DAY.resID -> viewModel.lightTheme = true
-                THEME.NIGHT.resID -> viewModel.lightTheme = false
+                ThemeUtils.THEME.DAY.resID -> viewModel.lightTheme = true
+                ThemeUtils.THEME.NIGHT.resID -> viewModel.lightTheme = false
             }
         }
     }
@@ -243,7 +267,7 @@ class SettingsFragment : Fragment() {
                 nickName.show()
                 userEmail.putText(accountState.userEmail)
                 nickName.editText?.setText(accountState.nickname)
-                Picasso.get()
+                picasso
                     .load(accountState.userPicture)
                     .placeholder(defaultDrawableResource)
                     .resize(
@@ -275,12 +299,15 @@ class SettingsFragment : Fragment() {
 
     override fun onDestroyView() {
         super.onDestroyView()
+        keyboard.hide(binding.root)
         _binding = null
         keyboard.setListener(null)
         keyboard.removeGlobalListener()
     }
 
     companion object {
+        const val NIGHT_THEME_SDK = 29
+
         @JvmStatic
         fun newInstance() = SettingsFragment()
     }

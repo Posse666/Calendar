@@ -7,17 +7,19 @@ import androidx.recyclerview.widget.RecyclerView
 import com.posse.kotlin1.calendar.databinding.FriendLayoutBinding
 import com.posse.kotlin1.calendar.model.Friend
 import com.posse.kotlin1.calendar.utils.DiffUtilCallback
+import com.posse.kotlin1.calendar.utils.Keyboard
 
 class FriendListRecyclerAdapter(
     private var data: MutableList<Friend>,
     private val listener: FriendAdapterListener,
+    private val keyboard: Keyboard,
     private val dragListener: OnStartDragListener
 ) : RecyclerView.Adapter<FriendViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): FriendViewHolder {
         val inflater = LayoutInflater.from(parent.context)
         val friendBinding = FriendLayoutBinding.inflate(inflater, parent, false)
-        return FriendViewHolder(friendBinding, dragListener, listener)
+        return FriendViewHolder(friendBinding, dragListener, listener, keyboard)
     }
 
     override fun onBindViewHolder(holder: FriendViewHolder, position: Int) {
@@ -56,8 +58,8 @@ fun interface OnStartDragListener {
 }
 
 interface FriendAdapterListener {
-    fun friendClicked(friend: Friend)
-    fun friendMoved(fromPosition: Int, toPosition: Int)
+    fun friendClicked(friend: Friend): Unit?
+    fun friendMoved(fromPosition: Int, toPosition: Int): Unit?
     fun friendDeleted(friend: Friend)
-    fun friendNameChanged(friend: Friend)
+    fun friendNameChanged(friend: Friend): Unit?
 }

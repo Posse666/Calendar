@@ -1,27 +1,32 @@
 package com.posse.kotlin1.calendar.viewModel
 
+import android.content.SharedPreferences
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.posse.kotlin1.calendar.app.App
-import com.posse.kotlin1.calendar.firebaseMessagingService.ADDED_YOU
 import com.posse.kotlin1.calendar.firebaseMessagingService.Messenger
-import com.posse.kotlin1.calendar.firebaseMessagingService.REMOVED_YOU
+import com.posse.kotlin1.calendar.firebaseMessagingService.MyFirebaseMessagingService.Companion.ADDED_YOU
+import com.posse.kotlin1.calendar.firebaseMessagingService.MyFirebaseMessagingService.Companion.REMOVED_YOU
 import com.posse.kotlin1.calendar.model.Contact
 import com.posse.kotlin1.calendar.model.Friend
 import com.posse.kotlin1.calendar.model.User
-import com.posse.kotlin1.calendar.model.repository.COLLECTION_USERS
-import com.posse.kotlin1.calendar.model.repository.DOCUMENTS
+import com.posse.kotlin1.calendar.model.repository.Documents
 import com.posse.kotlin1.calendar.model.repository.Repository
-import com.posse.kotlin1.calendar.model.repository.RepositoryFirestoreImpl
-import com.posse.kotlin1.calendar.utils.getLocale
-import com.posse.kotlin1.calendar.utils.isNetworkOnline
+import com.posse.kotlin1.calendar.model.repository.RepositoryFirestoreImpl.Companion.COLLECTION_USERS
+import com.posse.kotlin1.calendar.utils.LocaleUtils
+import com.posse.kotlin1.calendar.utils.NetworkStatus
 import com.posse.kotlin1.calendar.utils.nickName
 import com.posse.kotlin1.calendar.utils.toDataClass
 import java.util.*
+import javax.inject.Inject
 
-class ContactsViewModel : ViewModel() {
-    private val repository: Repository = RepositoryFirestoreImpl.newInstance()
-    private val messenger: Messenger = Messenger()
+class ContactsViewModel @Inject constructor(
+    private val repository: Repository,
+    private val messenger: Messenger,
+    private val sharedPreferences: SharedPreferences,
+    private val networkStatus: NetworkStatus,
+    private val locale: LocaleUtils
+) : ViewModel() {
+
     private val sharedData: HashSet<Contact> = hashSetOf()
     private lateinit var email: String
     private val liveDataToObserve: MutableLiveData<Pair<Boolean, Set<Contact>>> =
@@ -38,10 +43,11 @@ class ContactsViewModel : ViewModel() {
         liveDataToObserve.value = Pair(false, emptySet())
         sharedData.clear()
         sharedData.addAll(contacts)
-        repository.getData(DOCUMENTS.SHARE, email) { contactsCollection, _ ->
-            repository.getData(DOCUMENTS.USERS, COLLECTION_USERS) { usersCollection, isOffline ->
+        repository.getData(Documents.Share, email) { contactsCollection, _ ->
+            repository.getData(Documents.Users, COLLECTION_USERS) { usersCollection, isOffline ->
                 try {
                     contactsCollection?.values?.forEach { contactMap ->
+                        @Suppress("UNCHECKED_CAST")
                         val contact = (contactMap as Map<String, Any>).toDataClass<Contact>()
                         contact.notInContacts = !sharedData.contains(contact)
                         if (!sharedData.add(contact)) {
@@ -50,9 +56,11 @@ class ContactsViewModel : ViewModel() {
                         }
                     }
                     usersCollection?.forEach { userMap ->
+                        @Suppress("UNCHECKED_CAST")
                         val user = (userMap.value as Map<String, Any>).toDataClass<User>()
                         val contact =
-                            Contact(mutableListOf(user.nickname),
+                            Contact(
+                                mutableListOf(user.nickname),
                                 user.email,
                                 notInContacts = true,
                                 notInBase = false
@@ -73,19 +81,20 @@ class ContactsViewModel : ViewModel() {
 
     fun contactClicked(contact: Contact, callback: (ContactStatus) -> Unit) {
         repository.getData(
-            DOCUMENTS.FRIENDS,
+            Documents.Friends,
             contact.email
         ) { contactFriendsCollection, isOffline ->
-            repository.getData(DOCUMENTS.USERS, COLLECTION_USERS) { usersMap, _ ->
+            repository.getData(Documents.Users, COLLECTION_USERS) { usersMap, _ ->
                 var newContact: Contact = contact
                 sharedData.forEach { sharedContact ->
                     if (sharedContact.email == contact.email) {
                         newContact = sharedContact.copy()
                         try {
+                            @Suppress("UNCHECKED_CAST")
                             val youInContactFriends =
                                 (contactFriendsCollection?.get(email) as Map<String, Any>?)?.toDataClass<Friend>()
                                     ?: Friend(
-                                        App.sharedPreferences.nickName ?: email,
+                                        sharedPreferences.nickName ?: email,
                                         email,
                                         selected = false,
                                         blocked = false,
@@ -93,22 +102,23 @@ class ContactsViewModel : ViewModel() {
                                     )
                             if (youInContactFriends.blocked) callback.invoke(ContactStatus.Blocked)
                             else {
+                                @Suppress("UNCHECKED_CAST")
                                 val user =
                                     (usersMap?.get(newContact.email) as Map<String, Any>).toDataClass<User>()
-                                val locale = getLocale(user.locale)
+                                val locale = locale.getLocale(user.locale)
                                 newContact.selected = !newContact.selected
                                 if (newContact.selected) {
-                                    repository.saveItem(DOCUMENTS.SHARE, email, newContact)
+                                    repository.saveItem(Documents.Share, email, newContact)
                                     repository.saveItem(
-                                        DOCUMENTS.FRIENDS,
+                                        Documents.Friends,
                                         newContact.email,
                                         youInContactFriends
                                     )
                                     sendNotification(newContact, ADDED_YOU, locale)
                                 } else {
-                                    repository.removeItem(DOCUMENTS.SHARE, email, newContact)
+                                    repository.removeItem(Documents.Share, email, newContact)
                                     repository.removeItem(
-                                        DOCUMENTS.FRIENDS,
+                                        Documents.Friends,
                                         newContact.email,
                                         youInContactFriends
                                     )
@@ -129,15 +139,16 @@ class ContactsViewModel : ViewModel() {
     }
 
     private fun sendNotification(contact: Contact, message: Long, locale: Locale) {
-        if (isNetworkOnline()) {
-            repository.getData(DOCUMENTS.USERS, COLLECTION_USERS) { users, _ ->
+        if (networkStatus.isNetworkOnline()) {
+            repository.getData(Documents.Users, COLLECTION_USERS) { users, _ ->
                 users?.forEach { userMap ->
+                    @Suppress("UNCHECKED_CAST")
                     val user = (userMap.value as Map<String, Any>).toDataClass<User>()
                     if (user.email == contact.email) {
                         Thread {
                             try {
                                 messenger.sendPush(
-                                    App.sharedPreferences.nickName!!,
+                                    sharedPreferences.nickName!!,
                                     message.toString(),
                                     user.token,
                                     locale
@@ -150,10 +161,10 @@ class ContactsViewModel : ViewModel() {
             }
         }
     }
-}
 
-enum class ContactStatus {
-    Blocked,
-    Offline,
-    Error
+    enum class ContactStatus {
+        Blocked,
+        Offline,
+        Error
+    }
 }

@@ -6,25 +6,31 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
 import androidx.fragment.app.DialogFragment
-import androidx.fragment.app.viewModels
+import androidx.lifecycle.ViewModelProvider
 import com.posse.kotlin1.calendar.R
 import com.posse.kotlin1.calendar.databinding.FragmentBlackListBinding
 import com.posse.kotlin1.calendar.model.Friend
 import com.posse.kotlin1.calendar.utils.*
 import com.posse.kotlin1.calendar.view.update.UpdateDialog
 import com.posse.kotlin1.calendar.viewModel.BlackListViewModel
-
-private const val ARG_EMAIL = "Email"
+import dagger.android.support.AndroidSupportInjection
+import javax.inject.Inject
 
 class BlackListFragment : DialogFragment() {
+
+    @Inject
+    lateinit var viewModelFactory: ViewModelProvider.Factory
     private var _binding: FragmentBlackListBinding? = null
     private val binding get() = _binding!!
     private lateinit var email: String
-    private val viewModel: BlackListViewModel by viewModels()
+    private val viewModel: BlackListViewModel by lazy {
+        viewModelFactory.create(BlackListViewModel::class.java)
+    }
     private lateinit var adapter: BlackListRecyclerAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        AndroidSupportInjection.inject(this)
         arguments?.let {
             email = it.getString(ARG_EMAIL)!!
         }
@@ -75,6 +81,9 @@ class BlackListFragment : DialogFragment() {
     }
 
     companion object {
+
+        private const val ARG_EMAIL = "Email"
+
         @JvmStatic
         fun newInstance(email: String) =
             BlackListFragment().apply {

@@ -1,27 +1,37 @@
 package com.posse.kotlin1.calendar.model.repository
 
+import android.content.SharedPreferences
 import android.util.Log
 import com.google.firebase.firestore.*
 import com.google.firebase.messaging.FirebaseMessaging
-import com.posse.kotlin1.calendar.app.App
 import com.posse.kotlin1.calendar.model.User
+import com.posse.kotlin1.calendar.utils.LocaleUtils
+import com.posse.kotlin1.calendar.utils.NetworkStatus
 import com.posse.kotlin1.calendar.utils.convertLongToLocalDale
-import com.posse.kotlin1.calendar.utils.getStringLocale
-import com.posse.kotlin1.calendar.utils.isNetworkOnline
 import com.posse.kotlin1.calendar.utils.token
+import javax.inject.Inject
 
-const val COLLECTION_USERS = "Collection_of_all_users"
+class RepositoryFirestoreImpl @Inject constructor(
+    private val sharedPreferences: SharedPreferences,
+    private val networkStatus: NetworkStatus,
+    private val localeUtils: LocaleUtils
+) : Repository {
 
-class RepositoryFirestoreImpl private constructor() : Repository {
+    init {
+        FirebaseFirestore.getInstance().firestoreSettings = FirebaseFirestoreSettings
+            .Builder()
+            .setCacheSizeBytes(FirebaseFirestoreSettings.CACHE_SIZE_UNLIMITED)
+            .build()
+    }
 
     override fun mergeDates(oldEmail: String, newMail: String, nickName: String) {
         val oldUserDocument =
-            FirebaseFirestore.getInstance().collection(oldEmail).document(DOCUMENTS.DATES.value)
+            FirebaseFirestore.getInstance().collection(oldEmail).document(Documents.Dates.value)
         oldUserDocument.get()
             .addOnSuccessListener {
                 FirebaseMessaging.getInstance().token.addOnSuccessListener { token ->
-                    App.sharedPreferences.token = token
-                    saveUser(User(newMail, nickName, getStringLocale(), token))
+                    sharedPreferences.token = token
+                    saveUser(User(newMail, nickName, localeUtils.getStringLocale(), token))
                     onDatesFetchComplete(it, newMail)
                     oldUserDocument.delete()
                 }
@@ -31,26 +41,25 @@ class RepositoryFirestoreImpl private constructor() : Repository {
 
     private fun onDatesFetchComplete(documentSnapshot: DocumentSnapshot, newMail: String) {
         documentSnapshot.data?.forEach {
-            saveItem(DOCUMENTS.DATES, newMail, convertLongToLocalDale(it.value as Long))
+            saveItem(Documents.Dates, newMail, convertLongToLocalDale(it.value as Long))
         }
     }
 
     override fun getData(
-        document: DOCUMENTS,
+        document: Documents,
         collection: String,
         callback: (Map<String, Any>?, Boolean) -> Unit
     ) {
-        if (!isNetworkOnline()) {
-            FirebaseFirestore.getInstance().disableNetwork().addOnCompleteListener {
-                getDataFromDB(collection, document, callback, true)
-                FirebaseFirestore.getInstance().enableNetwork()
-            }
-        } else getDataFromDB(collection, document, callback, false)
+        if (networkStatus.isNetworkOnline()) getDataFromDB(collection, document, callback, false)
+        else FirebaseFirestore.getInstance().disableNetwork().addOnCompleteListener {
+            getDataFromDB(collection, document, callback, true)
+            FirebaseFirestore.getInstance().enableNetwork()
+        }
     }
 
     private fun getDataFromDB(
         collection: String,
-        document: DOCUMENTS,
+        document: Documents,
         callback: (Map<String, Any>?, Boolean) -> Unit,
         isOffline: Boolean
     ) {
@@ -64,48 +73,26 @@ class RepositoryFirestoreImpl private constructor() : Repository {
             }
     }
 
-    override fun <T> saveItem(document: DOCUMENTS, collection: String, data: T) =
+    override fun <T> saveItem(document: Documents, collection: String, data: T) =
         changeItem(document, collection, data, false)
 
-    override fun <T> removeItem(document: DOCUMENTS, collection: String, data: T) =
+    override fun <T> removeItem(document: Documents, collection: String, data: T) =
         changeItem(document, collection, data, true)
 
     override fun saveUser(user: User) {
-        changeItem(DOCUMENTS.USERS, COLLECTION_USERS, user, false)
+        changeItem(Documents.Users, COLLECTION_USERS, user, false)
     }
 
-    private fun <T> changeItem(document: DOCUMENTS, collection: String, data: T, delete: Boolean) {
+    private fun <T> changeItem(document: Documents, collection: String, data: T, delete: Boolean) {
         val documentToChange =
             FirebaseFirestore.getInstance().collection(collection).document(document.value)
         val value: Any? = if (delete) FieldValue.delete()
         else data
-//        else when (data) {
-//            is Person -> data
-//            is String -> data
-//            is User -> data
-//            is DataModel -> data
-//            else -> throw RuntimeException("unexpected data Type. data: " + data.toString())
-//        }
         documentToChange.set(mapOf(Pair(data.toString(), value)), SetOptions.merge())
     }
 
     companion object {
-
-        init {
-            FirebaseFirestore.getInstance().firestoreSettings = FirebaseFirestoreSettings
-                .Builder()
-                .setCacheSizeBytes(FirebaseFirestoreSettings.CACHE_SIZE_UNLIMITED)
-                .build()
-        }
-
-        @JvmStatic
-        fun newInstance() = RepositoryFirestoreImpl()
+        const val COLLECTION_USERS = "Collection_of_all_users"
     }
 }
 
-enum class DOCUMENTS(val value: String) {
-    DATES("Dates"),
-    FRIENDS("Friends_List"),
-    SHARE("Share_List"),
-    USERS("Users")
-}

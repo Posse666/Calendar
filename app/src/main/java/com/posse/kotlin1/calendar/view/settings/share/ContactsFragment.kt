@@ -10,19 +10,18 @@ import android.view.WindowManager
 import android.view.inputmethod.EditorInfo
 import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.DialogFragment
-import androidx.fragment.app.activityViewModels
 import com.posse.kotlin1.calendar.R
 import com.posse.kotlin1.calendar.databinding.FragmentContactsBinding
 import com.posse.kotlin1.calendar.model.Contact
 import com.posse.kotlin1.calendar.utils.*
 import com.posse.kotlin1.calendar.view.update.UpdateDialog
-import com.posse.kotlin1.calendar.viewModel.ContactStatus
 import com.posse.kotlin1.calendar.viewModel.ContactsViewModel
 
 class ContactsFragment : DialogFragment(), ContactAdapterListener {
+
     private var _binding: FragmentContactsBinding? = null
     private val binding get() = _binding!!
-    private val viewModel: ContactsViewModel by activityViewModels()
+    private var viewModel: ContactsViewModel? = null
     private lateinit var adapter: ContactsListRecyclerAdapter
     private val keyboard = Keyboard()
     private val animator = Animator()
@@ -43,7 +42,8 @@ class ContactsFragment : DialogFragment(), ContactAdapterListener {
         setupContactSearchField()
         setupContactAddButton()
         setupRecyclerAdapter()
-        viewModel.getLiveData().observe(viewLifecycleOwner) { showContacts(it) }
+        viewModel?.getLiveData()?.observe(viewLifecycleOwner) { showContacts(it) }
+        keyboard.setGlobalListener(activity?.window?.decorView?.rootView)
         keyboard.setListener { binding.contactSearchField.editText?.clearFocus() }
         isCancelable = true
     }
@@ -122,13 +122,18 @@ class ContactsFragment : DialogFragment(), ContactAdapterListener {
     }
 
     override fun contactClicked(contact: Contact) {
-        viewModel.contactClicked(contact) {
+        viewModel?.contactClicked(contact) {
             when (it) {
-                ContactStatus.Blocked -> context?.showToast(getString(R.string.you_are_in_black_list))
-                ContactStatus.Offline -> context?.showToast(getString(R.string.no_connection))
-                ContactStatus.Error -> UpdateDialog.newInstance().show(childFragmentManager, null)
+                ContactsViewModel.ContactStatus.Blocked -> context?.showToast(getString(R.string.you_are_in_black_list))
+                ContactsViewModel.ContactStatus.Offline -> context?.showToast(getString(R.string.no_connection))
+                ContactsViewModel.ContactStatus.Error -> UpdateDialog.newInstance()
+                    .show(childFragmentManager, null)
             }
         }
+    }
+
+    fun setViewModel(model: ContactsViewModel) {
+        viewModel = model
     }
 
     override fun onDestroyView() {
@@ -137,6 +142,7 @@ class ContactsFragment : DialogFragment(), ContactAdapterListener {
         keyboard.setListener(null)
         keyboard.removeGlobalListener()
         _binding = null
+        viewModel = null
     }
 
     companion object {

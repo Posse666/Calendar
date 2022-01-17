@@ -2,7 +2,6 @@ package com.posse.kotlin1.calendar.view.settings.share
 
 import androidx.recyclerview.widget.RecyclerView
 import com.posse.kotlin1.calendar.R
-import com.posse.kotlin1.calendar.app.App
 import com.posse.kotlin1.calendar.databinding.ContactLayoutBinding
 import com.posse.kotlin1.calendar.model.Contact
 import com.posse.kotlin1.calendar.utils.disappear
@@ -40,7 +39,9 @@ class ContactViewHolder(
                 if (contact.selected) R.drawable.shotglass_full
                 else R.drawable.shotglass_empty
             )
-            if (contact.selected) contactBinding.contactChecked.drawable.setTint(App.appInstance.getColor(R.color.fillColor))
+            if (contact.selected) contactBinding.contactChecked.drawable.setTint(
+                contactBinding.root.context.getColor(R.color.fillColor)
+            )
         }
     }
 }

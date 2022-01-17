@@ -6,20 +6,23 @@ import com.posse.kotlin1.calendar.firebaseMessagingService.Messenger
 import com.posse.kotlin1.calendar.model.DataModel
 import com.posse.kotlin1.calendar.model.Friend
 import com.posse.kotlin1.calendar.model.User
-import com.posse.kotlin1.calendar.model.repository.COLLECTION_USERS
-import com.posse.kotlin1.calendar.model.repository.DOCUMENTS
+import com.posse.kotlin1.calendar.model.repository.Documents
 import com.posse.kotlin1.calendar.model.repository.Repository
-import com.posse.kotlin1.calendar.model.repository.RepositoryFirestoreImpl
+import com.posse.kotlin1.calendar.model.repository.RepositoryFirestoreImpl.Companion.COLLECTION_USERS
 import com.posse.kotlin1.calendar.utils.*
 import com.posse.kotlin1.calendar.view.calendar.Result
 import java.time.LocalDate
 import java.time.Year
 import java.time.temporal.ChronoUnit
+import javax.inject.Inject
 
-class CalendarViewModel : ViewModel() {
-    private val repository: Repository = RepositoryFirestoreImpl.newInstance()
+class CalendarViewModel @Inject constructor(
+    private val repository: Repository,
+    private val messenger: Messenger,
+    private val networkStatus: NetworkStatus,
+    private val locale: LocaleUtils
+) : ViewModel() {
     private val datesData: MutableSet<DataModel> = mutableSetOf()
-    private val messenger = Messenger()
     private lateinit var email: String
     private val liveDataToObserve: MutableLiveData<Pair<Boolean, Set<DataModel>>> =
         MutableLiveData(Pair(false, emptySet()))
@@ -33,10 +36,11 @@ class CalendarViewModel : ViewModel() {
     fun refreshLiveData(email: String, callback: (Result) -> Unit) {
         this.email = email
         liveDataToObserve.value = Pair(false, emptySet())
-        repository.getData(DOCUMENTS.DATES, email) { dates, isOffline ->
+        repository.getData(Documents.Dates, email) { dates, isOffline ->
             datesData.clear()
             dates?.forEach {
                 try {
+                    @Suppress("UNCHECKED_CAST")
                     val day = it.value as Map<String, Any>
                     val date = day.toDataClass<DataModel>()
                     datesData.add(date)
@@ -66,8 +70,8 @@ class CalendarViewModel : ViewModel() {
     fun dayClicked(date: DataModel, update: () -> Unit) {
         if (date.drinkType != null) {
             datesData.add(date)
-            repository.saveItem(DOCUMENTS.DATES, email, date)
-            if (isNetworkOnline())
+            repository.saveItem(Documents.Dates, email, date)
+            if (networkStatus.isNetworkOnline())
                 try {
                     sendNotification(date.date)
                 } catch (e: Exception) {
@@ -75,7 +79,7 @@ class CalendarViewModel : ViewModel() {
                 }
         } else {
             datesData.remove(date)
-            repository.removeItem(DOCUMENTS.DATES, email, date)
+            repository.removeItem(Documents.Dates, email, date)
         }
         liveDataToObserve.value = Pair(true, datesData)
         liveStatisticToObserve.value =
@@ -83,13 +87,15 @@ class CalendarViewModel : ViewModel() {
     }
 
     private fun sendNotification(message: Long) {
-        repository.getData(DOCUMENTS.SHARE, email) { contactsCollection, _ ->
-            repository.getData(DOCUMENTS.USERS, COLLECTION_USERS) { usersCollection, _ ->
+        repository.getData(Documents.Share, email) { contactsCollection, _ ->
+            repository.getData(Documents.Users, COLLECTION_USERS) { usersCollection, _ ->
                 contactsCollection?.forEach { contactMap ->
-                    repository.getData(DOCUMENTS.FRIENDS, contactMap.key) { friendsCollection, _ ->
+                    repository.getData(Documents.Friends, contactMap.key) { friendsCollection, _ ->
                         val friendMap = friendsCollection?.get(email)
                         friendMap?.let {
+                            @Suppress("UNCHECKED_CAST")
                             val friend = (it as Map<String, Any>).toDataClass<Friend>()
+                            @Suppress("UNCHECKED_CAST")
                             val user =
                                 (usersCollection?.get(contactMap.key) as Map<String, Any>).toDataClass<User>()
                             Thread {
@@ -98,7 +104,7 @@ class CalendarViewModel : ViewModel() {
                                         friend.name,
                                         message.toString(),
                                         user.token,
-                                        getLocale(user.locale)
+                                        locale.getLocale(user.locale)
                                     )
                                 } catch (e: Exception) {
                                 }

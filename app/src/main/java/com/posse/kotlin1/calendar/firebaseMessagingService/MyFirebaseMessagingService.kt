@@ -2,31 +2,38 @@ package com.posse.kotlin1.calendar.firebaseMessagingService
 
 import android.app.NotificationChannel
 import android.app.NotificationManager
-import android.content.Context
+import android.content.SharedPreferences
 import androidx.core.app.NotificationCompat
+import androidx.core.content.getSystemService
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
 import com.posse.kotlin1.calendar.R
-import com.posse.kotlin1.calendar.app.App
 import com.posse.kotlin1.calendar.model.User
-import com.posse.kotlin1.calendar.model.repository.COLLECTION_USERS
-import com.posse.kotlin1.calendar.model.repository.DOCUMENTS
+import com.posse.kotlin1.calendar.model.repository.Documents
 import com.posse.kotlin1.calendar.model.repository.Repository
-import com.posse.kotlin1.calendar.model.repository.RepositoryFirestoreImpl
+import com.posse.kotlin1.calendar.model.repository.RepositoryFirestoreImpl.Companion.COLLECTION_USERS
 import com.posse.kotlin1.calendar.utils.*
+import dagger.android.AndroidInjection
 import java.time.LocalDate
-
-const val ADDED_YOU: Long = -1
-const val REMOVED_YOU: Long = -2
-private const val PUSH_KEY_TITLE = "title"
-private const val PUSH_KEY_MESSAGE = "message"
-private const val NOTIFICATION_ID = 68
+import javax.inject.Inject
 
 class MyFirebaseMessagingService : FirebaseMessagingService() {
-    private val repository: Repository = RepositoryFirestoreImpl.newInstance()
+    @Inject
+    lateinit var repository: Repository
+
+    @Inject
+    lateinit var sharedPreferences: SharedPreferences
+
+    @Inject
+    lateinit var localeUtils: LocaleUtils
     private lateinit var channelName: String
     private lateinit var channelDescriptionText: String
     private lateinit var channelID: String
+
+    override fun onCreate() {
+        AndroidInjection.inject(this)
+        super.onCreate()
+    }
 
     override fun onMessageReceived(remoteMessage: RemoteMessage) {
         val remoteMessageData = remoteMessage.data
@@ -45,19 +52,20 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
 
     private fun showNotification(title: String, message: String) {
         channelID = getString(R.string.drunk_channel)
-        if (message == ADDED_YOU.toString() || message == REMOVED_YOU.toString()) channelID = getString(R.string.shared)
-        val notificationBuilder =
-            NotificationCompat.Builder(applicationContext, channelID).apply {
+        if (message == ADDED_YOU.toString() || message == REMOVED_YOU.toString()) channelID =
+            getString(R.string.shared)
+        val notificationBuilder = NotificationCompat.Builder(applicationContext, channelID)
+            .apply {
                 setSmallIcon(R.drawable.ic_splash_screen)
                 setContentTitle(getText(title, message))
 //                setContentText(message)
                 priority = NotificationCompat.PRIORITY_DEFAULT
             }
 
-        val notificationManager =
-            getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-        createNotificationChannel(notificationManager)
-        notificationManager.notify(NOTIFICATION_ID, notificationBuilder.build())
+        getSystemService<NotificationManager>()?.let {
+            createNotificationChannel(it)
+            it.notify(NOTIFICATION_ID, notificationBuilder.build())
+        }
     }
 
     private fun getText(title: String, message: String): String {
@@ -71,15 +79,9 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
                 channelDescriptionText = getString(R.string.drunk_notifications)
                 val drunk = getString(R.string.drunk)
                 when (val date = convertLongToLocalDale(message.toLong())) {
-                    LocalDate.now() -> {
-                        "$drunk ${getString(R.string.today)}!"
-                    }
-                    LocalDate.now().minusDays(1) -> {
-                        "$drunk ${getString(R.string.yesterday)}!"
-                    }
-                    else -> {
-                        "$drunk $date!"
-                    }
+                    LocalDate.now() -> "$drunk ${getString(R.string.today)}!"
+                    LocalDate.now().minusDays(1) -> "$drunk ${getString(R.string.yesterday)}!"
+                    else -> "$drunk $date!"
                 }
             }
         }
@@ -95,17 +97,28 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
     }
 
     override fun onNewToken(token: String) {
-        App.sharedPreferences.token = token
-        App.sharedPreferences.nickName?.let {
-            repository.getData(DOCUMENTS.USERS, COLLECTION_USERS) { users, _ ->
+        sharedPreferences.token = token
+        sharedPreferences.nickName?.let {
+            repository.getData(Documents.Users, COLLECTION_USERS) { users, _ ->
                 users?.forEach { userMap ->
                     try {
+                        @Suppress("UNCHECKED_CAST")
                         val user = (userMap.value as Map<String, Any>).toDataClass<User>()
-                        if (user.nickname == it) repository.saveUser(User(user.email, it, getStringLocale(), token))
+                        if (user.nickname == it) repository.saveUser(
+                            User(user.email, it, localeUtils.getStringLocale(), token)
+                        )
                     } catch (e: Exception) {
                     }
                 }
             }
         }
+    }
+
+    companion object {
+        const val ADDED_YOU: Long = -1
+        const val REMOVED_YOU: Long = -2
+        private const val PUSH_KEY_TITLE = "title"
+        private const val PUSH_KEY_MESSAGE = "message"
+        private const val NOTIFICATION_ID = 68
     }
 }

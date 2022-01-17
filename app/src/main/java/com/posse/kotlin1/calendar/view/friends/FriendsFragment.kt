@@ -7,7 +7,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentTransaction
-import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.ViewModelProvider
 import com.posse.kotlin1.calendar.R
 import com.posse.kotlin1.calendar.databinding.FragmentFriendsBinding
 import com.posse.kotlin1.calendar.utils.Account
@@ -18,13 +18,27 @@ import com.posse.kotlin1.calendar.view.calendar.CalendarFragment
 import com.posse.kotlin1.calendar.view.friends.list.FriendsListFragment
 import com.posse.kotlin1.calendar.view.update.UpdateDialog
 import com.posse.kotlin1.calendar.viewModel.FriendsViewModel
+import dagger.android.support.AndroidSupportInjection
+import javax.inject.Inject
 
 class FriendsFragment : Fragment() {
+    @Inject
+    lateinit var account: Account
+
+    @Inject
+    lateinit var viewModelFactory: ViewModelProvider.Factory
     private var _binding: FragmentFriendsBinding? = null
     private val binding get() = _binding!!
     private var settingsTabSwitcher: SettingsTabSwitcher? = null
     private var friendsListFragment: FriendsListFragment? = null
-    private val viewModel: FriendsViewModel by activityViewModels()
+    private val viewModel: FriendsViewModel by lazy {
+        viewModelFactory.create(FriendsViewModel::class.java)
+    }
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        AndroidSupportInjection.inject(this)
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -36,7 +50,7 @@ class FriendsFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        val myMail = Account.getEmail()
+        val myMail = account.getEmail()
         if (myMail != null && myMail.contains("@")) {
             viewModel.refreshLiveData(myMail) { offline ->
                 if (offline == true) context?.showToast(getString(R.string.no_connection))
@@ -64,12 +78,12 @@ class FriendsFragment : Fragment() {
                     }
                     binding.friendsCard.setOnClickListener {
                         if (friendsListFragment == null || !friendsListFragment!!.isVisible) {
-                            friendsListFragment = FriendsListFragment.newInstance(false)
+                            friendsListFragment = getFriendsListFragment(false)
                             swapFragment(friendsListFragment!!)
                         }
                     }
                     if (!friendSelected) {
-                        friendsListFragment = FriendsListFragment.newInstance(true)
+                        friendsListFragment = getFriendsListFragment(true)
                         swapFragment(friendsListFragment!!)
                         if (data.second.isEmpty()) binding.friendsCard.setOnClickListener(null)
                     }
@@ -82,6 +96,11 @@ class FriendsFragment : Fragment() {
             }
         }
     }
+
+    private fun getFriendsListFragment(hiddenBtn: Boolean) =
+        FriendsListFragment
+            .newInstance(hiddenBtn)
+            .apply { setViewModel(viewModel) }
 
     private fun swapFragment(fragment: Fragment) {
         childFragmentManager

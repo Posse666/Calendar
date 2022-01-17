@@ -1,5 +1,6 @@
 package com.posse.kotlin1.calendar.view
 
+import android.content.SharedPreferences
 import android.os.Bundle
 import android.os.PersistableBundle
 import androidx.annotation.IdRes
@@ -7,30 +8,38 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentTransaction
 import com.posse.kotlin1.calendar.R
-import com.posse.kotlin1.calendar.app.App
 import com.posse.kotlin1.calendar.databinding.ActivityMainBinding
-import com.posse.kotlin1.calendar.utils.getAppTheme
+import com.posse.kotlin1.calendar.utils.LocaleUtils
+import com.posse.kotlin1.calendar.utils.ThemeUtils
 import com.posse.kotlin1.calendar.utils.locale
-import com.posse.kotlin1.calendar.utils.setAppLocale
 import com.posse.kotlin1.calendar.utils.showToast
 import com.posse.kotlin1.calendar.view.friends.FriendsFragment
 import com.posse.kotlin1.calendar.view.myCalendar.MyCalendarFragment
 import com.posse.kotlin1.calendar.view.settings.SettingsFragment
+import dagger.android.AndroidInjection
+import javax.inject.Inject
 import kotlin.system.exitProcess
 
 private const val KEY_SELECTED = "Selected item"
 private const val BACK_BUTTON_EXIT_DELAY = 3000
 
 class MainActivity : AppCompatActivity(), SettingsTabSwitcher, ActivityRefresher {
+    @Inject
+    lateinit var localeUtils: LocaleUtils
+    @Inject
+    lateinit var themeUtils: ThemeUtils
+    @Inject
+    lateinit var sharedPreferences: SharedPreferences
     private lateinit var binding: ActivityMainBinding
     private var isBackShown = false
     private var lastTimeBackPressed: Long = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        AndroidInjection.inject(this)
         instance = this
-        setAppLocale(App.sharedPreferences.locale)
-        setTheme(getAppTheme())
+        localeUtils.setAppLocale(sharedPreferences.locale)
+        setTheme(themeUtils.getAppTheme())
         @IdRes
         val startPage: Int = savedInstanceState?.getInt(KEY_SELECTED) ?: R.id.bottomCalendar
         initView(startPage)

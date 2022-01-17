@@ -1,12 +1,12 @@
 package com.posse.kotlin1.calendar.view.friends.list
 
 import android.annotation.SuppressLint
+import android.app.Activity
 import android.graphics.Color
 import android.view.MotionEvent
 import androidx.core.widget.doOnTextChanged
 import androidx.recyclerview.widget.RecyclerView
 import com.posse.kotlin1.calendar.R
-import com.posse.kotlin1.calendar.app.App
 import com.posse.kotlin1.calendar.databinding.FriendLayoutBinding
 import com.posse.kotlin1.calendar.model.Friend
 import com.posse.kotlin1.calendar.utils.Keyboard
@@ -16,9 +16,8 @@ class FriendViewHolder(
     private val friendBinding: FriendLayoutBinding,
     private val dragListener: OnStartDragListener,
     private val listener: FriendAdapterListener,
-) :
-    RecyclerView.ViewHolder(friendBinding.root), ItemTouchHelperViewHolder {
-    private val keyboard = Keyboard()
+    private val keyboard: Keyboard
+) : RecyclerView.ViewHolder(friendBinding.root), ItemTouchHelperViewHolder {
 
     fun bind(friend: Friend) {
         keyboard.setListener { friendBinding.editNameField.editText?.clearFocus() }
@@ -49,7 +48,11 @@ class FriendViewHolder(
             if (friend.selected) R.drawable.shotglass_full
             else R.drawable.shotglass_empty
         )
-        if (friend.selected) friendBinding.friendChecked.setColorFilter(App.appInstance.getColor(R.color.fillColor))
+        if (friend.selected) friendBinding.friendChecked.setColorFilter(
+            friendBinding.root.context.getColor(
+                R.color.fillColor
+            )
+        )
     }
 
     @SuppressLint("ClickableViewAccessibility")
@@ -72,7 +75,6 @@ class FriendViewHolder(
 
     fun removeListeners() {
         keyboard.setListener(null)
-        keyboard.removeGlobalListener()
     }
 
     override fun onItemSelected() {
