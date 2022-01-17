@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content">
+
+    <com.google.android.material.card.MaterialCardView
+        style="@style/CardLayoutStyle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
+
+            <com.google.android.material.textview.MaterialTextView
+                android:id="@+id/drink_picker_caption"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:paddingHorizontal="10dp"
+                android:paddingVertical="10dp"
+                android:text="@string/how_much_did_you_drink"
+                android:textStyle="bold"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <androidx.constraintlayout.widget.Guideline
+                android:id="@+id/guide_line_1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                app:layout_constraintGuide_percent="0.3333333333333333333" />
+
+            <androidx.constraintlayout.widget.Guideline
+                android:id="@+id/guide_line_2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                app:layout_constraintGuide_percent="0.666666666666666666666" />
+
+            <com.posse.kotlin1.calendar.view.ShotGlass
+                android:id="@+id/drink_picker_full_icon"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                app:hideInner="false"
+                app:layout_constraintDimensionRatio="H,1:1"
+                app:layout_constraintEnd_toStartOf="@id/guide_line_1"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/drink_picker_caption"
+                app:setInnerColor="@color/fillColor"
+                app:setOuterColor="?strokeColor"
+                app:setTextColor="?emptyFillColor" />
+
+            <com.posse.kotlin1.calendar.view.ShotGlass
+                android:id="@+id/drink_picker_half_icon"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                app:hideInner="false"
+                app:layout_constraintDimensionRatio="H,1:1"
+                app:layout_constraintEnd_toStartOf="@id/guide_line_2"
+                app:layout_constraintStart_toStartOf="@id/guide_line_1"
+                app:layout_constraintTop_toBottomOf="@id/drink_picker_caption"
+                app:setInnerColor="@color/halfFillColor"
+                app:setOuterColor="?strokeColor"
+                app:setTextColor="?emptyFillColor" />
+
+            <com.posse.kotlin1.calendar.view.ShotGlass
+                android:id="@+id/drink_picker_empty_icon"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                app:hideInner="true"
+                app:layout_constraintDimensionRatio="H,1:1"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="@id/guide_line_2"
+                app:layout_constraintTop_toBottomOf="@id/drink_picker_caption"
+                app:setOuterColor="?strokeColor"
+                app:setTextColor="?strokeColor" />
+
+            <com.google.android.material.textview.MaterialTextView
+                android:id="@+id/drink_picker_full_caption"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:paddingVertical="10dp"
+                android:text="@string/a_lot"
+                android:textStyle="bold"
+                app:layout_constraintEnd_toEndOf="@id/guide_line_1"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/drink_picker_full_icon" />
+
+            <com.google.android.material.textview.MaterialTextView
+                android:id="@+id/drink_picker_half_caption"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:paddingVertical="10dp"
+                android:text="@string/a_little"
+                android:textStyle="bold"
+                app:layout_constraintEnd_toEndOf="@id/guide_line_2"
+                app:layout_constraintStart_toStartOf="@id/guide_line_1"
+                app:layout_constraintTop_toBottomOf="@id/drink_picker_half_icon" />
+
+            <com.google.android.material.textview.MaterialTextView
+                android:id="@+id/drink_picker_empty_caption"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:paddingVertical="10dp"
+                android:text="@string/i_didn_t"
+                android:textStyle="bold"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="@id/guide_line_2"
+                app:layout_constraintTop_toBottomOf="@id/drink_picker_empty_icon" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </com.google.android.material.card.MaterialCardView>
+</FrameLayout>

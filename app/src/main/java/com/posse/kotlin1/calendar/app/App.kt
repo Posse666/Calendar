@@ -1,21 +1,28 @@
 package com.posse.kotlin1.calendar.app
 
 import android.app.Application
-import android.content.Context
-import android.content.SharedPreferences
+import com.posse.kotlin1.calendar.di.component.DaggerAppComponent
+import com.posse.kotlin1.calendar.di.modules.AppModule
+import dagger.android.AndroidInjector
+import dagger.android.DispatchingAndroidInjector
+import dagger.android.HasAndroidInjector
+import javax.inject.Inject
 
-class App : Application() {
-    private val prefsName = "Calendar"
+class App : Application(), HasAndroidInjector {
+
+    @Inject
+    lateinit var dispatchingAndroidInjector: DispatchingAndroidInjector<Any>
+
+    override fun androidInjector(): AndroidInjector<Any> {
+        return dispatchingAndroidInjector
+    }
 
     override fun onCreate() {
         super.onCreate()
-        appInstance = this
-        sharedPreferences = this.getSharedPreferences(prefsName,Context.MODE_PRIVATE)
-    }
-
-    companion object {
-
-        lateinit var appInstance: App
-        lateinit var sharedPreferences: SharedPreferences
+        DaggerAppComponent.builder()
+            .application(this)
+            .appModule(AppModule(this))
+            .build()
+            .inject(this)
     }
 }

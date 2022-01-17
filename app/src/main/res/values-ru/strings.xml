@@ -80,5 +80,9 @@
     <string name="drunk_channel">Выпил</string>
     <string name="drunk_notifications">Уведомление, когда друг выпил.</string>
     <string name="language">Язык</string>
+    <string name="how_much_did_you_drink">Сколько вы выпили?</string>
+    <string name="a_lot">Много</string>
+    <string name="a_little">Немножко</string>
+    <string name="i_didn_t">Не пил</string>
 
 </resources>

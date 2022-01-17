@@ -9,10 +9,20 @@ import com.posse.kotlin1.calendar.R
 import com.posse.kotlin1.calendar.databinding.FragmentMyCalendarBinding
 import com.posse.kotlin1.calendar.utils.Account
 import com.posse.kotlin1.calendar.view.calendar.CalendarFragment
+import dagger.android.support.AndroidSupportInjection
+import javax.inject.Inject
 
 class MyCalendarFragment : Fragment() {
+
+    @Inject
+    lateinit var account: Account
     private var _binding: FragmentMyCalendarBinding? = null
     private val binding get() = _binding!!
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        AndroidSupportInjection.inject(this)
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -24,9 +34,9 @@ class MyCalendarFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        val mail = Account.getEmail()
+        val mail = account.getEmail()
         if (mail != null) swapFragment(mail)
-        else Account.anonymousLogin { email: String ->
+        else account.anonymousLogin { email: String ->
             swapFragment(email)
         }
     }

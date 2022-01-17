@@ -5,33 +5,35 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.activityViewModels
 import androidx.recyclerview.widget.ItemTouchHelper
 import com.posse.kotlin1.calendar.R
 import com.posse.kotlin1.calendar.databinding.FragmentRecyclerListBinding
 import com.posse.kotlin1.calendar.model.Friend
-import com.posse.kotlin1.calendar.utils.Account
-import com.posse.kotlin1.calendar.utils.disappear
-import com.posse.kotlin1.calendar.utils.putText
-import com.posse.kotlin1.calendar.utils.show
+import com.posse.kotlin1.calendar.utils.*
 import com.posse.kotlin1.calendar.view.deleteConfirmation.DeleteFragmentDialog
 import com.posse.kotlin1.calendar.view.update.UpdateDialog
 import com.posse.kotlin1.calendar.viewModel.FriendsViewModel
-
-private const val ARG_HIDDEN = "Hidden"
+import dagger.android.support.AndroidSupportInjection
+import javax.inject.Inject
 
 class FriendsListFragment : Fragment(), FriendAdapterListener {
 
+    @Inject
+    lateinit var account: Account
+
     private var _binding: FragmentRecyclerListBinding? = null
     private val binding get() = _binding!!
-    private val viewModel: FriendsViewModel by activityViewModels()
+    private var viewModel: FriendsViewModel? = null
     private lateinit var adapter: FriendListRecyclerAdapter
     private lateinit var itemTouchHelper: ItemTouchHelper
     private var hiddenBtn = false
+    private val keyboard = Keyboard()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        AndroidSupportInjection.inject(this)
         arguments?.let {
             hiddenBtn = it.getBoolean(ARG_HIDDEN)
         }
@@ -47,18 +49,19 @@ class FriendsListFragment : Fragment(), FriendAdapterListener {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        val myMail = Account.getEmail()
+        keyboard.setGlobalListener(activity?.window?.decorView?.rootView)
+        val myMail = account.getEmail()
         if (myMail != null && myMail.contains("@")) {
             setupCloseBtn(myMail)
             setupRecyclerAdapter()
-            viewModel.getLiveData().observe(viewLifecycleOwner, { showFriends(it) })
+            viewModel?.getLiveData()?.observe(viewLifecycleOwner, { showFriends(it) })
         }
     }
 
     private fun setupCloseBtn(myMail: String) {
         if (hiddenBtn) binding.listClose.disappear()
         else binding.listClose.setOnClickListener {
-            viewModel.refreshLiveData(myMail) {
+            viewModel?.refreshLiveData(myMail) {
                 if (it == null) UpdateDialog.newInstance().show(childFragmentManager, null)
             }
         }
@@ -81,45 +84,50 @@ class FriendsListFragment : Fragment(), FriendAdapterListener {
     private fun setupRecyclerAdapter() {
         adapter = FriendListRecyclerAdapter(
             mutableListOf(),
-            this
+            this,
+            keyboard
         ) { itemTouchHelper.startDrag(it) }
         binding.listRecyclerView.adapter = adapter
         itemTouchHelper = ItemTouchHelper(ItemTouchHelperCallback(adapter))
         itemTouchHelper.attachToRecyclerView(binding.listRecyclerView)
     }
 
-    override fun friendClicked(friend: Friend) = viewModel.friendSelected(friend)
+    override fun friendClicked(friend: Friend) = viewModel?.friendSelected(friend)
 
     override fun friendMoved(fromPosition: Int, toPosition: Int) =
-        viewModel.itemMoved(fromPosition, toPosition)
+        viewModel?.itemMoved(fromPosition, toPosition)
 
     override fun friendDeleted(friend: Friend) {
         val dialogText = "${getString(R.string.delete_text)} ${friend.name}?"
-        val dialog = DeleteFragmentDialog
-            .newInstance(dialogText, getString(R.string.delete), Color.RED, true)
-        dialog.setListener { blocked ->
-            friend.blocked = blocked
-            viewModel.deleteFriend(friend) {
-                if (it == null) UpdateDialog.newInstance().show(childFragmentManager, null)
-            }
-        }
-        dialog.show(childFragmentManager, null)
+        DeleteFragmentDialog
+            .newInstance(dialogText, getString(R.string.delete), Color.RED, true) { blocked ->
+                friend.blocked = blocked
+                viewModel?.deleteFriend(friend) {
+                    if (it == null) UpdateDialog.newInstance().show(childFragmentManager, null)
+                }
+            }.show(childFragmentManager, null)
     }
 
-    override fun friendNameChanged(friend: Friend) = viewModel.changeName(friend)
+    override fun friendNameChanged(friend: Friend) = viewModel?.changeName(friend)
+
+    fun setViewModel(model: FriendsViewModel) {
+        viewModel = model
+    }
 
     override fun onDestroyView() {
         super.onDestroyView()
+        keyboard.hide(binding.root)
         _binding = null
+        keyboard.setListener(null)
+        keyboard.removeGlobalListener()
+        viewModel = null
     }
 
     companion object {
+        private const val ARG_HIDDEN = "Hidden"
+
         @JvmStatic
         fun newInstance(hiddenBtn: Boolean) = FriendsListFragment()
-            .apply {
-                arguments = Bundle().apply {
-                    putBoolean(ARG_HIDDEN, hiddenBtn)
-                }
-            }
+            .apply { arguments = bundleOf(ARG_HIDDEN to hiddenBtn) }
     }
 }

@@ -3,7 +3,7 @@ package com.posse.kotlin1.calendar.utils
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
-import android.graphics.drawable.Drawable
+import android.content.SharedPreferences
 import android.net.Uri
 import android.util.Log
 import androidx.activity.result.ActivityResult
@@ -17,22 +17,24 @@ import com.google.android.gms.common.api.ApiException
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.GoogleAuthProvider
 import com.posse.kotlin1.calendar.R
-import com.posse.kotlin1.calendar.app.App
 import com.posse.kotlin1.calendar.model.User
-import com.posse.kotlin1.calendar.model.repository.COLLECTION_USERS
-import com.posse.kotlin1.calendar.model.repository.DOCUMENTS
+import com.posse.kotlin1.calendar.model.repository.Documents
 import com.posse.kotlin1.calendar.model.repository.Repository
-import com.posse.kotlin1.calendar.model.repository.RepositoryFirestoreImpl
+import com.posse.kotlin1.calendar.model.repository.RepositoryFirestoreImpl.Companion.COLLECTION_USERS
+import javax.inject.Inject
 
-object Account {
-    private val repository: Repository = RepositoryFirestoreImpl.newInstance()
+class Account @Inject constructor(
+    private val repository: Repository,
+    private val context: Context,
+    private val sharedPreferences: SharedPreferences,
+    private val networkStatus: NetworkStatus
+) {
     private val liveData: MutableLiveData<AccountState> = MutableLiveData()
     private lateinit var oldEmail: String
-    private var googleAccount: GoogleSignInAccount? =
-        GoogleSignIn.getLastSignedInAccount(App.appInstance as Context)
+    private var googleAccount: GoogleSignInAccount? = GoogleSignIn.getLastSignedInAccount(context)
     private val gso = GoogleSignInOptions
         .Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-        .requestIdToken(App.appInstance.getString(R.string.default_web_client_id))
+        .requestIdToken(context.getString(R.string.default_web_client_id))
         .requestEmail()
         .build()
 
@@ -56,17 +58,18 @@ object Account {
         FirebaseAuth.getInstance().signInWithCredential(credential)
             .addOnSuccessListener {
                 googleAccount?.email?.let { email ->
-                    var nickName = App.sharedPreferences.nickName ?: email
-                    repository.getData(DOCUMENTS.USERS, COLLECTION_USERS) { users, _ ->
+                    var nickName = sharedPreferences.nickName ?: email
+                    repository.getData(Documents.Users, COLLECTION_USERS) { users, _ ->
                         users?.forEach { userMap ->
                             try {
+                                @Suppress("UNCHECKED_CAST")
                                 val user = (userMap.value as Map<String, Any>).toDataClass<User>()
                                 if (user.email == email) nickName = user.nickname
                             } catch (e: Exception) {
                                 callback.invoke()
                             }
                         }
-                        App.sharedPreferences.nickName = nickName
+                        sharedPreferences.nickName = nickName
                         repository.mergeDates(oldEmail, email, nickName)
                         getAccountState()
                         Log.d("login", "signInWithCredential:success")
@@ -76,35 +79,33 @@ object Account {
     }
 
     fun getAccountState() {
-        liveData.value = AccountState.LoggedIn(R.drawable.ic_splash_screen, "mymail@gmail.com", "SuperUser")
-//            googleAccount?.let {
-//            AccountState.LoggedIn(it.photoUrl, it.email!!, App.sharedPreferences.nickName!!)
-//        } ?: AccountState.LoggedOut
+        liveData.value = googleAccount?.let {
+            AccountState.LoggedIn(it.photoUrl, it.email!!, sharedPreferences.nickName!!)
+        } ?: AccountState.LoggedOut
     }
 
     fun login(fragment: Fragment, startLogin: ActivityResultLauncher<Intent>) {
-        if (isNetworkOnline()) {
+        if (networkStatus.isNetworkOnline()) {
             oldEmail = getEmail()!!
             val googleSignInClient = GoogleSignIn.getClient(fragment.requireActivity(), gso)
             startLogin.launch(googleSignInClient.signInIntent)
-        } else fragment.context?.showToast(App.appInstance.getString(R.string.network_offline))
+        } else fragment.context?.showToast(context.getString(R.string.network_offline))
     }
 
     fun logout(fragment: Fragment) {
-        if (isNetworkOnline()) {
+        if (networkStatus.isNetworkOnline()) {
             val googleSignInClient = GoogleSignIn.getClient(fragment.requireActivity(), gso)
             googleSignInClient.signOut()
             googleAccount = null
-            App.sharedPreferences.nickName = null
+            sharedPreferences.nickName = null
             anonymousLogin { getAccountState() }
-        } else fragment.context?.showToast(App.appInstance.getString(R.string.network_offline))
+        } else fragment.context?.showToast(context.getString(R.string.network_offline))
     }
 
     fun getEmail(): String? {
-//        var email = googleAccount?.email ?: FirebaseAuth.getInstance().currentUser?.email
-//        if (email == "" || email == null) email = FirebaseAuth.getInstance().currentUser?.uid
-//        return email
-        return "mymail@gmail.com"
+        var email = googleAccount?.email ?: FirebaseAuth.getInstance().currentUser?.email
+        if (email == "" || email == null) email = FirebaseAuth.getInstance().currentUser?.uid
+        return email
     }
 
     fun anonymousLogin(callback: (String) -> Unit) {
@@ -113,10 +114,10 @@ object Account {
                 Log.d("TAG", "signInAnonymously:success")
                 val email = it.result?.user?.uid!!
                 oldEmail = email
-                callback.invoke(email)
+                callback(email)
             } else {
                 Log.w("TAG", "signInAnonymously:failure", it.exception)
-                App.appInstance.showToast(App.appInstance.getString(R.string.network_offline))
+                context.showToast(context.getString(R.string.network_offline))
             }
         }
     }
@@ -124,8 +125,7 @@ object Account {
 
 sealed class AccountState {
     data class LoggedIn(
-//        val userPicture: Uri?,
-        val userPicture: Int,
+        val userPicture: Uri?,
         val userEmail: String,
         val nickname: String
     ) : AccountState()

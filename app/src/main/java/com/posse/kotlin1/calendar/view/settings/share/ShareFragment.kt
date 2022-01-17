@@ -10,23 +10,34 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.ViewModelProvider
 import com.posse.kotlin1.calendar.R
 import com.posse.kotlin1.calendar.databinding.FragmentShareBinding
 import com.posse.kotlin1.calendar.model.Contact
 import com.posse.kotlin1.calendar.utils.*
 import com.posse.kotlin1.calendar.view.update.UpdateDialog
-import com.posse.kotlin1.calendar.viewModel.ContactStatus
 import com.posse.kotlin1.calendar.viewModel.ContactsViewModel
-import java.lang.RuntimeException
-
-private const val REQUEST_CODE = 66
+import dagger.android.support.AndroidSupportInjection
+import javax.inject.Inject
 
 class ShareFragment : Fragment() {
+
+    @Inject
+    lateinit var account: Account
+
+    @Inject
+    lateinit var viewModelFactory: ViewModelProvider.Factory
     private var _binding: FragmentShareBinding? = null
     private val binding get() = _binding!!
-    private val viewModel: ContactsViewModel by activityViewModels()
+    private val viewModel: ContactsViewModel by lazy {
+        viewModelFactory.create(ContactsViewModel::class.java)
+    }
     private val contactsWithEmail: MutableList<Contact> = mutableListOf()
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        AndroidSupportInjection.inject(this)
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -116,11 +127,19 @@ class ShareFragment : Fragment() {
                                         var isNotAdded = true
                                         contactsWithEmail.forEach { contact ->
                                             if (contact.email == email) {
-                                                if (!contact.names.contains(name)) contact.names.add(name)
+                                                if (!contact.names.contains(name)) contact.names.add(
+                                                    name
+                                                )
                                                 isNotAdded = false
                                             }
                                         }
-                                        if (isNotAdded) contactsWithEmail.add(Contact(mutableListOf(name), email))
+                                        if (isNotAdded) contactsWithEmail.add(
+                                            Contact(
+                                                mutableListOf(
+                                                    name
+                                                ), email
+                                            )
+                                        )
                                     }
                                 }
                             }
@@ -131,16 +150,20 @@ class ShareFragment : Fragment() {
             }
             cursorWithContacts?.close()
         }
-        val myMail = Account.getEmail()
+        val myMail = account.getEmail()
         if (myMail != null && myMail.contains("@")) {
             viewModel.setContacts(myMail, contactsWithEmail) {
-                when (it){
-                    ContactStatus.Blocked -> throw RuntimeException ("Unexpected status: Blocked")
-                    ContactStatus.Offline -> context?.showToast(getString(R.string.no_connection))
-                    ContactStatus.Error -> UpdateDialog.newInstance().show(childFragmentManager, null)
+                when (it) {
+                    ContactsViewModel.ContactStatus.Blocked -> throw RuntimeException("Unexpected status: Blocked")
+                    ContactsViewModel.ContactStatus.Offline -> context?.showToast(getString(R.string.no_connection))
+                    ContactsViewModel.ContactStatus.Error -> UpdateDialog.newInstance()
+                        .show(childFragmentManager, null)
                 }
             }
-            ContactsFragment.newInstance().show(childFragmentManager, null)
+            ContactsFragment
+                .newInstance()
+                .apply { setViewModel(viewModel) }
+                .show(childFragmentManager, null)
         }
     }
 
@@ -150,6 +173,7 @@ class ShareFragment : Fragment() {
     }
 
     companion object {
+        private const val REQUEST_CODE = 66
 
         @JvmStatic
         fun newInstance() = ShareFragment()

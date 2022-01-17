@@ -21,6 +21,6 @@
         <item name="android:scaleType">fitXY</item>
         <item name="android:background">@android:color/transparent</item>
         <item name="android:src">@drawable/shotglass_empty</item>
-        <item name="android:tint">@color/strokeColor</item>
+        <item name="android:tint">?strokeColor</item>
     </style>
 </resources>

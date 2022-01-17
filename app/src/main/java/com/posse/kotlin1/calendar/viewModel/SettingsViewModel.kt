@@ -1,72 +1,76 @@
 package com.posse.kotlin1.calendar.viewModel
 
+import android.content.SharedPreferences
 import androidx.annotation.StyleRes
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.posse.kotlin1.calendar.app.App
 import com.posse.kotlin1.calendar.model.User
-import com.posse.kotlin1.calendar.model.repository.COLLECTION_USERS
-import com.posse.kotlin1.calendar.model.repository.DOCUMENTS
+import com.posse.kotlin1.calendar.model.repository.Documents
 import com.posse.kotlin1.calendar.model.repository.Repository
-import com.posse.kotlin1.calendar.model.repository.RepositoryFirestoreImpl
+import com.posse.kotlin1.calendar.model.repository.RepositoryFirestoreImpl.Companion.COLLECTION_USERS
 import com.posse.kotlin1.calendar.utils.*
 import java.util.*
+import javax.inject.Inject
 
-class SettingsViewModel : ViewModel() {
-//    private val repository: Repository = RepositoryFirestoreImpl.newInstance()
+class SettingsViewModel @Inject constructor(
+    private val repository: Repository,
+    private val sharedPreferences: SharedPreferences,
+    private val locale: LocaleUtils
+) : ViewModel() {
     private val lastTheme: MutableLiveData<Int> = MutableLiveData(
-        if (App.sharedPreferences.lightTheme) {
-            THEME.DAY.themeID
+        if (sharedPreferences.lightTheme) {
+            ThemeUtils.THEME.DAY.themeID
         } else {
-            THEME.NIGHT.themeID
+            ThemeUtils.THEME.NIGHT.themeID
         }
     )
 
     var switchState: Boolean
-        get() = App.sharedPreferences.themeSwitch
+        get() = sharedPreferences.themeSwitch
         set(value) {
-            App.sharedPreferences.themeSwitch = value
+            sharedPreferences.themeSwitch = value
         }
 
     var lightTheme: Boolean
-        get() = App.sharedPreferences.lightTheme
+        get() = sharedPreferences.lightTheme
         set(value) {
-            App.sharedPreferences.lightTheme = value
+            sharedPreferences.lightTheme = value
             switchTheme(value)
         }
 
     fun getLastTheme() = lastTheme
 
-    fun saveNickname(email: String, nickname: String, callback: (NICKNAME) -> Unit) {
-//        repository.getData(DOCUMENTS.USERS, COLLECTION_USERS) { users, _ ->
-//            when (users) {
-//                null -> callback.invoke(NICKNAME.EMPTY)
-//                else -> {
-//                    users.forEach { userMap ->
-//                        try {
-//                            val user = (userMap.value as Map<String, Any>).toDataClass<User>()
-//                            if ((user.nickname).lowercase() == nickname.lowercase() && user.email != email) {
-//                                callback.invoke(NICKNAME.BUSY)
-//                                return@getData
-//                            }
-//                        } catch (e: Exception) {
-//                            callback.invoke(NICKNAME.ERROR)
-//                            return@getData
-//                        }
-//                    }
-//                    App.sharedPreferences.nickName = nickname
-//                    App.sharedPreferences.token?.let {
-//                        repository.saveUser(User(email, nickname, getStringLocale(), it))
-//                    }
-                    callback.invoke(NICKNAME.SAVED)
-//                }
-//            }
-//        }
+    fun saveNickname(email: String, nickname: String, callback: (Nickname) -> Unit) {
+        repository.getData(Documents.Users, COLLECTION_USERS) { users, _ ->
+            when (users) {
+                null -> callback(Nickname.Empty)
+                else -> {
+                    users.forEach { userMap ->
+                        try {
+                            @Suppress("UNCHECKED_CAST")
+                            val user = (userMap.value as Map<String, Any>).toDataClass<User>()
+                            if ((user.nickname).lowercase() == nickname.lowercase() && user.email != email) {
+                                callback(Nickname.Busy)
+                                return@getData
+                            }
+                        } catch (e: Exception) {
+                            callback(Nickname.Error)
+                            return@getData
+                        }
+                    }
+                    sharedPreferences.nickName = nickname
+                    sharedPreferences.token?.let {
+                        repository.saveUser(User(email, nickname, locale.getStringLocale(), it))
+                    }
+                    callback(Nickname.Saved)
+                }
+            }
+        }
     }
 
     private fun switchTheme(day: Boolean) {
-        if (day) changeTheme(THEME.DAY.themeID)
-        else changeTheme(THEME.NIGHT.themeID)
+        if (day) changeTheme(ThemeUtils.THEME.DAY.themeID)
+        else changeTheme(ThemeUtils.THEME.NIGHT.themeID)
     }
 
     private fun changeTheme(@StyleRes theme: Int) {
@@ -74,11 +78,11 @@ class SettingsViewModel : ViewModel() {
             lastTheme.value = theme
         }
     }
-}
 
-enum class NICKNAME {
-    EMPTY,
-    SAVED,
-    BUSY,
-    ERROR
+    enum class Nickname {
+        Empty,
+        Saved,
+        Busy,
+        Error
+    }
 }
