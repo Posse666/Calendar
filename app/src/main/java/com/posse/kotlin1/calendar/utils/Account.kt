@@ -79,9 +79,10 @@ class Account @Inject constructor(
     }
 
     fun getAccountState() {
-        liveData.value = googleAccount?.let {
-            AccountState.LoggedIn(it.photoUrl, it.email!!, sharedPreferences.nickName!!)
-        } ?: AccountState.LoggedOut
+        liveData.value = AccountState.LoggedIn(R.drawable.ic_splash_screen, "mymail@gmail.com", "SuperUser")
+//        liveData.value = googleAccount?.let {
+//            AccountState.LoggedIn(it.photoUrl, it.email!!, sharedPreferences.nickName!!)
+//        } ?: AccountState.LoggedOut
     }
 
     fun login(fragment: Fragment, startLogin: ActivityResultLauncher<Intent>) {
@@ -103,9 +104,10 @@ class Account @Inject constructor(
     }
 
     fun getEmail(): String? {
-        var email = googleAccount?.email ?: FirebaseAuth.getInstance().currentUser?.email
-        if (email == "" || email == null) email = FirebaseAuth.getInstance().currentUser?.uid
-        return email
+//        var email = googleAccount?.email ?: FirebaseAuth.getInstance().currentUser?.email
+//        if (email == "" || email == null) email = FirebaseAuth.getInstance().currentUser?.uid
+//        return email
+        return "mymail@gmail.com"
     }
 
     fun anonymousLogin(callback: (String) -> Unit) {
@@ -125,7 +127,8 @@ class Account @Inject constructor(
 
 sealed class AccountState {
     data class LoggedIn(
-        val userPicture: Uri?,
+//        val userPicture: Uri?,
+        val userPicture: Int,
         val userEmail: String,
         val nickname: String
     ) : AccountState()

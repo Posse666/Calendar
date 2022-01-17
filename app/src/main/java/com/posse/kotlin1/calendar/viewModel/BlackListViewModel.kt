@@ -21,25 +21,30 @@ class BlackListViewModel @Inject constructor(private val repository: Repository)
     fun refreshLiveData(email: String, error: () -> Unit, callback: () -> Unit) {
         this.email = email
         liveDataToObserve.value = Pair(false, emptySet())
-        repository.getData(Documents.Friends, email) { friends, isOffline ->
-            friendsData.clear()
-            friends?.values?.forEach { friendMap ->
-                try {
-                    @Suppress("UNCHECKED_CAST")
-                    val friend = (friendMap as Map<String, Any>).toDataClass<Friend>()
-                    if (friend.blocked) friendsData.add(friend)
-                } catch (e: Exception) {
-                    error.invoke()
-                }
-            }
-            liveDataToObserve.value = Pair(true, friendsData)
-            if (isOffline) callback.invoke()
-        }
+//        repository.getData(Documents.Friends, email) { friends, isOffline ->
+//            friendsData.clear()
+//            friends?.values?.forEach { friendMap ->
+//                try {
+//                    @Suppress("UNCHECKED_CAST")
+//                    val friend = (friendMap as Map<String, Any>).toDataClass<Friend>()
+//                    if (friend.blocked) friendsData.add(friend)
+//                } catch (e: Exception) {
+//                    error.invoke()
+//                }
+//            }
+//            liveDataToObserve.value = Pair(true, friendsData)
+//            if (isOffline) callback.invoke()
+//        }
+        friendsData.clear()
+        friendsData.add(
+            Friend("Annoying person", "annoyingperson@gmail.com", false, true, 1)
+        )
+        liveDataToObserve.value = Pair(true, friendsData)
     }
 
     fun personSelected(person: Friend) {
         friendsData.remove(person)
-        repository.removeItem(Documents.Friends, email, person)
+//        repository.removeItem(Documents.Friends, email, person)
         liveDataToObserve.value = Pair(true, friendsData)
     }
 }

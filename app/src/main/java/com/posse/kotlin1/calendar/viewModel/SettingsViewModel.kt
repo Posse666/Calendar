@@ -41,31 +41,31 @@ class SettingsViewModel @Inject constructor(
     fun getLastTheme() = lastTheme
 
     fun saveNickname(email: String, nickname: String, callback: (Nickname) -> Unit) {
-        repository.getData(Documents.Users, COLLECTION_USERS) { users, _ ->
-            when (users) {
-                null -> callback(Nickname.Empty)
-                else -> {
-                    users.forEach { userMap ->
-                        try {
-                            @Suppress("UNCHECKED_CAST")
-                            val user = (userMap.value as Map<String, Any>).toDataClass<User>()
-                            if ((user.nickname).lowercase() == nickname.lowercase() && user.email != email) {
-                                callback(Nickname.Busy)
-                                return@getData
-                            }
-                        } catch (e: Exception) {
-                            callback(Nickname.Error)
-                            return@getData
-                        }
-                    }
-                    sharedPreferences.nickName = nickname
-                    sharedPreferences.token?.let {
-                        repository.saveUser(User(email, nickname, locale.getStringLocale(), it))
-                    }
+//        repository.getData(Documents.Users, COLLECTION_USERS) { users, _ ->
+//            when (users) {
+//                null -> callback(Nickname.Empty)
+//                else -> {
+//                    users.forEach { userMap ->
+//                        try {
+//                            @Suppress("UNCHECKED_CAST")
+//                            val user = (userMap.value as Map<String, Any>).toDataClass<User>()
+//                            if ((user.nickname).lowercase() == nickname.lowercase() && user.email != email) {
+//                                callback(Nickname.Busy)
+//                                return@getData
+//                            }
+//                        } catch (e: Exception) {
+//                            callback(Nickname.Error)
+//                            return@getData
+//                        }
+//                    }
+//                    sharedPreferences.nickName = nickname
+//                    sharedPreferences.token?.let {
+//                        repository.saveUser(User(email, nickname, locale.getStringLocale(), it))
+//                    }
                     callback(Nickname.Saved)
-                }
-            }
-        }
+//                }
+//            }
+//        }
     }
 
     private fun switchTheme(day: Boolean) {
