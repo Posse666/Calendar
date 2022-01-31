@@ -37,7 +37,8 @@ class BlackListViewModel @Inject constructor(private val repository: Repository)
 //        }
         friendsData.clear()
         friendsData.add(
-            Friend("Annoying person", "annoyingperson@gmail.com", false, true, 1)
+//            Friend("Annoying person", "annoyingperson@gmail.com", false, true, 1)
+            Friend("Надоедливый тип", "annoyingperson@gmail.com", false, true, 1)
         )
         liveDataToObserve.value = Pair(true, friendsData)
     }
