@@ -21,7 +21,7 @@ import com.posse.kotlin1.calendar.utils.show
 class DeleteFragmentDialog : DialogFragment() {
     private var _binding: FragmentDeleteDialogBinding? = null
     private val binding get() = _binding!!
-    private lateinit var dialogText: String
+    private lateinit var captionText: String
     private lateinit var confirmText: String
     private val animator = Animator()
     private var isBlock = false
@@ -38,7 +38,7 @@ class DeleteFragmentDialog : DialogFragment() {
 
     private fun initFieldsFromBundle() {
         arguments?.let {
-            dialogText = it.getString(ARG_DIALOG_TEXT) ?: ""
+            captionText = it.getString(ARG_DIALOG_TEXT) ?: ""
             confirmText = it.getString(ARG_CONFIRM_TEXT) ?: ""
             confirmColor = it.getInt(ARG_CONFIRM_COLOR)
             isBlock = it.getBoolean(ARG_BLOCK_BOX)
@@ -61,7 +61,7 @@ class DeleteFragmentDialog : DialogFragment() {
 
     private fun setDialogView() = with(binding) {
         if (isBlock) blockBox.show()
-        dialogText.putText(dialogText)
+        dialogText.putText(captionText)
         confirmButton.putText(confirmText)
         confirmButton.setBackgroundColor(confirmColor)
         cancelButton.setOnClickListener { dismiss() }
