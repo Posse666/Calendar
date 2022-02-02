@@ -24,7 +24,8 @@ import javax.inject.Singleton
         DataSourceModule::class,
         LocaleModule::class,
         NetworkModule::class,
-        ThemeModule::class
+        ThemeModule::class,
+        ServicesModule::class
     ]
 )
 

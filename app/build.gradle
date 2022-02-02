@@ -25,8 +25,8 @@ android {
         applicationId "com.posse.kotlin1.calendar"
         minSdkVersion 26
         targetSdkVersion 31
-        versionCode 1
-        versionName "1.0"
+        versionCode 3
+        versionName "1.03"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
