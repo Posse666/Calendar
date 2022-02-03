@@ -140,7 +140,7 @@ class ContactsFragment : DialogFragment(), ContactAdapterListener {
         super.onDestroyView()
         keyboard.hide(binding.root)
         keyboard.setListener(null)
-        keyboard.removeGlobalListener()
+        keyboard.removeGlobalListener(activity?.window?.decorView?.rootView)
         _binding = null
         viewModel = null
     }

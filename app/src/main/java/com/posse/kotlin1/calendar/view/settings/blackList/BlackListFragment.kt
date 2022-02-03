@@ -52,7 +52,7 @@ class BlackListFragment : DialogFragment() {
             mutableListOf()
         ) { viewModel.personSelected(it) }
         binding.blackListCard.listRecyclerView.adapter = adapter
-        viewModel.getLiveData().observe(viewLifecycleOwner, { showFriends(it) })
+        viewModel.getLiveData().observe(viewLifecycleOwner) { showFriends(it) }
         viewModel.refreshLiveData(
             email,
             { UpdateDialog.newInstance().show(childFragmentManager, null) }) {

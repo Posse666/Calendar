@@ -9,13 +9,11 @@ import com.posse.kotlin1.calendar.model.repository.Documents
 import com.posse.kotlin1.calendar.model.repository.Repository
 import com.posse.kotlin1.calendar.model.repository.RepositoryFirestoreImpl.Companion.COLLECTION_USERS
 import com.posse.kotlin1.calendar.utils.*
-import java.util.*
 import javax.inject.Inject
 
 class SettingsViewModel @Inject constructor(
     private val repository: Repository,
-    private val sharedPreferences: SharedPreferences,
-    private val locale: LocaleUtils
+    private val sharedPreferences: SharedPreferences
 ) : ViewModel() {
     private val lastTheme: MutableLiveData<Int> = MutableLiveData(
         if (sharedPreferences.lightTheme) {
@@ -60,7 +58,7 @@ class SettingsViewModel @Inject constructor(
                     }
                     sharedPreferences.nickName = nickname
                     sharedPreferences.token?.let {
-                        repository.saveUser(User(email, nickname, locale.getStringLocale(), it))
+                        repository.saveUser(User(email, nickname, it))
                     }
                     callback(Nickname.Saved)
                 }

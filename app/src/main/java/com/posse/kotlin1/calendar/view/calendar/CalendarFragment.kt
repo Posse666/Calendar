@@ -93,13 +93,13 @@ class CalendarFragment : Fragment(), StatisticListener {
 
     private fun setupLiveData() {
         if (this.isVisible) {
-            viewModel.getLiveData().observe(viewLifecycleOwner, {
+            viewModel.getLiveData().observe(viewLifecycleOwner) {
                 if (it.first) {
                     actualState.clear()
                     actualState.addAll(it.second)
                     if (!isInitCompleted) updateCalendar()
                 }
-            })
+            }
         }
     }
 
@@ -224,10 +224,7 @@ class CalendarFragment : Fragment(), StatisticListener {
                             ChooseFragment.newInstance(day.date.dayOfMonth) {
                                 viewModel.dayClicked(
                                     DataModel(convertLocalDateToLong(day.date), it?.value)
-                                ) {
-                                    UpdateDialog.newInstance()
-                                        .show(childFragmentManager, null)
-                                }
+                                )
                                 animator.animate(rootView.root) {
                                     container.changeDay(day.date, it)
                                 }

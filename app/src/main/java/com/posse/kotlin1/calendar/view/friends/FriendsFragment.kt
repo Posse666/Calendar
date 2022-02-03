@@ -56,7 +56,7 @@ class FriendsFragment : Fragment() {
                 if (offline == true) context?.showToast(getString(R.string.no_connection))
                 if (offline == null) UpdateDialog.newInstance().show(childFragmentManager, null)
             }
-            viewModel.getLiveData().observe(viewLifecycleOwner, { data ->
+            viewModel.getLiveData().observe(viewLifecycleOwner) { data ->
                 if (data.first) {
                     friendsListFragment?.let {
                         childFragmentManager
@@ -88,7 +88,7 @@ class FriendsFragment : Fragment() {
                         if (data.second.isEmpty()) binding.friendsCard.setOnClickListener(null)
                     }
                 }
-            })
+            }
         } else {
             binding.friendName.putText(getString(R.string.login_to_see_friends_calendars))
             binding.friendsCard.setOnClickListener {

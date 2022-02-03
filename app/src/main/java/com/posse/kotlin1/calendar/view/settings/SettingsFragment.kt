@@ -84,11 +84,11 @@ class SettingsFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         setupShareFragment()
-        account.getLiveData().observe(viewLifecycleOwner, { renderSettings(it) })
-        viewModel.getLastTheme().observe(viewLifecycleOwner, {
+        account.getLiveData().observe(viewLifecycleOwner) { renderSettings(it) }
+        viewModel.getLastTheme().observe(viewLifecycleOwner) {
             if (isInitCompleted) requireActivity().recreate()
             else isInitCompleted = true
-        })
+        }
         account.getAccountState()
         setupLoginButton()
         setupLogoutButton()
@@ -302,7 +302,7 @@ class SettingsFragment : Fragment() {
         keyboard.hide(binding.root)
         _binding = null
         keyboard.setListener(null)
-        keyboard.removeGlobalListener()
+        keyboard.removeGlobalListener(activity?.window?.decorView?.rootView)
     }
 
     companion object {

@@ -24,8 +24,6 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
     @Inject
     lateinit var sharedPreferences: SharedPreferences
 
-    @Inject
-    lateinit var localeUtils: LocaleUtils
     private lateinit var channelName: String
     private lateinit var channelDescriptionText: String
     private lateinit var channelID: String
@@ -58,7 +56,6 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
             .apply {
                 setSmallIcon(R.drawable.ic_splash_screen)
                 setContentTitle(getText(title, message))
-//                setContentText(message)
                 priority = NotificationCompat.PRIORITY_DEFAULT
             }
 
@@ -105,7 +102,7 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
                         @Suppress("UNCHECKED_CAST")
                         val user = (userMap.value as Map<String, Any>).toDataClass<User>()
                         if (user.nickname == it) repository.saveUser(
-                            User(user.email, it, localeUtils.getStringLocale(), token)
+                            User(user.email, it, token)
                         )
                     } catch (e: Exception) {
                     }

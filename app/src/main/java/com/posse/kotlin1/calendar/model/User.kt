@@ -1,6 +1,6 @@
 package com.posse.kotlin1.calendar.model
 
-data class User(val email: String, val nickname: String, val locale: String = "En", val token: String) {
+data class User(val email: String, val nickname: String, val token: String) {
     override fun toString(): String = email
 
     override fun equals(other: Any?): Boolean {

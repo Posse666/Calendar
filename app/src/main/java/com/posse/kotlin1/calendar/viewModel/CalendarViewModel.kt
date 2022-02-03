@@ -2,26 +2,18 @@ package com.posse.kotlin1.calendar.viewModel
 
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.posse.kotlin1.calendar.firebaseMessagingService.Messenger
 import com.posse.kotlin1.calendar.model.DataModel
-import com.posse.kotlin1.calendar.model.Friend
-import com.posse.kotlin1.calendar.model.User
 import com.posse.kotlin1.calendar.model.repository.Documents
 import com.posse.kotlin1.calendar.model.repository.Repository
-import com.posse.kotlin1.calendar.model.repository.RepositoryFirestoreImpl.Companion.COLLECTION_USERS
-import com.posse.kotlin1.calendar.utils.*
+import com.posse.kotlin1.calendar.utils.convertLongToLocalDale
+import com.posse.kotlin1.calendar.utils.toDataClass
 import com.posse.kotlin1.calendar.view.calendar.Result
 import java.time.LocalDate
 import java.time.Year
 import java.time.temporal.ChronoUnit
 import javax.inject.Inject
 
-class CalendarViewModel @Inject constructor(
-    private val repository: Repository,
-    private val messenger: Messenger,
-    private val networkStatus: NetworkStatus,
-    private val locale: LocaleUtils
-) : ViewModel() {
+class CalendarViewModel @Inject constructor(private val repository: Repository) : ViewModel() {
     private val datesData: MutableSet<DataModel> = mutableSetOf()
     private lateinit var email: String
     private val liveDataToObserve: MutableLiveData<Pair<Boolean, Set<DataModel>>> =
@@ -67,16 +59,10 @@ class CalendarViewModel @Inject constructor(
         return result
     }
 
-    fun dayClicked(date: DataModel, update: () -> Unit) {
+    fun dayClicked(date: DataModel) {
         if (date.drinkType != null) {
             datesData.add(date)
             repository.saveItem(Documents.Dates, email, date)
-            if (networkStatus.isNetworkOnline())
-                try {
-                    sendNotification(date.date)
-                } catch (e: Exception) {
-                    update()
-                }
         } else {
             datesData.remove(date)
             repository.removeItem(Documents.Dates, email, date)
@@ -84,36 +70,6 @@ class CalendarViewModel @Inject constructor(
         liveDataToObserve.value = Pair(true, datesData)
         liveStatisticToObserve.value =
             getStats(datesData.map { convertLongToLocalDale(it.date) }.toSet())
-    }
-
-    private fun sendNotification(message: Long) {
-        repository.getData(Documents.Share, email) { contactsCollection, _ ->
-            repository.getData(Documents.Users, COLLECTION_USERS) { usersCollection, _ ->
-                contactsCollection?.forEach { contactMap ->
-                    repository.getData(Documents.Friends, contactMap.key) { friendsCollection, _ ->
-                        val friendMap = friendsCollection?.get(email)
-                        friendMap?.let {
-                            @Suppress("UNCHECKED_CAST")
-                            val friend = (it as Map<String, Any>).toDataClass<Friend>()
-                            @Suppress("UNCHECKED_CAST")
-                            val user =
-                                (usersCollection?.get(contactMap.key) as Map<String, Any>).toDataClass<User>()
-                            Thread {
-                                try {
-                                    messenger.sendPush(
-                                        friend.name,
-                                        message.toString(),
-                                        user.token,
-                                        locale.getLocale(user.locale)
-                                    )
-                                } catch (e: Exception) {
-                                }
-                            }.start()
-                        }
-                    }
-                }
-            }
-        }
     }
 
     private fun getDrankDaysQuantity(dates: Set<LocalDate>?): Set<LocalDate> {

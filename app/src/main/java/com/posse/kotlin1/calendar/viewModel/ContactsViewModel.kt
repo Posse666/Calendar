@@ -3,28 +3,19 @@ package com.posse.kotlin1.calendar.viewModel
 import android.content.SharedPreferences
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.posse.kotlin1.calendar.firebaseMessagingService.Messenger
-import com.posse.kotlin1.calendar.firebaseMessagingService.MyFirebaseMessagingService.Companion.ADDED_YOU
-import com.posse.kotlin1.calendar.firebaseMessagingService.MyFirebaseMessagingService.Companion.REMOVED_YOU
 import com.posse.kotlin1.calendar.model.Contact
 import com.posse.kotlin1.calendar.model.Friend
 import com.posse.kotlin1.calendar.model.User
 import com.posse.kotlin1.calendar.model.repository.Documents
 import com.posse.kotlin1.calendar.model.repository.Repository
 import com.posse.kotlin1.calendar.model.repository.RepositoryFirestoreImpl.Companion.COLLECTION_USERS
-import com.posse.kotlin1.calendar.utils.LocaleUtils
-import com.posse.kotlin1.calendar.utils.NetworkStatus
 import com.posse.kotlin1.calendar.utils.nickName
 import com.posse.kotlin1.calendar.utils.toDataClass
-import java.util.*
 import javax.inject.Inject
 
 class ContactsViewModel @Inject constructor(
     private val repository: Repository,
-    private val messenger: Messenger,
     private val sharedPreferences: SharedPreferences,
-    private val networkStatus: NetworkStatus,
-    private val locale: LocaleUtils
 ) : ViewModel() {
 
     private val sharedData: HashSet<Contact> = hashSetOf()
@@ -84,81 +75,50 @@ class ContactsViewModel @Inject constructor(
             Documents.Friends,
             contact.email
         ) { contactFriendsCollection, isOffline ->
-            repository.getData(Documents.Users, COLLECTION_USERS) { usersMap, _ ->
-                var newContact: Contact = contact
-                sharedData.forEach { sharedContact ->
-                    if (sharedContact.email == contact.email) {
-                        newContact = sharedContact.copy()
-                        try {
-                            @Suppress("UNCHECKED_CAST")
-                            val youInContactFriends =
-                                (contactFriendsCollection?.get(email) as Map<String, Any>?)?.toDataClass<Friend>()
-                                    ?: Friend(
-                                        sharedPreferences.nickName ?: email,
-                                        email,
-                                        selected = false,
-                                        blocked = false,
-                                        contactFriendsCollection?.size ?: Int.MAX_VALUE
-                                    )
-                            if (youInContactFriends.blocked) callback.invoke(ContactStatus.Blocked)
-                            else {
-                                @Suppress("UNCHECKED_CAST")
-                                val user =
-                                    (usersMap?.get(newContact.email) as Map<String, Any>).toDataClass<User>()
-                                val locale = locale.getLocale(user.locale)
-                                newContact.selected = !newContact.selected
-                                if (newContact.selected) {
-                                    repository.saveItem(Documents.Share, email, newContact)
-                                    repository.saveItem(
-                                        Documents.Friends,
-                                        newContact.email,
-                                        youInContactFriends
-                                    )
-                                    sendNotification(newContact, ADDED_YOU, locale)
-                                } else {
-                                    repository.removeItem(Documents.Share, email, newContact)
-                                    repository.removeItem(
-                                        Documents.Friends,
-                                        newContact.email,
-                                        youInContactFriends
-                                    )
-                                    sendNotification(newContact, REMOVED_YOU, locale)
-                                }
-                            }
-                        } catch (e: Exception) {
-                            callback.invoke(ContactStatus.Error)
-                        }
-                    }
-                }
-                sharedData.remove(newContact)
-                sharedData.add(newContact)
-                liveDataToObserve.value = Pair(true, sharedData)
-                if (isOffline) callback.invoke(ContactStatus.Offline)
-            }
-        }
-    }
-
-    private fun sendNotification(contact: Contact, message: Long, locale: Locale) {
-        if (networkStatus.isNetworkOnline()) {
-            repository.getData(Documents.Users, COLLECTION_USERS) { users, _ ->
-                users?.forEach { userMap ->
-                    @Suppress("UNCHECKED_CAST")
-                    val user = (userMap.value as Map<String, Any>).toDataClass<User>()
-                    if (user.email == contact.email) {
-                        Thread {
-                            try {
-                                messenger.sendPush(
-                                    sharedPreferences.nickName!!,
-                                    message.toString(),
-                                    user.token,
-                                    locale
+            var newContact: Contact = contact
+            sharedData.forEach { sharedContact ->
+                if (sharedContact.email == contact.email) {
+                    newContact = sharedContact.copy()
+                    try {
+                        @Suppress("UNCHECKED_CAST")
+                        val youInContactFriends =
+                            (contactFriendsCollection?.get(email) as Map<String, Any>?)?.toDataClass<Friend>()
+                                ?: Friend(
+                                    sharedPreferences.nickName ?: email,
+                                    email,
+                                    selected = false,
+                                    blocked = false,
+                                    contactFriendsCollection?.size ?: Int.MAX_VALUE
                                 )
-                            } catch (e: Exception) {
+                        if (youInContactFriends.blocked) callback.invoke(ContactStatus.Blocked)
+                        else {
+                            @Suppress("UNCHECKED_CAST")
+                            newContact.selected = !newContact.selected
+                            if (newContact.selected) {
+                                repository.saveItem(Documents.Share, email, newContact)
+                                repository.saveItem(
+                                    Documents.Friends,
+                                    newContact.email,
+                                    youInContactFriends
+                                )
+                            } else {
+                                repository.removeItem(Documents.Share, email, newContact)
+                                repository.removeItem(
+                                    Documents.Friends,
+                                    newContact.email,
+                                    youInContactFriends
+                                )
                             }
-                        }.start()
+                        }
+                    } catch (e: Exception) {
+                        callback.invoke(ContactStatus.Error)
                     }
                 }
             }
+            sharedData.remove(newContact)
+            sharedData.add(newContact)
+            liveDataToObserve.value = Pair(true, sharedData)
+            if (isOffline) callback.invoke(ContactStatus.Offline)
         }
     }
 
