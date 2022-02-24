@@ -12,19 +12,16 @@ import com.posse.kotlin1.calendar.model.User
 import com.posse.kotlin1.calendar.model.repository.Documents
 import com.posse.kotlin1.calendar.model.repository.Repository
 import com.posse.kotlin1.calendar.model.repository.RepositoryFirestoreImpl.Companion.COLLECTION_USERS
-import com.posse.kotlin1.calendar.utils.LocaleUtils
 import com.posse.kotlin1.calendar.utils.NetworkStatus
 import com.posse.kotlin1.calendar.utils.nickName
 import com.posse.kotlin1.calendar.utils.toDataClass
-import java.util.*
 import javax.inject.Inject
 
 class ContactsViewModel @Inject constructor(
     private val repository: Repository,
     private val messenger: Messenger,
     private val sharedPreferences: SharedPreferences,
-    private val networkStatus: NetworkStatus,
-    private val locale: LocaleUtils
+    private val networkStatus: NetworkStatus
 ) : ViewModel() {
 
     private val sharedData: HashSet<Contact> = hashSetOf()
@@ -103,9 +100,7 @@ class ContactsViewModel @Inject constructor(
                             if (youInContactFriends.blocked) callback.invoke(ContactStatus.Blocked)
                             else {
                                 @Suppress("UNCHECKED_CAST")
-                                val user =
-                                    (usersMap?.get(newContact.email) as Map<String, Any>).toDataClass<User>()
-                                val locale = locale.getLocale(user.locale)
+                                (usersMap?.get(newContact.email) as Map<String, Any>).toDataClass<User>()
                                 newContact.selected = !newContact.selected
                                 if (newContact.selected) {
                                     repository.saveItem(Documents.Share, email, newContact)
@@ -114,7 +109,7 @@ class ContactsViewModel @Inject constructor(
                                         newContact.email,
                                         youInContactFriends
                                     )
-                                    sendNotification(newContact, ADDED_YOU, locale)
+                                    sendNotification(newContact, ADDED_YOU)
                                 } else {
                                     repository.removeItem(Documents.Share, email, newContact)
                                     repository.removeItem(
@@ -122,7 +117,7 @@ class ContactsViewModel @Inject constructor(
                                         newContact.email,
                                         youInContactFriends
                                     )
-                                    sendNotification(newContact, REMOVED_YOU, locale)
+                                    sendNotification(newContact, REMOVED_YOU)
                                 }
                             }
                         } catch (e: Exception) {
@@ -138,7 +133,7 @@ class ContactsViewModel @Inject constructor(
         }
     }
 
-    private fun sendNotification(contact: Contact, message: Long, locale: Locale) {
+    private fun sendNotification(contact: Contact, message: Long) {
         if (networkStatus.isNetworkOnline()) {
             repository.getData(Documents.Users, COLLECTION_USERS) { users, _ ->
                 users?.forEach { userMap ->
@@ -150,8 +145,7 @@ class ContactsViewModel @Inject constructor(
                                 messenger.sendPush(
                                     sharedPreferences.nickName!!,
                                     message.toString(),
-                                    user.token,
-                                    locale
+                                    user.token
                                 )
                             } catch (e: Exception) {
                             }

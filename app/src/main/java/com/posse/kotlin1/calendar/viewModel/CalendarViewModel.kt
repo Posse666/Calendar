@@ -9,7 +9,9 @@ import com.posse.kotlin1.calendar.model.User
 import com.posse.kotlin1.calendar.model.repository.Documents
 import com.posse.kotlin1.calendar.model.repository.Repository
 import com.posse.kotlin1.calendar.model.repository.RepositoryFirestoreImpl.Companion.COLLECTION_USERS
-import com.posse.kotlin1.calendar.utils.*
+import com.posse.kotlin1.calendar.utils.NetworkStatus
+import com.posse.kotlin1.calendar.utils.convertLongToLocalDale
+import com.posse.kotlin1.calendar.utils.toDataClass
 import com.posse.kotlin1.calendar.view.calendar.Result
 import java.time.LocalDate
 import java.time.Year
@@ -19,8 +21,7 @@ import javax.inject.Inject
 class CalendarViewModel @Inject constructor(
     private val repository: Repository,
     private val messenger: Messenger,
-    private val networkStatus: NetworkStatus,
-    private val locale: LocaleUtils
+    private val networkStatus: NetworkStatus
 ) : ViewModel() {
     private val datesData: MutableSet<DataModel> = mutableSetOf()
     private lateinit var email: String
@@ -73,7 +74,7 @@ class CalendarViewModel @Inject constructor(
             repository.saveItem(Documents.Dates, email, date)
             if (networkStatus.isNetworkOnline())
                 try {
-                    sendNotification(date.date)
+                    sendNotification(date)
                 } catch (e: Exception) {
                     update()
                 }
@@ -86,7 +87,7 @@ class CalendarViewModel @Inject constructor(
             getStats(datesData.map { convertLongToLocalDale(it.date) }.toSet())
     }
 
-    private fun sendNotification(message: Long) {
+    private fun sendNotification(date: DataModel) {
         repository.getData(Documents.Share, email) { contactsCollection, _ ->
             repository.getData(Documents.Users, COLLECTION_USERS) { usersCollection, _ ->
                 contactsCollection?.forEach { contactMap ->
@@ -102,9 +103,9 @@ class CalendarViewModel @Inject constructor(
                                 try {
                                     messenger.sendPush(
                                         friend.name,
-                                        message.toString(),
+                                        date.date.toString(),
                                         user.token,
-                                        locale.getLocale(user.locale)
+                                        date.drinkType
                                     )
                                 } catch (e: Exception) {
                                 }

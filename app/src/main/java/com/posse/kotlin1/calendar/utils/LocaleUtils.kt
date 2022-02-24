@@ -14,10 +14,10 @@ class LocaleUtils @Inject constructor(private val sharedPreferences: SharedPrefe
         else -> LOCALE.Default.value
     }
 
-    fun getLocale(locale: String): Locale {
+    fun getLocale(locale: String?): Locale {
         var result = LOCALE.Default.locale
         LOCALE.values().forEach {
-            if (it.value.lowercase() == locale.lowercase()) result = it.locale
+            if (it.value.lowercase() == locale?.lowercase()) result = it.locale
         }
         return result
     }

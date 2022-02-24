@@ -40,6 +40,7 @@ class ContactsListRecyclerAdapter(
     ) {
         if (payloads.isEmpty()) super.onBindViewHolder(holder, position, payloads)
         else {
+            @Suppress("UNCHECKED_CAST")
             val combinedChange = createCombinedPayload(payloads as List<Change<Contact>>)
             val oldData = combinedChange.oldData
             val newData = combinedChange.newData

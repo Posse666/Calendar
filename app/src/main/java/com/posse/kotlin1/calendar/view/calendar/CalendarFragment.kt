@@ -6,6 +6,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import com.google.android.material.bottomsheet.BottomSheetBehavior
@@ -69,10 +70,9 @@ class CalendarFragment : Fragment(), StatisticListener {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View {
-        _binding = FragmentCalendarBinding.inflate(inflater, container, false)
-        return binding.root
-    }
+    ) = FragmentCalendarBinding.inflate(inflater, container, false)
+        .also { _binding = it }
+        .root
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -91,17 +91,15 @@ class CalendarFragment : Fragment(), StatisticListener {
         }
     }
 
-    private fun setupLiveData() {
-        if (this.isVisible) {
-            viewModel.getLiveData().observe(viewLifecycleOwner, {
-                if (it.first) {
-                    actualState.clear()
-                    actualState.addAll(it.second)
-                    if (!isInitCompleted) updateCalendar()
-                }
-            })
+    private fun setupLiveData() = if (this.isVisible) {
+        viewModel.getLiveData().observe(viewLifecycleOwner) {
+            if (it.first) {
+                actualState.clear()
+                actualState.addAll(it.second)
+                if (!isInitCompleted) updateCalendar()
+            }
         }
-    }
+    } else Unit
 
     private fun setupStatistic() {
         val statisticFragment = StatisticFragment
@@ -153,8 +151,8 @@ class CalendarFragment : Fragment(), StatisticListener {
                     && bottomSheetBehavior.state == BottomSheetBehavior.STATE_COLLAPSED
                 ) {
                     bottomSheetBehavior
-                        .setPeekHeight(((getTextSize() * MULTIPLY) * 1.3).toInt(), true)
-                    Thread.sleep(200)
+                        .setPeekHeight(((getTextSize() * MULTIPLY * 2) * 1.3).toInt(), true)
+                    Thread.sleep(400)
                     if (this@CalendarFragment.isAdded) bottomSheetBehavior.setPeekHeight(
                         (getTextSize() * MULTIPLY).toInt(),
                         true
@@ -257,12 +255,13 @@ class CalendarFragment : Fragment(), StatisticListener {
 
     companion object {
         @JvmStatic
-        fun newInstance(email: String, isMyCalendar: Boolean) = CalendarFragment().apply {
-            arguments = Bundle().apply {
-                putString(ARG_MAIL, email)
-                putBoolean(ARG_MY_CALENDAR, isMyCalendar)
+        fun newInstance(email: String, isMyCalendar: Boolean) = CalendarFragment()
+            .apply {
+                arguments = bundleOf(
+                    ARG_MAIL to email,
+                    ARG_MY_CALENDAR to isMyCalendar
+                )
             }
-        }
 
         private const val ARG_MY_CALENDAR = "My calendar"
         private const val ARG_MAIL = "eMail"

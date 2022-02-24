@@ -12,10 +12,8 @@ class Keyboard {
     private var isKeyboardOpened: Boolean = false
     private var listener: KeyboardListener? = null
     private var globalListener: ViewTreeObserver.OnGlobalLayoutListener? = null
-    private var viewTreeObserver: ViewTreeObserver? = null
 
     fun setGlobalListener(rootView: View?) {
-        viewTreeObserver = rootView?.viewTreeObserver
         rootView?.let {
             globalListener = ViewTreeObserver.OnGlobalLayoutListener {
                 val r = Rect()
@@ -29,7 +27,7 @@ class Keyboard {
                 }
             }
         }
-        viewTreeObserver?.addOnGlobalLayoutListener(globalListener)
+        rootView?.viewTreeObserver?.addOnGlobalLayoutListener(globalListener)
     }
 
     fun show(activity: Activity?) {
@@ -48,8 +46,8 @@ class Keyboard {
         this.listener = listener
     }
 
-    fun removeGlobalListener() {
-        viewTreeObserver?.removeOnGlobalLayoutListener(globalListener)
+    fun removeGlobalListener(rootView: View?) {
+        rootView?.viewTreeObserver?.removeOnGlobalLayoutListener(globalListener)
     }
 
     private fun View.getActivity(): Activity? {

@@ -302,7 +302,7 @@ class SettingsFragment : Fragment() {
         keyboard.hide(binding.root)
         _binding = null
         keyboard.setListener(null)
-        keyboard.removeGlobalListener()
+        keyboard.removeGlobalListener(activity?.window?.decorView?.rootView)
     }
 
     companion object {

@@ -3,6 +3,8 @@ package com.posse.kotlin1.calendar.firebaseMessagingService
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.SharedPreferences
+import android.content.res.Configuration
+import android.content.res.Resources
 import androidx.core.app.NotificationCompat
 import androidx.core.content.getSystemService
 import com.google.firebase.messaging.FirebaseMessagingService
@@ -13,8 +15,10 @@ import com.posse.kotlin1.calendar.model.repository.Documents
 import com.posse.kotlin1.calendar.model.repository.Repository
 import com.posse.kotlin1.calendar.model.repository.RepositoryFirestoreImpl.Companion.COLLECTION_USERS
 import com.posse.kotlin1.calendar.utils.*
+import com.posse.kotlin1.calendar.view.calendar.DrinkType
 import dagger.android.AndroidInjection
 import java.time.LocalDate
+import java.util.*
 import javax.inject.Inject
 
 class MyFirebaseMessagingService : FirebaseMessagingService() {
@@ -43,22 +47,22 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
     }
 
     private fun handleDataMessage(data: Map<String, String>) {
-        val title = data[PUSH_KEY_TITLE]
+        val name = data[PUSH_KEY_TITLE]
         val message = data[PUSH_KEY_MESSAGE]
-        if (!title.isNullOrBlank() && !message.isNullOrBlank()) {
-            showNotification(title, message)
+        val drinkType = data[DRINK_TYPE]
+        if (!name.isNullOrBlank() && !message.isNullOrBlank()) {
+            showNotification(name, message, drinkType)
         }
     }
 
-    private fun showNotification(title: String, message: String) {
+    private fun showNotification(name: String, message: String, drinkType: String?) {
         channelID = getString(R.string.drunk_channel)
         if (message == ADDED_YOU.toString() || message == REMOVED_YOU.toString()) channelID =
             getString(R.string.shared)
         val notificationBuilder = NotificationCompat.Builder(applicationContext, channelID)
             .apply {
                 setSmallIcon(R.drawable.ic_splash_screen)
-                setContentTitle(getText(title, message))
-//                setContentText(message)
+                setContentTitle(getText(name, message, drinkType))
                 priority = NotificationCompat.PRIORITY_DEFAULT
             }
 
@@ -68,24 +72,27 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
         }
     }
 
-    private fun getText(title: String, message: String): String {
-        channelName = getString(R.string.shared)
-        channelDescriptionText = getString(R.string.shared_notifications)
+    private fun getText(name: String, message: String, drinkType: String?): String {
+        val resources = getLocalizedResources(localeUtils.getLocale(sharedPreferences.locale))
+        channelName = resources.getString(R.string.shared)
+        channelDescriptionText = resources.getString(R.string.shared_notifications)
         val text: String = when (message) {
-            ADDED_YOU.toString() -> getString(R.string.shared_with_you)
-            REMOVED_YOU.toString() -> getString(R.string.removed_from_friends)
+            ADDED_YOU.toString() -> resources.getString(R.string.shared_with_you)
+            REMOVED_YOU.toString() -> resources.getString(R.string.removed_from_friends)
             else -> {
-                channelName = getString(R.string.drunk_channel)
-                channelDescriptionText = getString(R.string.drunk_notifications)
-                val drunk = getString(R.string.drunk)
+                channelName = resources.getString(R.string.drunk_channel)
+                channelDescriptionText = resources.getString(R.string.drunk_notifications)
+                val drunkResource = if (drinkType == DrinkType.Half.value) R.string.drunk_a_little
+                else R.string.drunk
+                val drunk = resources.getString(drunkResource)
                 when (val date = convertLongToLocalDale(message.toLong())) {
-                    LocalDate.now() -> "$drunk ${getString(R.string.today)}!"
-                    LocalDate.now().minusDays(1) -> "$drunk ${getString(R.string.yesterday)}!"
+                    LocalDate.now() -> "$drunk ${resources.getString(R.string.today)}!"
+                    LocalDate.now().minusDays(1) -> "$drunk ${resources.getString(R.string.yesterday)}!"
                     else -> "$drunk $date!"
                 }
             }
         }
-        return "$title $text"
+        return "$name $text"
     }
 
     private fun createNotificationChannel(notificationManager: NotificationManager) {
@@ -94,6 +101,13 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
             description = channelDescriptionText
         }
         notificationManager.createNotificationChannel(channel)
+    }
+
+    private fun getLocalizedResources(desiredLocale: Locale?): Resources {
+        var conf: Configuration = applicationContext.resources.configuration
+        conf = Configuration(conf)
+        conf.setLocale(desiredLocale)
+        return applicationContext.createConfigurationContext(conf).resources
     }
 
     override fun onNewToken(token: String) {
@@ -117,8 +131,9 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
     companion object {
         const val ADDED_YOU: Long = -1
         const val REMOVED_YOU: Long = -2
-        private const val PUSH_KEY_TITLE = "title"
-        private const val PUSH_KEY_MESSAGE = "message"
+        const val PUSH_KEY_TITLE = "title"
+        const val PUSH_KEY_MESSAGE = "message"
+        const val DRINK_TYPE = "drinkType"
         private const val NOTIFICATION_ID = 68
     }
 }
