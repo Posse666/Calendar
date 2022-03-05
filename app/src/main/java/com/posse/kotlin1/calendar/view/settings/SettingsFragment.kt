@@ -31,6 +31,7 @@ import com.posse.kotlin1.calendar.view.settings.share.ShareFragment
 import com.posse.kotlin1.calendar.view.update.UpdateDialog
 import com.posse.kotlin1.calendar.viewModel.SettingsViewModel
 import com.squareup.picasso.Picasso
+import dagger.Lazy
 import dagger.android.support.AndroidSupportInjection
 import javax.inject.Inject
 
@@ -45,7 +46,7 @@ class SettingsFragment : Fragment() {
     lateinit var account: Account
 
     @Inject
-    lateinit var viewModelFactory: ViewModelProvider.Factory
+    lateinit var viewModelFactory: Lazy<ViewModelProvider.Factory>
 
     @Inject
     lateinit var picasso: Picasso
@@ -58,7 +59,7 @@ class SettingsFragment : Fragment() {
     private val keyboard = Keyboard()
     private var activityRefresher: ActivityRefresher? = null
     private val viewModel: SettingsViewModel by lazy {
-        viewModelFactory.create(SettingsViewModel::class.java)
+        viewModelFactory.get().create(SettingsViewModel::class.java)
     }
     private val startLogin: ActivityResultLauncher<Intent> = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()
@@ -84,11 +85,11 @@ class SettingsFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         setupShareFragment()
-        account.getLiveData().observe(viewLifecycleOwner, { renderSettings(it) })
-        viewModel.getLastTheme().observe(viewLifecycleOwner, {
+        account.getLiveData().observe(viewLifecycleOwner) { renderSettings(it) }
+        viewModel.getLastTheme().observe(viewLifecycleOwner) {
             if (isInitCompleted) requireActivity().recreate()
             else isInitCompleted = true
-        })
+        }
         account.getAccountState()
         setupLoginButton()
         setupLogoutButton()
@@ -295,6 +296,11 @@ class SettingsFragment : Fragment() {
     override fun onAttach(context: Context) {
         super.onAttach(context)
         activityRefresher = context as ActivityRefresher
+    }
+
+    override fun onDetach() {
+        activityRefresher = null
+        super.onDetach()
     }
 
     override fun onDestroyView() {

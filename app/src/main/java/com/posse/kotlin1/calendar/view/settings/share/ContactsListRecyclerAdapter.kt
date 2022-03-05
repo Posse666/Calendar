@@ -29,9 +29,8 @@ class ContactsListRecyclerAdapter(
         return ContactViewHolder(contactBinding, this)
     }
 
-    override fun onBindViewHolder(holder: ContactViewHolder, position: Int) {
+    override fun onBindViewHolder(holder: ContactViewHolder, position: Int) =
         holder.bind(data[position])
-    }
 
     override fun onBindViewHolder(
         holder: ContactViewHolder,
@@ -78,13 +77,9 @@ class ContactsListRecyclerAdapter(
         data.addAll(newItems)
     }
 
-    override fun getItemCount(): Int {
-        return data.size
-    }
+    override fun getItemCount(): Int = data.size
 
-    override fun selectItem(contact: Contact) {
-        listener.contactClicked(contact)
-    }
+    override fun selectItem(contact: Contact) = listener.contactClicked(contact)
 }
 
 interface ContactAdapterListener {

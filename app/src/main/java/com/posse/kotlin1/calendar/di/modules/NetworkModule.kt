@@ -1,14 +1,14 @@
 package com.posse.kotlin1.calendar.di.modules
 
-import android.content.Context
 import com.posse.kotlin1.calendar.utils.NetworkStatus
 import com.posse.kotlin1.calendar.utils.NetworkStatusImpl
+import dagger.Binds
 import dagger.Module
-import dagger.Provides
 
+@Suppress("FunctionName")
 @Module
-class NetworkModule {
+interface NetworkModule {
 
-    @Provides
-    fun getNetworkStatus(context: Context): NetworkStatus = NetworkStatusImpl(context)
+    @Binds
+    fun bindNetworkStatusImpl_to_NetworkStatus(networkStatusImpl: NetworkStatusImpl): NetworkStatus
 }

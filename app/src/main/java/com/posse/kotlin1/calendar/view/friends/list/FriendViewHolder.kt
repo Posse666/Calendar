@@ -1,7 +1,6 @@
 package com.posse.kotlin1.calendar.view.friends.list
 
 import android.annotation.SuppressLint
-import android.app.Activity
 import android.graphics.Color
 import android.view.MotionEvent
 import androidx.core.widget.doOnTextChanged
@@ -49,18 +48,14 @@ class FriendViewHolder(
             else R.drawable.shotglass_empty
         )
         if (friend.selected) friendBinding.friendChecked.setColorFilter(
-            friendBinding.root.context.getColor(
-                R.color.fillColor
-            )
+            friendBinding.root.context.getColor(R.color.fillColor)
         )
     }
 
     @SuppressLint("ClickableViewAccessibility")
     private fun setupDragListener() {
         friendBinding.dragHandleFriend.setOnTouchListener { _, event ->
-            if (event.actionMasked == MotionEvent.ACTION_DOWN) {
-                dragListener.onStartDrag(this)
-            }
+            if (event.actionMasked == MotionEvent.ACTION_DOWN) dragListener.onStartDrag(this)
             false
         }
     }
@@ -73,17 +68,11 @@ class FriendViewHolder(
         }
     }
 
-    fun removeListeners() {
-        keyboard.setListener(null)
-    }
+    fun removeListeners() = keyboard.setListener(null)
 
-    override fun onItemSelected() {
-        friendBinding.friendCardView.background.setTint(Color.LTGRAY)
-    }
+    override fun onItemSelected() = friendBinding.friendCardView.background.setTint(Color.LTGRAY)
 
-    override fun onItemClear() {
-        friendBinding.friendCardView.background.setTintList(null)
-    }
+    override fun onItemClear() = friendBinding.friendCardView.background.setTintList(null)
 }
 
 interface ItemTouchHelperViewHolder {

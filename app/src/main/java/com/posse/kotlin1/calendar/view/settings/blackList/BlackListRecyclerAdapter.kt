@@ -18,13 +18,10 @@ class BlackListRecyclerAdapter(
         return PersonViewHolder(personBinding, listener)
     }
 
-    override fun onBindViewHolder(holder: PersonViewHolder, position: Int) {
+    override fun onBindViewHolder(holder: PersonViewHolder, position: Int) =
         holder.bind(data[position])
-    }
 
-    override fun getItemCount(): Int {
-        return data.size
-    }
+    override fun getItemCount(): Int = data.size
 
     fun setData(newItems: MutableList<Friend>) {
         val result = DiffUtil.calculateDiff(DiffUtilCallback(data, newItems))

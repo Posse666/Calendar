@@ -10,27 +10,32 @@ import com.posse.kotlin1.calendar.view.settings.share.ShareFragment
 import dagger.Module
 import dagger.android.ContributesAndroidInjector
 
-@Module
-abstract class FragmentModule {
+@Module(
+    includes = [
+        ViewModelModule::class,
+        ImageModule::class
+    ]
+)
+interface FragmentModule {
 
     @ContributesAndroidInjector
-    abstract fun contributeCalendarFragment(): CalendarFragment
+    fun contributeCalendarFragment(): CalendarFragment
 
     @ContributesAndroidInjector
-    abstract fun contributeFriendsFragment(): FriendsFragment
+    fun contributeFriendsFragment(): FriendsFragment
 
     @ContributesAndroidInjector
-    abstract fun contributeSettingsFragment(): SettingsFragment
+    fun contributeSettingsFragment(): SettingsFragment
 
     @ContributesAndroidInjector
-    abstract fun contributeMyCalendarFragment(): MyCalendarFragment
+    fun contributeMyCalendarFragment(): MyCalendarFragment
 
     @ContributesAndroidInjector
-    abstract fun contributeFriendListFragment(): FriendsListFragment
+    fun contributeFriendListFragment(): FriendsListFragment
 
     @ContributesAndroidInjector
-    abstract fun contributeShareFragment(): ShareFragment
+    fun contributeShareFragment(): ShareFragment
 
     @ContributesAndroidInjector
-    abstract fun contributeBlackListFragment(): BlackListFragment
+    fun contributeBlackListFragment(): BlackListFragment
 }

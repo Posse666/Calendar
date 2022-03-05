@@ -1,6 +1,7 @@
 package com.posse.kotlin1.calendar.viewModel
 
 import android.content.SharedPreferences
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.posse.kotlin1.calendar.firebaseMessagingService.Messenger
@@ -24,12 +25,12 @@ class ContactsViewModel @Inject constructor(
     private val networkStatus: NetworkStatus
 ) : ViewModel() {
 
-    private val sharedData: HashSet<Contact> = hashSetOf()
+    private val sharedData: MutableSet<Contact> = mutableSetOf()
     private lateinit var email: String
     private val liveDataToObserve: MutableLiveData<Pair<Boolean, Set<Contact>>> =
         MutableLiveData(Pair(false, emptySet()))
 
-    fun getLiveData() = liveDataToObserve
+    fun getLiveData(): LiveData<Pair<Boolean, Set<Contact>>> = liveDataToObserve
 
     fun setContacts(
         email: String,
@@ -68,9 +69,9 @@ class ContactsViewModel @Inject constructor(
                         }
                     }
                     liveDataToObserve.value = Pair(true, sharedData)
-                    if (isOffline) callback.invoke(ContactStatus.Offline)
+                    if (isOffline) callback(ContactStatus.Offline)
                 } catch (e: Exception) {
-                    callback.invoke(ContactStatus.Error)
+                    callback(ContactStatus.Error)
                 }
             }
         }
@@ -97,7 +98,7 @@ class ContactsViewModel @Inject constructor(
                                         blocked = false,
                                         contactFriendsCollection?.size ?: Int.MAX_VALUE
                                     )
-                            if (youInContactFriends.blocked) callback.invoke(ContactStatus.Blocked)
+                            if (youInContactFriends.blocked) callback(ContactStatus.Blocked)
                             else {
                                 @Suppress("UNCHECKED_CAST")
                                 (usersMap?.get(newContact.email) as Map<String, Any>).toDataClass<User>()
@@ -128,7 +129,7 @@ class ContactsViewModel @Inject constructor(
                 sharedData.remove(newContact)
                 sharedData.add(newContact)
                 liveDataToObserve.value = Pair(true, sharedData)
-                if (isOffline) callback.invoke(ContactStatus.Offline)
+                if (isOffline) callback(ContactStatus.Offline)
             }
         }
     }
@@ -139,18 +140,12 @@ class ContactsViewModel @Inject constructor(
                 users?.forEach { userMap ->
                     @Suppress("UNCHECKED_CAST")
                     val user = (userMap.value as Map<String, Any>).toDataClass<User>()
-                    if (user.email == contact.email) {
-                        Thread {
-                            try {
-                                messenger.sendPush(
-                                    sharedPreferences.nickName!!,
-                                    message.toString(),
-                                    user.token
-                                )
-                            } catch (e: Exception) {
-                            }
-                        }.start()
-                    }
+                    if (user.email == contact.email)
+                        messenger.sendPush(
+                            sharedPreferences.nickName!!,
+                            message.toString(),
+                            user.token
+                        )
                 }
             }
         }

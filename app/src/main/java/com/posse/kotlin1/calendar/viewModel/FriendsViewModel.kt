@@ -1,5 +1,6 @@
 package com.posse.kotlin1.calendar.viewModel
 
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.posse.kotlin1.calendar.model.Contact
@@ -7,16 +8,15 @@ import com.posse.kotlin1.calendar.model.Friend
 import com.posse.kotlin1.calendar.model.repository.Documents
 import com.posse.kotlin1.calendar.model.repository.Repository
 import com.posse.kotlin1.calendar.utils.toDataClass
-import java.util.*
 import javax.inject.Inject
 
 class FriendsViewModel @Inject constructor(private val repository: Repository) : ViewModel() {
-    private val friendsData: HashSet<Friend> = hashSetOf()
+    private val friendsData: MutableSet<Friend> = mutableSetOf()
     private lateinit var email: String
     private val liveDataToObserve: MutableLiveData<Pair<Boolean, Set<Friend>>> =
         MutableLiveData(Pair(false, hashSetOf()))
 
-    fun getLiveData() = liveDataToObserve
+    fun getLiveData(): LiveData<Pair<Boolean, Set<Friend>>> = liveDataToObserve
 
     fun refreshLiveData(email: String, callback: ((Boolean?) -> Unit)) {
         this.email = email
@@ -30,11 +30,11 @@ class FriendsViewModel @Inject constructor(private val repository: Repository) :
                     if (!friend.blocked) friendsData.add(friend)
                 }
             } catch (e: Exception) {
-                callback.invoke(null)
+                callback(null)
             }
             sortPositions(friendsData.toList().sortedBy { it.position })
             liveDataToObserve.value = Pair(true, friendsData)
-            if (isOffline) callback.invoke(isOffline)
+            if (isOffline) callback(isOffline)
         }
     }
 
@@ -83,9 +83,8 @@ class FriendsViewModel @Inject constructor(private val repository: Repository) :
     fun changeName(friend: Friend) = repository.saveItem(Documents.Friends, email, friend)
 
     fun deleteFriend(friend: Friend, callback: ((Boolean?) -> Unit)) {
-        if (friend.blocked) {
-            repository.saveItem(Documents.Friends, email, friend)
-        } else repository.removeItem(Documents.Friends, email, friend)
+        if (friend.blocked) repository.saveItem(Documents.Friends, email, friend)
+        else repository.removeItem(Documents.Friends, email, friend)
         repository.removeItem(Documents.Share, friend.email, Contact(mutableListOf(), email))
         refreshLiveData(email, callback)
     }

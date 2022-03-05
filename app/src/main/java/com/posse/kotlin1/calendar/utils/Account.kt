@@ -25,18 +25,14 @@ import javax.inject.Inject
 
 class Account @Inject constructor(
     private val repository: Repository,
-    private val context: Context,
+    private val stringProvider: StringProvider,
     private val sharedPreferences: SharedPreferences,
-    private val networkStatus: NetworkStatus
+    private val networkStatus: NetworkStatus,
+    private var googleAccount: GoogleSignInAccount?,
+    private val gso: GoogleSignInOptions
 ) {
     private val liveData: MutableLiveData<AccountState> = MutableLiveData()
     private lateinit var oldEmail: String
-    private var googleAccount: GoogleSignInAccount? = GoogleSignIn.getLastSignedInAccount(context)
-    private val gso = GoogleSignInOptions
-        .Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-        .requestIdToken(context.getString(R.string.default_web_client_id))
-        .requestEmail()
-        .build()
 
     fun getLiveData() = liveData
 
@@ -89,7 +85,7 @@ class Account @Inject constructor(
             oldEmail = getEmail()!!
             val googleSignInClient = GoogleSignIn.getClient(fragment.requireActivity(), gso)
             startLogin.launch(googleSignInClient.signInIntent)
-        } else fragment.context?.showToast(context.getString(R.string.network_offline))
+        } else fragment.context?.showToast(stringProvider.getString(R.string.network_offline))
     }
 
     fun logout(fragment: Fragment) {
@@ -98,8 +94,8 @@ class Account @Inject constructor(
             googleSignInClient.signOut()
             googleAccount = null
             sharedPreferences.nickName = null
-            anonymousLogin { getAccountState() }
-        } else fragment.context?.showToast(context.getString(R.string.network_offline))
+            anonymousLogin(fragment.requireContext()) { getAccountState() }
+        } else fragment.context?.showToast(stringProvider.getString(R.string.network_offline))
     }
 
     fun getEmail(): String? {
@@ -108,7 +104,7 @@ class Account @Inject constructor(
         return email
     }
 
-    fun anonymousLogin(callback: (String) -> Unit) {
+    fun anonymousLogin(context: Context, callback: (String) -> Unit) {
         FirebaseAuth.getInstance().signInAnonymously().addOnCompleteListener {
             if (it.isSuccessful) {
                 Log.d("TAG", "signInAnonymously:success")
@@ -117,7 +113,7 @@ class Account @Inject constructor(
                 callback(email)
             } else {
                 Log.w("TAG", "signInAnonymously:failure", it.exception)
-                context.showToast(context.getString(R.string.network_offline))
+                context.showToast(stringProvider.getString(R.string.network_offline))
             }
         }
     }

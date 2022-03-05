@@ -1,5 +1,6 @@
 package com.posse.kotlin1.calendar.viewModel
 
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.posse.kotlin1.calendar.firebaseMessagingService.Messenger
@@ -30,9 +31,9 @@ class CalendarViewModel @Inject constructor(
     private val liveStatisticToObserve: MutableLiveData<Map<STATISTIC, Set<LocalDate>>> =
         MutableLiveData()
 
-    fun getLiveData() = liveDataToObserve
+    fun getLiveData(): LiveData<Pair<Boolean, Set<DataModel>>> = liveDataToObserve
 
-    fun getLiveStats() = liveStatisticToObserve
+    fun getLiveStats(): LiveData<Map<STATISTIC, Set<LocalDate>>> = liveStatisticToObserve
 
     fun refreshLiveData(email: String, callback: (Result) -> Unit) {
         this.email = email
@@ -96,20 +97,16 @@ class CalendarViewModel @Inject constructor(
                         friendMap?.let {
                             @Suppress("UNCHECKED_CAST")
                             val friend = (it as Map<String, Any>).toDataClass<Friend>()
+
                             @Suppress("UNCHECKED_CAST")
                             val user =
                                 (usersCollection?.get(contactMap.key) as Map<String, Any>).toDataClass<User>()
-                            Thread {
-                                try {
-                                    messenger.sendPush(
-                                        friend.name,
-                                        date.date.toString(),
-                                        user.token,
-                                        date.drinkType
-                                    )
-                                } catch (e: Exception) {
-                                }
-                            }.start()
+                            messenger.sendPush(
+                                friend.name,
+                                date.date.toString(),
+                                user.token,
+                                date.drinkType
+                            )
                         }
                     }
                 }
@@ -118,7 +115,7 @@ class CalendarViewModel @Inject constructor(
     }
 
     private fun getDrankDaysQuantity(dates: Set<LocalDate>?): Set<LocalDate> {
-        val result = HashSet<LocalDate>()
+        val result = mutableSetOf<LocalDate>()
         val currentYear: LocalDate = LocalDate.ofYearDay(Year.now().value, 1)
         dates?.forEach {
             if (!it.isBefore(currentYear)) result.add(it)
@@ -127,8 +124,8 @@ class CalendarViewModel @Inject constructor(
     }
 
     private fun getDrinkMarathon(dates: Set<LocalDate>?, isThisYear: Boolean): Set<LocalDate> {
-        val days: ArrayList<LocalDate> = arrayListOf()
-        val maxDays: ArrayList<LocalDate> = arrayListOf()
+        val days: MutableList<LocalDate> = mutableListOf()
+        val maxDays: MutableList<LocalDate> = mutableListOf()
         val currentYear: LocalDate = LocalDate.ofYearDay(Year.now().value, 1)
         dates?.sorted()?.forEach {
             days.add(it)
@@ -136,10 +133,8 @@ class CalendarViewModel @Inject constructor(
                 if (isThisYear && (it.isBefore(currentYear) || days[0].isBefore(currentYear))) {
                     maxDays.clear()
                     val daysToDelete = mutableSetOf<LocalDate>()
-                    for (i in 0 until days.size) {
-                        if (days[i].isBefore(currentYear)) {
-                            daysToDelete.add(days[i])
-                        }
+                    for (day in days) {
+                        if (day.isBefore(currentYear)) daysToDelete.add(day)
                     }
                     days.removeAll(daysToDelete)
                 }
@@ -160,17 +155,20 @@ class CalendarViewModel @Inject constructor(
         }
     }
 
-    private fun getFreshMarathon(dates: HashSet<LocalDate>?, isThisYear: Boolean): Set<LocalDate> {
-        val days: ArrayList<LocalDate> = arrayListOf()
-        val maxDays: ArrayList<LocalDate> = arrayListOf()
+    private fun getFreshMarathon(
+        dates: MutableSet<LocalDate>?,
+        isThisYear: Boolean
+    ): Set<LocalDate> {
+        val days: MutableList<LocalDate> = mutableListOf()
+        val maxDays: MutableList<LocalDate> = mutableListOf()
         var lastDate: LocalDate? = null
         val currentYear: LocalDate = LocalDate.ofYearDay(Year.now().value, 1)
         dates?.add(LocalDate.now())
         dates?.sorted()?.forEach sortedDates@{
             if (isThisYear) {
-                if (!it.isBefore(currentYear)) {
-                    if (lastDate?.isBefore(currentYear) == true) lastDate = currentYear.minusDays(1)
-                } else {
+                if (!it.isBefore(currentYear)) if (lastDate?.isBefore(currentYear) == true) lastDate =
+                    currentYear.minusDays(1)
+                else {
                     lastDate = it
                     return@sortedDates
                 }

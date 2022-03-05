@@ -79,9 +79,7 @@ class RepositoryFirestoreImpl @Inject constructor(
     override fun <T> removeItem(document: Documents, collection: String, data: T) =
         changeItem(document, collection, data, true)
 
-    override fun saveUser(user: User) {
-        changeItem(Documents.Users, COLLECTION_USERS, user, false)
-    }
+    override fun saveUser(user: User) = changeItem(Documents.Users, COLLECTION_USERS, user, false)
 
     private fun <T> changeItem(document: Documents, collection: String, data: T, delete: Boolean) {
         val documentToChange =

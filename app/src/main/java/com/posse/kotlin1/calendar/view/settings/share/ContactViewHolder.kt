@@ -10,8 +10,7 @@ import com.posse.kotlin1.calendar.utils.putText
 class ContactViewHolder(
     val contactBinding: ContactLayoutBinding,
     private val listener: ContactClickListener
-) :
-    RecyclerView.ViewHolder(contactBinding.root) {
+) : RecyclerView.ViewHolder(contactBinding.root) {
 
     fun bind(contact: Contact) {
         var name: String = contact.names[0]
@@ -24,25 +23,22 @@ class ContactViewHolder(
         setupContactClickable(contact)
     }
 
-    private fun setupContactClickable(contact: Contact) {
+    private fun setupContactClickable(contact: Contact) =
         if (!contact.notInBase) contactBinding.contactCardView.setOnClickListener {
             listener.selectItem(contact)
-        }
-    }
+        } else Unit
 
-    private fun setupCheckedView(contact: Contact) {
-        if (contact.notInBase) {
-            contactBinding.contactCardView.alpha = 0.6f
-            contactBinding.contactChecked.disappear()
-        } else {
-            contactBinding.contactChecked.setImageResource(
-                if (contact.selected) R.drawable.shotglass_full
-                else R.drawable.shotglass_empty
-            )
-            if (contact.selected) contactBinding.contactChecked.drawable.setTint(
-                contactBinding.root.context.getColor(R.color.fillColor)
-            )
-        }
+    private fun setupCheckedView(contact: Contact) = if (contact.notInBase) {
+        contactBinding.contactCardView.alpha = 0.6f
+        contactBinding.contactChecked.disappear()
+    } else {
+        contactBinding.contactChecked.setImageResource(
+            if (contact.selected) R.drawable.shotglass_full
+            else R.drawable.shotglass_empty
+        )
+        if (contact.selected) contactBinding.contactChecked.drawable.setTint(
+            contactBinding.root.context.getColor(R.color.fillColor)
+        ) else Unit
     }
 }
 

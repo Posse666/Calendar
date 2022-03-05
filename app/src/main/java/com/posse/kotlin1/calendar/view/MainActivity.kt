@@ -26,8 +26,10 @@ private const val BACK_BUTTON_EXIT_DELAY = 3000
 class MainActivity : AppCompatActivity(), SettingsTabSwitcher, ActivityRefresher {
     @Inject
     lateinit var localeUtils: LocaleUtils
+
     @Inject
     lateinit var themeUtils: ThemeUtils
+
     @Inject
     lateinit var sharedPreferences: SharedPreferences
     private lateinit var binding: ActivityMainBinding
@@ -77,20 +79,16 @@ class MainActivity : AppCompatActivity(), SettingsTabSwitcher, ActivityRefresher
         outState.putInt(KEY_SELECTED, binding.bottomNavigation.selectedItemId)
     }
 
-    override fun onBackPressed() {
-        if (binding.bottomNavigation.selectedItemId == R.id.bottomCalendar) {
-            checkExit()
-        } else {
-            binding.bottomNavigation.selectedItemId = R.id.bottomCalendar
-        }
+    override fun onBackPressed() = with(binding) {
+        if (bottomNavigation.selectedItemId == R.id.bottomCalendar) checkExit()
+        else bottomNavigation.selectedItemId = R.id.bottomCalendar
         lastTimeBackPressed = System.currentTimeMillis()
     }
 
     private fun checkExit() {
         showToast(getString(R.string.back_again_to_exit))
-        if (System.currentTimeMillis() - lastTimeBackPressed < BACK_BUTTON_EXIT_DELAY && isBackShown) {
+        if (System.currentTimeMillis() - lastTimeBackPressed < BACK_BUTTON_EXIT_DELAY && isBackShown)
             exitProcess(0)
-        }
         isBackShown = true
     }
 
@@ -101,7 +99,7 @@ class MainActivity : AppCompatActivity(), SettingsTabSwitcher, ActivityRefresher
     override fun refreshNavBar() = initView(R.id.bottomSettings)
 
     companion object {
-        lateinit var instance: MainActivity
+        var instance: MainActivity? = null
     }
 }
 

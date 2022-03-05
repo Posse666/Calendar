@@ -42,10 +42,9 @@ class FriendsListFragment : Fragment(), FriendAdapterListener {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View {
-        _binding = FragmentRecyclerListBinding.inflate(inflater, container, false)
-        return binding.root
-    }
+    ) = FragmentRecyclerListBinding.inflate(inflater, container, false)
+        .also { _binding = it }
+        .root
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -54,7 +53,7 @@ class FriendsListFragment : Fragment(), FriendAdapterListener {
         if (myMail != null && myMail.contains("@")) {
             setupCloseBtn(myMail)
             setupRecyclerAdapter()
-            viewModel?.getLiveData()?.observe(viewLifecycleOwner, { showFriends(it) })
+            viewModel?.getLiveData()?.observe(viewLifecycleOwner) { showFriends(it) }
         }
     }
 

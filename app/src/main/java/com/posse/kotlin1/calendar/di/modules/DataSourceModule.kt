@@ -1,23 +1,16 @@
 package com.posse.kotlin1.calendar.di.modules
 
-import android.content.SharedPreferences
 import com.posse.kotlin1.calendar.model.repository.Repository
 import com.posse.kotlin1.calendar.model.repository.RepositoryFirestoreImpl
-import com.posse.kotlin1.calendar.utils.LocaleUtils
-import com.posse.kotlin1.calendar.utils.NetworkStatus
+import dagger.Binds
 import dagger.Module
-import dagger.Provides
 import javax.inject.Singleton
 
+@Suppress("FunctionName")
 @Module
-class DataSourceModule {
+interface DataSourceModule {
 
-    @Provides
+    @Binds
     @Singleton
-    internal fun provideRemoteDataSource(
-        sharedPreferences: SharedPreferences,
-        networkStatus: NetworkStatus,
-        localeUtils: LocaleUtils
-    ): Repository = RepositoryFirestoreImpl(sharedPreferences, networkStatus, localeUtils)
-
+    fun bindRemoteDataSourceImpl_to_Repository(repositoryFirestoreImpl: RepositoryFirestoreImpl): Repository
 }

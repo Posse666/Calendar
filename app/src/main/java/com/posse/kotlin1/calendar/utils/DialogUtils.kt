@@ -5,10 +5,11 @@ import androidx.fragment.app.DialogFragment
 
 fun setWindowSize(dialogFragment: DialogFragment, height: Int, transparent: Boolean = true) {
     val dialogWindow = dialogFragment.dialog?.window
-    val params = dialogWindow?.attributes
+    val params = dialogWindow?.attributes?.apply {
+        width = WindowManager.LayoutParams.MATCH_PARENT
+        this.height = height
+    }
     if (params != null) {
-        params.width = WindowManager.LayoutParams.MATCH_PARENT
-        params.height = height
         dialogWindow.attributes = params
         if (transparent) dialogWindow.setBackgroundDrawableResource(android.R.color.transparent)
     }

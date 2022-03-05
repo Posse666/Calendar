@@ -30,10 +30,11 @@ class LocaleUtils @Inject constructor(private val sharedPreferences: SharedPrefe
         sharedPreferences.locale = newStringLocale
         val locale = getLocale(newStringLocale)
         Locale.setDefault(locale)
-        val resources: Resources = MainActivity.instance.resources
-        val config: Configuration = resources.configuration
-        config.setLocale(locale)
-        resources.updateConfiguration(config, resources.displayMetrics)
+        val resources: Resources? = MainActivity.instance?.resources
+        val config: Configuration? = resources?.configuration
+        config?.setLocale(locale)
+        @Suppress("DEPRECATION")
+        resources?.updateConfiguration(config, resources.displayMetrics)
     }
 
     enum class LOCALE(val locale: Locale, val value: String) {

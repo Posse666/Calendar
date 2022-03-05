@@ -18,6 +18,7 @@ import com.posse.kotlin1.calendar.view.calendar.CalendarFragment
 import com.posse.kotlin1.calendar.view.friends.list.FriendsListFragment
 import com.posse.kotlin1.calendar.view.update.UpdateDialog
 import com.posse.kotlin1.calendar.viewModel.FriendsViewModel
+import dagger.Lazy
 import dagger.android.support.AndroidSupportInjection
 import javax.inject.Inject
 
@@ -26,13 +27,13 @@ class FriendsFragment : Fragment() {
     lateinit var account: Account
 
     @Inject
-    lateinit var viewModelFactory: ViewModelProvider.Factory
+    lateinit var viewModelFactory: Lazy<ViewModelProvider.Factory>
     private var _binding: FragmentFriendsBinding? = null
     private val binding get() = _binding!!
     private var settingsTabSwitcher: SettingsTabSwitcher? = null
     private var friendsListFragment: FriendsListFragment? = null
     private val viewModel: FriendsViewModel by lazy {
-        viewModelFactory.create(FriendsViewModel::class.java)
+        viewModelFactory.get().create(FriendsViewModel::class.java)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -43,10 +44,9 @@ class FriendsFragment : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View {
-        _binding = FragmentFriendsBinding.inflate(inflater, container, false)
-        return binding.root
-    }
+    ) = FragmentFriendsBinding.inflate(inflater, container, false)
+        .also { _binding = it }
+        .root
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -56,7 +56,7 @@ class FriendsFragment : Fragment() {
                 if (offline == true) context?.showToast(getString(R.string.no_connection))
                 if (offline == null) UpdateDialog.newInstance().show(childFragmentManager, null)
             }
-            viewModel.getLiveData().observe(viewLifecycleOwner, { data ->
+            viewModel.getLiveData().observe(viewLifecycleOwner) { data ->
                 if (data.first) {
                     friendsListFragment?.let {
                         childFragmentManager
@@ -88,7 +88,7 @@ class FriendsFragment : Fragment() {
                         if (data.second.isEmpty()) binding.friendsCard.setOnClickListener(null)
                     }
                 }
-            })
+            }
         } else {
             binding.friendName.putText(getString(R.string.login_to_see_friends_calendars))
             binding.friendsCard.setOnClickListener {

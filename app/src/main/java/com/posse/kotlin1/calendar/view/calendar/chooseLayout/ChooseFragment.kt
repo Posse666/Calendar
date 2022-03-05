@@ -66,9 +66,7 @@ class ChooseFragment : DialogFragment() {
         binding.drinkPickerHalfIcon.setText(date.toString())
     }
 
-    private fun returnResult(drinkType: DrinkType?) {
-        callback?.invoke(drinkType)
-    }
+    private fun returnResult(drinkType: DrinkType?) = callback?.invoke(drinkType)
 
     override fun onDismiss(dialog: DialogInterface) {
         super.onDismiss(dialog)

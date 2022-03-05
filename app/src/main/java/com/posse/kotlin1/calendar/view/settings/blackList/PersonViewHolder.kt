@@ -8,8 +8,7 @@ import com.posse.kotlin1.calendar.utils.putText
 class PersonViewHolder(
     private val friendBinding: PersonLayoutBinding,
     private val listener: PersonClickListener
-) :
-    RecyclerView.ViewHolder(friendBinding.root) {
+) : RecyclerView.ViewHolder(friendBinding.root) {
 
     fun bind(friend: Friend) {
         friendBinding.nameField.putText(friend.name)

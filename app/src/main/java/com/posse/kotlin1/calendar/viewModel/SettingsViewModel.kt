@@ -2,6 +2,7 @@ package com.posse.kotlin1.calendar.viewModel
 
 import android.content.SharedPreferences
 import androidx.annotation.StyleRes
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.posse.kotlin1.calendar.model.User
@@ -9,7 +10,6 @@ import com.posse.kotlin1.calendar.model.repository.Documents
 import com.posse.kotlin1.calendar.model.repository.Repository
 import com.posse.kotlin1.calendar.model.repository.RepositoryFirestoreImpl.Companion.COLLECTION_USERS
 import com.posse.kotlin1.calendar.utils.*
-import java.util.*
 import javax.inject.Inject
 
 class SettingsViewModel @Inject constructor(
@@ -38,7 +38,7 @@ class SettingsViewModel @Inject constructor(
             switchTheme(value)
         }
 
-    fun getLastTheme() = lastTheme
+    fun getLastTheme(): LiveData<Int> = lastTheme
 
     fun saveNickname(email: String, nickname: String, callback: (Nickname) -> Unit) {
         repository.getData(Documents.Users, COLLECTION_USERS) { users, _ ->
@@ -73,11 +73,9 @@ class SettingsViewModel @Inject constructor(
         else changeTheme(ThemeUtils.THEME.NIGHT.themeID)
     }
 
-    private fun changeTheme(@StyleRes theme: Int) {
-        if (theme != lastTheme.value) {
-            lastTheme.value = theme
-        }
-    }
+    private fun changeTheme(@StyleRes theme: Int) =
+        if (theme != lastTheme.value) lastTheme.value = theme
+        else Unit
 
     enum class Nickname {
         Empty,

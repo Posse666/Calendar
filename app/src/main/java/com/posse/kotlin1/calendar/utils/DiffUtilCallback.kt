@@ -21,10 +21,6 @@ class DiffUtilCallback(
     override fun getChangePayload(oldItemPosition: Int, newItemPosition: Int): Any {
         val oldItem = oldItems[oldItemPosition]
         val newItem = newItems[newItemPosition]
-
-        return Change(
-            oldItem,
-            newItem
-        )
+        return Change(oldItem, newItem)
     }
 }

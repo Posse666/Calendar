@@ -30,6 +30,7 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
 
     @Inject
     lateinit var localeUtils: LocaleUtils
+
     private lateinit var channelName: String
     private lateinit var channelDescriptionText: String
     private lateinit var channelID: String

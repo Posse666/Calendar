@@ -7,7 +7,8 @@ import android.widget.Toast
 
 fun Context.showToast(text: String) {
     val toast = Toast.makeText(this, text, Toast.LENGTH_SHORT)
-    val v = toast.view?.findViewById<TextView>(android.R.id.message)
-    if (v != null) v.gravity = Gravity.CENTER
+
+    @Suppress("DEPRECATION")
+    toast.view?.findViewById<TextView>(android.R.id.message)?.apply { gravity = Gravity.CENTER }
     toast.show()
 }

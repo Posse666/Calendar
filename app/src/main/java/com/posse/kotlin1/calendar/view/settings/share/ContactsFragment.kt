@@ -22,7 +22,7 @@ class ContactsFragment : DialogFragment(), ContactAdapterListener {
     private var _binding: FragmentContactsBinding? = null
     private val binding get() = _binding!!
     private var viewModel: ContactsViewModel? = null
-    private lateinit var adapter: ContactsListRecyclerAdapter
+    private var adapter: ContactsListRecyclerAdapter? = null
     private val keyboard = Keyboard()
     private val animator = Animator()
     private val contacts: MutableSet<Contact> = mutableSetOf()
@@ -30,10 +30,9 @@ class ContactsFragment : DialogFragment(), ContactAdapterListener {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View {
-        _binding = FragmentContactsBinding.inflate(inflater, container, false)
-        return binding.root
-    }
+    ) = FragmentContactsBinding.inflate(inflater, container, false)
+        .also { _binding = it }
+        .root
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -48,21 +47,19 @@ class ContactsFragment : DialogFragment(), ContactAdapterListener {
         isCancelable = true
     }
 
-    private fun setupContactSearchField() {
-        binding.contactSearchField.editText?.doOnTextChanged { _, _, _, _ ->
-            binding.contactSearchField.error = null
+    private fun setupContactSearchField() = with(binding) {
+        contactSearchField.editText?.doOnTextChanged { _, _, _, _ ->
+            contactSearchField.error = null
         }
-        binding.contactSearchField.editText?.let {
+        contactSearchField.editText?.let {
             it.setOnEditorActionListener { textView, actionId, _ ->
-                if (actionId == EditorInfo.IME_ACTION_DONE) {
-                    textView.clearFocus()
-                }
+                if (actionId == EditorInfo.IME_ACTION_DONE) textView.clearFocus()
                 false
             }
         }
-        binding.contactSearchField.setEndIconOnClickListener {
-            binding.contactSearchField.editText?.setText("")
-            binding.contactSearchField.error = null
+        contactSearchField.setEndIconOnClickListener {
+            contactSearchField.editText?.setText("")
+            contactSearchField.error = null
         }
     }
 
@@ -85,7 +82,7 @@ class ContactsFragment : DialogFragment(), ContactAdapterListener {
                     { !it.selected },
                     { it.names[0] }
                 ))
-                adapter.setData(
+                adapter?.setData(
                     sortedContacts.toList().filter { !(it.notInContacts && !it.selected) })
                 Handler(Looper.getMainLooper()).postDelayed({
                     binding.contactsRecyclerView.smoothScrollToPosition(0)

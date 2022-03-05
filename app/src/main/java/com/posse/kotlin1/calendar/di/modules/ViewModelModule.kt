@@ -10,35 +10,35 @@ import dagger.multibindings.IntoMap
 import kotlin.reflect.KClass
 
 @Module
-abstract class ViewModelModule {
+interface ViewModelModule {
 
     @Binds
-    internal abstract fun bindViewModelFactory(factory: ViewModelFactory): ViewModelProvider.Factory
+    fun bindViewModelFactory(factory: ViewModelFactory): ViewModelProvider.Factory
 
     @Binds
     @ViewModelKey(BlackListViewModel::class)
     @IntoMap
-    protected abstract fun blackListViewModel(blackListViewModel: BlackListViewModel): ViewModel
+    fun blackListViewModel(blackListViewModel: BlackListViewModel): ViewModel
 
     @Binds
     @ViewModelKey(CalendarViewModel::class)
     @IntoMap
-    protected abstract fun calendarViewModel(calendarViewModel: CalendarViewModel): ViewModel
+    fun calendarViewModel(calendarViewModel: CalendarViewModel): ViewModel
 
     @Binds
     @ViewModelKey(ContactsViewModel::class)
     @IntoMap
-    protected abstract fun contactsViewModel(contactsViewModel: ContactsViewModel): ViewModel
+    fun contactsViewModel(contactsViewModel: ContactsViewModel): ViewModel
 
     @Binds
     @ViewModelKey(FriendsViewModel::class)
     @IntoMap
-    protected abstract fun friendsViewModel(friendsViewModel: FriendsViewModel): ViewModel
+    fun friendsViewModel(friendsViewModel: FriendsViewModel): ViewModel
 
     @Binds
     @ViewModelKey(SettingsViewModel::class)
     @IntoMap
-    protected abstract fun settingsViewModel(settingsViewModel: SettingsViewModel): ViewModel
+    fun settingsViewModel(settingsViewModel: SettingsViewModel): ViewModel
 }
 
 @Target(

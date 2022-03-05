@@ -13,18 +13,19 @@ import com.posse.kotlin1.calendar.model.Friend
 import com.posse.kotlin1.calendar.utils.*
 import com.posse.kotlin1.calendar.view.update.UpdateDialog
 import com.posse.kotlin1.calendar.viewModel.BlackListViewModel
+import dagger.Lazy
 import dagger.android.support.AndroidSupportInjection
 import javax.inject.Inject
 
 class BlackListFragment : DialogFragment() {
 
     @Inject
-    lateinit var viewModelFactory: ViewModelProvider.Factory
+    lateinit var viewModelFactory: Lazy<ViewModelProvider.Factory>
     private var _binding: FragmentBlackListBinding? = null
     private val binding get() = _binding!!
-    private lateinit var email: String
+    private var email: String? = null
     private val viewModel: BlackListViewModel by lazy {
-        viewModelFactory.create(BlackListViewModel::class.java)
+        viewModelFactory.get().create(BlackListViewModel::class.java)
     }
     private lateinit var adapter: BlackListRecyclerAdapter
 
@@ -32,41 +33,42 @@ class BlackListFragment : DialogFragment() {
         super.onCreate(savedInstanceState)
         AndroidSupportInjection.inject(this)
         arguments?.let {
-            email = it.getString(ARG_EMAIL)!!
+            email = it.getString(ARG_EMAIL)
         }
     }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View {
-        _binding = FragmentBlackListBinding.inflate(inflater, container, false)
-        return binding.root
-    }
+    ) = FragmentBlackListBinding.inflate(inflater, container, false)
+        .also { _binding = it }
+        .root
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         setWindowSize(this, WindowManager.LayoutParams.MATCH_PARENT)
-        binding.blackListCard.listClose.setOnClickListener { dismiss() }
-        adapter = BlackListRecyclerAdapter(
-            mutableListOf()
-        ) { viewModel.personSelected(it) }
-        binding.blackListCard.listRecyclerView.adapter = adapter
-        viewModel.getLiveData().observe(viewLifecycleOwner, { showFriends(it) })
-        viewModel.refreshLiveData(
-            email,
-            { UpdateDialog.newInstance().show(childFragmentManager, null) }) {
-            context?.showToast(getString(R.string.no_connection))
+        email?.let { mail ->
+            binding.blackListCard.listClose.setOnClickListener { dismiss() }
+            adapter = BlackListRecyclerAdapter(
+                mutableListOf()
+            ) { viewModel.personSelected(it) }
+            binding.blackListCard.listRecyclerView.adapter = adapter
+            viewModel.getLiveData().observe(viewLifecycleOwner) { showFriends(it) }
+            viewModel.refreshLiveData(
+                mail,
+                { UpdateDialog.newInstance().show(childFragmentManager, null) },
+                { context?.showToast(getString(R.string.no_connection)) }
+            )
         }
         isCancelable = true
     }
 
-    private fun showFriends(friends: Pair<Boolean, Set<Friend>>) {
+    private fun showFriends(friends: Pair<Boolean, Set<Friend>>) = with(binding) {
         if (friends.first) {
             if (friends.second.isEmpty()) {
-                binding.blackListCard.noData.show()
-                binding.blackListCard.noDataText.putText(getString(R.string.empty_black_list))
-                binding.blackListCard.listRecyclerView.disappear()
+                blackListCard.noData.show()
+                blackListCard.noDataText.putText(getString(R.string.empty_black_list))
+                blackListCard.listRecyclerView.disappear()
             } else {
                 val friendsList = friends.second.toMutableList()
                 friendsList.sortBy { it.name }

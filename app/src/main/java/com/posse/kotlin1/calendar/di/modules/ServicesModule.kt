@@ -5,7 +5,8 @@ import dagger.Module
 import dagger.android.ContributesAndroidInjector
 
 @Module
-abstract class ServicesModule {
+interface ServicesModule {
+
     @ContributesAndroidInjector
-    abstract fun fcmService(): MyFirebaseMessagingService
+    fun fcmService(): MyFirebaseMessagingService
 }

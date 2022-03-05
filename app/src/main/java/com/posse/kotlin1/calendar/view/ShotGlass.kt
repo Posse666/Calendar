@@ -79,22 +79,20 @@ class ShotGlass @JvmOverloads constructor(
         }
     }
 
+    @SuppressWarnings("WeakerAccess")
     fun hideInner(hide: Boolean) {
         if (hide) binding.shotGlassInner.hide()
         else binding.shotGlassInner.show()
     }
 
-    fun setInnerColor(@ColorInt color: Int) {
-        binding.shotGlassInner.setColorFilter(color)
-    }
+    @SuppressWarnings("WeakerAccess")
+    fun setInnerColor(@ColorInt color: Int) = binding.shotGlassInner.setColorFilter(color)
 
-    fun setOuterColor(@ColorInt color: Int) {
-        binding.shotGlassOuter.setColorFilter(color)
-    }
+    @SuppressWarnings("WeakerAccess")
+    fun setOuterColor(@ColorInt color: Int) = binding.shotGlassOuter.setColorFilter(color)
 
-    fun setTextColor(@ColorInt color: Int) {
-        binding.shotGlassText.setTextColor(color)
-    }
+    @SuppressWarnings("WeakerAccess")
+    fun setTextColor(@ColorInt color: Int) = binding.shotGlassText.setTextColor(color)
 
     fun setText(text: String?) {
         if (text == null) binding.shotGlassText.hide()

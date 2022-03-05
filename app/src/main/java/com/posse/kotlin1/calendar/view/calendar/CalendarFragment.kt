@@ -25,7 +25,9 @@ import com.posse.kotlin1.calendar.view.statistic.StatisticFragment
 import com.posse.kotlin1.calendar.view.statistic.StatisticListener
 import com.posse.kotlin1.calendar.view.update.UpdateDialog
 import com.posse.kotlin1.calendar.viewModel.CalendarViewModel
+import dagger.Lazy
 import dagger.android.support.AndroidSupportInjection
+import kotlinx.coroutines.*
 import java.time.LocalDate
 import java.time.YearMonth
 import java.time.temporal.WeekFields
@@ -38,20 +40,21 @@ class CalendarFragment : Fragment(), StatisticListener {
     lateinit var sharedPreferences: SharedPreferences
 
     @Inject
-    lateinit var viewModelFactory: ViewModelProvider.Factory
+    lateinit var viewModelFactory: Lazy<ViewModelProvider.Factory>
     private var _binding: FragmentCalendarBinding? = null
     private val binding get() = _binding!!
     private val animator = Animator()
     private lateinit var bottomSheetBehavior: BottomSheetBehavior<ConstraintLayout>
     private val calendarView: CalendarView by lazy { binding.calendarView }
     private val viewModel: CalendarViewModel by lazy {
-        viewModelFactory.create(CalendarViewModel::class.java)
+        viewModelFactory.get().create(CalendarViewModel::class.java)
     }
     private val actualState: MutableSet<DataModel> = mutableSetOf()
     private var isInitCompleted: Boolean = false
-    private lateinit var email: String
+    private var email: String? = null
     private var isMyCalendar = false
     private var isStatsUsed: Boolean? = null
+    private var animationJob: Job? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -62,7 +65,7 @@ class CalendarFragment : Fragment(), StatisticListener {
 
     private fun restoreArguments() {
         arguments?.let {
-            email = it.getString(ARG_MAIL)!!
+            email = it.getString(ARG_MAIL)
             isMyCalendar = it.getBoolean(ARG_MY_CALENDAR)
         }
     }
@@ -79,14 +82,16 @@ class CalendarFragment : Fragment(), StatisticListener {
         binding.calendarLayout.setPadding(0, 0, 0, (getTextSize() * MULTIPLY).toInt())
         setupStatistic()
         setupFAB()
-        viewModel.refreshLiveData(email) {
-            when (it) {
-                Result.Error -> UpdateDialog.newInstance().show(childFragmentManager, null)
-                is Result.Offline -> {
-                    context?.showToast(getString(R.string.no_connection))
-                    setupLiveData()
+        email?.let { mail ->
+            viewModel.refreshLiveData(mail) { result ->
+                when (result) {
+                    Result.Error -> UpdateDialog.newInstance().show(childFragmentManager, null)
+                    is Result.Offline -> {
+                        context?.showToast(getString(R.string.no_connection))
+                        setupLiveData()
+                    }
+                    is Result.Success -> setupLiveData()
                 }
-                is Result.Success -> setupLiveData()
             }
         }
     }
@@ -132,41 +137,38 @@ class CalendarFragment : Fragment(), StatisticListener {
                     isStatsUsed = true
                     sharedPreferences.statsUsed = true
                 }
-                if (bottomSheetBehavior.state == BottomSheetBehavior.STATE_HIDDEN) {
-                    bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
-                }
+                if (bottomSheetBehavior.state == BottomSheetBehavior.STATE_HIDDEN) bottomSheetBehavior.state =
+                    BottomSheetBehavior.STATE_COLLAPSED
             }
 
-            override fun onSlide(bottomSheet: View, slideOffset: Float) { /*not needed*/
-            }
+            override fun onSlide(bottomSheet: View, slideOffset: Float) = Unit
         })
     }
 
     private fun setBottomSheetAnimation() {
-        Thread {
-            while (isStatsUsed != true && this@CalendarFragment.isAdded) {
-                Thread.sleep(BOTTOM_ANIMATION_INTERVAL)
+        animationJob = CoroutineScope(Dispatchers.Main).launch {
+            while (isStatsUsed != true && isActive) {
+                delay(BOTTOM_ANIMATION_INTERVAL)
                 if (isStatsUsed != true
-                    && this@CalendarFragment.isAdded
+                    && isActive
                     && bottomSheetBehavior.state == BottomSheetBehavior.STATE_COLLAPSED
                 ) {
                     bottomSheetBehavior
                         .setPeekHeight(((getTextSize() * MULTIPLY * 2) * 1.3).toInt(), true)
-                    Thread.sleep(400)
-                    if (this@CalendarFragment.isAdded) bottomSheetBehavior.setPeekHeight(
+                    delay(400)
+                    if (isActive) bottomSheetBehavior.setPeekHeight(
                         (getTextSize() * MULTIPLY).toInt(),
                         true
                     )
                 }
             }
-        }.start()
+        }
     }
 
     private fun setupFAB() {
         val layoutParams = binding.fab.layoutParams as ViewGroup.MarginLayoutParams
-        layoutParams.bottomMargin =
-            (resources.getDimension(R.dimen.fab_margin)
-                .toInt() + getTextSize() * MULTIPLY).toInt()
+        layoutParams.bottomMargin = (resources.getDimension(R.dimen.fab_margin).toInt()
+                + getTextSize() * MULTIPLY).toInt()
 
         binding.fab.setOnClickListener {
             calendarView.smoothScrollToMonth(YearMonth.now())
@@ -223,17 +225,15 @@ class CalendarFragment : Fragment(), StatisticListener {
                                 viewModel.dayClicked(
                                     DataModel(convertLocalDateToLong(day.date), it?.value)
                                 ) {
-                                    UpdateDialog.newInstance()
-                                        .show(childFragmentManager, null)
+                                    UpdateDialog.newInstance().show(childFragmentManager, null)
                                 }
                                 animator.animate(rootView.root) {
                                     container.changeDay(day.date, it)
                                 }
                             }.show(childFragmentManager, null)
                         }
-                    } else {
-                        container.view.setOnClickListener(null)
-                    }
+                    } else container.view.setOnClickListener(null)
+
                     container.changeDay(day.date, currentDayType)
                 } else rootView.root.hide()
             }
@@ -250,6 +250,7 @@ class CalendarFragment : Fragment(), StatisticListener {
 
     override fun onDestroyView() {
         super.onDestroyView()
+        animationJob?.cancel()
         _binding = null
     }
 

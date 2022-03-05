@@ -16,8 +16,6 @@ class MyCalendarFragment : Fragment() {
 
     @Inject
     lateinit var account: Account
-    private var _binding: FragmentMyCalendarBinding? = null
-    private val binding get() = _binding!!
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -27,16 +25,13 @@ class MyCalendarFragment : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View {
-        _binding = FragmentMyCalendarBinding.inflate(inflater, container, false)
-        return binding.root
-    }
+    ) = FragmentMyCalendarBinding.inflate(inflater, container, false).root
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         val mail = account.getEmail()
         if (mail != null) swapFragment(mail)
-        else account.anonymousLogin { email: String ->
+        else account.anonymousLogin(requireContext()) { email: String ->
             swapFragment(email)
         }
     }
@@ -46,11 +41,6 @@ class MyCalendarFragment : Fragment() {
         .setReorderingAllowed(true)
         .replace(R.id.myCalendarContainer, CalendarFragment.newInstance(email, true))
         .commit()
-
-    override fun onDestroyView() {
-        super.onDestroyView()
-        _binding = null
-    }
 
     companion object {
         @JvmStatic

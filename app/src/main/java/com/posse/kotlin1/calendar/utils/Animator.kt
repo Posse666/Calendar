@@ -14,7 +14,7 @@ class Animator {
             .scaleY(0.2f)
             .setInterpolator(DecelerateInterpolator())
             .withEndAction {
-                callback.invoke()
+                callback()
                 view
                     .animate()
                     .setDuration(200)

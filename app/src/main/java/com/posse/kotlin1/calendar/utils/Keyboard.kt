@@ -30,32 +30,26 @@ class Keyboard {
         rootView?.viewTreeObserver?.addOnGlobalLayoutListener(globalListener)
     }
 
-    fun show(activity: Activity?) {
-        if (!isKeyboardOpened) activity?.getSystemService<InputMethodManager>()?.toggleSoftInput(
-            InputMethodManager.SHOW_FORCED,
-            0
-        )
-    }
+    @Suppress("DEPRECATION")
+    fun show(activity: Activity?) = if (!isKeyboardOpened) activity
+        ?.getSystemService<InputMethodManager>()
+        ?.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0)
+    else Unit
 
-    fun hide(view: View) {
-        view.getActivity()?.getSystemService<InputMethodManager>()
-            ?.hideSoftInputFromWindow(view.windowToken, 0)
-    }
+    fun hide(view: View) = view.getActivity()?.getSystemService<InputMethodManager>()
+        ?.hideSoftInputFromWindow(view.windowToken, 0)
 
     fun setListener(listener: KeyboardListener?) {
         this.listener = listener
     }
 
-    fun removeGlobalListener(rootView: View?) {
-        rootView?.viewTreeObserver?.removeOnGlobalLayoutListener(globalListener)
-    }
+    fun removeGlobalListener(rootView: View?) = rootView?.viewTreeObserver
+        ?.removeOnGlobalLayoutListener(globalListener)
 
     private fun View.getActivity(): Activity? {
         var context = context
         while (context is ContextWrapper) {
-            if (context is Activity) {
-                return context
-            }
+            if (context is Activity) return context
             context = context.baseContext
         }
         return null

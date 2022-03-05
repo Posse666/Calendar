@@ -24,14 +24,13 @@ class StatisticFragment : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View {
-        _binding = FragmentStatisticBinding.inflate(inflater, container, false)
-        return binding.root
-    }
+    ) = FragmentStatisticBinding.inflate(inflater, container, false)
+        .also { _binding = it }
+        .root
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        viewModel?.getLiveStats()?.observe(viewLifecycleOwner, { updateStats(it) })
+        viewModel?.getLiveStats()?.observe(viewLifecycleOwner) { updateStats(it) }
     }
 
     private fun updateStats(stats: Map<STATISTIC, Set<LocalDate>>) {
@@ -42,53 +41,53 @@ class StatisticFragment : Fragment() {
         updateFreshMarathonAllTime(stats[STATISTIC.NOT_DRINK_MAX_ROW_TOTAL])
     }
 
-    private fun updateTotal(stats: Set<LocalDate>?) {
+    private fun updateTotal(stats: Set<LocalDate>?) = with(binding) {
         putStatistic(
             getString(R.string.in_this_year_you_drank),
             stats,
-            binding.cardTotalYears.statsDescription,
-            binding.cardTotalYears.statsValue,
+            cardTotalYears.statsDescription,
+            cardTotalYears.statsValue,
             null
         )
     }
 
-    private fun updateMarathonThisYear(stats: Set<LocalDate>?) {
+    private fun updateMarathonThisYear(stats: Set<LocalDate>?) = with(binding) {
         putStatistic(
             getString(R.string.longest_drink_marathon_in_this_year),
             stats,
-            binding.cardThisYear.statsDescription,
-            binding.cardThisYear.statsValue,
-            binding.cardThisYear.root
+            cardThisYear.statsDescription,
+            cardThisYear.statsValue,
+            cardThisYear.root
         )
     }
 
-    private fun updateMarathonAllTime(stats: Set<LocalDate>?) {
+    private fun updateMarathonAllTime(stats: Set<LocalDate>?) = with(binding) {
         putStatistic(
             getString(R.string.longest_drink_marathon_all_time),
             stats,
-            binding.cardAllTime.statsDescription,
-            binding.cardAllTime.statsValue,
-            binding.cardAllTime.root
+            cardAllTime.statsDescription,
+            cardAllTime.statsValue,
+            cardAllTime.root
         )
     }
 
-    private fun updateFreshMarathonThisYear(stats: Set<LocalDate>?) {
+    private fun updateFreshMarathonThisYear(stats: Set<LocalDate>?) = with(binding) {
         putStatistic(
             getString(R.string.longest_fresh_marathon_in_this_year),
             stats,
-            binding.cardFreshThisYear.statsDescription,
-            binding.cardFreshThisYear.statsValue,
-            binding.cardFreshThisYear.root
+            cardFreshThisYear.statsDescription,
+            cardFreshThisYear.statsValue,
+            cardFreshThisYear.root
         )
     }
 
-    private fun updateFreshMarathonAllTime(stats: Set<LocalDate>?) {
+    private fun updateFreshMarathonAllTime(stats: Set<LocalDate>?) = with(binding) {
         putStatistic(
             getString(R.string.longest_fresh_marathon_all_time),
             stats,
-            binding.cardFreshAllTime.statsDescription,
-            binding.cardFreshAllTime.statsValue,
-            binding.cardFreshAllTime.root
+            cardFreshAllTime.statsDescription,
+            cardFreshAllTime.statsValue,
+            cardFreshAllTime.root
         )
     }
 
