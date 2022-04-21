@@ -8,15 +8,19 @@ import com.posse.kotlin1.calendar.common.domain.model.Response
 import com.posse.kotlin1.calendar.common.domain.use_case.AccountUseCases
 import com.posse.kotlin1.calendar.feature_calendar.domain.model.DayData
 import com.posse.kotlin1.calendar.feature_calendar.domain.use_case.DatesUseCases
+import com.posse.kotlin1.calendar.feature_calendar.domain.use_case.SendMessage
 import com.posse.kotlin1.calendar.feature_calendar.presentation.model.*
 import com.posse.kotlin1.calendar.view.calendar.DrinkType
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+@HiltViewModel
 class CalendarViewModel @Inject constructor(
     private val datesUseCases: DatesUseCases,
     private val accountUseCases: AccountUseCases,
+    private val sendMessage: SendMessage,
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
@@ -31,6 +35,7 @@ class CalendarViewModel @Inject constructor(
     private val statisticState = mutableStateOf(StatisticWithDaysState())
 
     init {
+        setLoadingState(isLoading = true)
         try {
             viewModelScope.launch {
                 if (mail == null) {
@@ -98,11 +103,11 @@ class CalendarViewModel @Inject constructor(
                 val currentDates = state.value.dates.toMutableSet()
                 val isSuccess = when (dateClicked.day.drinkType) {
                     DrinkType.Full.value, DrinkType.Half.value -> {
-                        addDay(mail, dateClicked, currentDates)
+                        addDay(mail, dateClicked, currentDates).also { success ->
+                            if (success) sendMessage(mail, dateClicked.day)
+                        }
                     }
-                    else -> {
-                        removeDay(mail, dateClicked, currentDates)
-                    }
+                    else -> removeDay(mail, dateClicked, currentDates)
                 }
                 if (isSuccess) setScreenState(currentDates)
                 else handleError()
@@ -114,19 +119,23 @@ class CalendarViewModel @Inject constructor(
         mail: String,
         dateClicked: CalendarEvent.DateClicked,
         currentDates: MutableSet<DayData>
-    ) = if (datesUseCases.deleteDate(mail, dateClicked.day)) {
-        currentDates.remove(dateClicked.day)
-        true
-    } else false
+    ): Boolean {
+        return if (datesUseCases.deleteDate(mail, dateClicked.day)) {
+            currentDates.remove(dateClicked.day)
+            true
+        } else false
+    }
 
     private suspend fun addDay(
         mail: String,
         dateClicked: CalendarEvent.DateClicked,
         currentDates: MutableSet<DayData>
-    ) = if (datesUseCases.setDate(mail, dateClicked.day)) {
-        currentDates.add(dateClicked.day)
-        true
-    } else false
+    ): Boolean {
+        return if (datesUseCases.setDate(mail, dateClicked.day)) {
+            currentDates.add(dateClicked.day)
+            true
+        } else false
+    }
 
     private fun setScreenState(currentDates: Set<DayData>) {
         val statistic = datesUseCases.calculateStatistic(currentDates)

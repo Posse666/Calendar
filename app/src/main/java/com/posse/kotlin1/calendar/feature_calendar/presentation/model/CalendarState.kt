@@ -5,7 +5,7 @@ import com.posse.kotlin1.calendar.feature_calendar.domain.model.DayData
 data class CalendarState(
     val isFriendsSectionVisible: Boolean = false,
     val selectedFriend: String? = null,
-    val isLoading: Boolean = true,
+    val isLoading: Boolean = false,
     val dates: Set<DayData> = emptySet(),
     val isStatisticOpened: Boolean = false,
     val statistic: StatisticState = StatisticState()

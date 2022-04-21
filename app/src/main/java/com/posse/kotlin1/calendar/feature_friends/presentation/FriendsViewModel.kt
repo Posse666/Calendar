@@ -1,9 +1,6 @@
 package com.posse.kotlin1.calendar.feature_friends.presentation
 
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.*
 import com.posse.kotlin1.calendar.common.data.model.Contact
 import com.posse.kotlin1.calendar.common.data.model.Documents
 import com.posse.kotlin1.calendar.common.data.model.Friend
@@ -12,6 +9,7 @@ import com.posse.kotlin1.calendar.common.domain.use_case.AccountUseCases
 import com.posse.kotlin1.calendar.feature_friends.domain.use_case.FriendsUseCases
 import com.posse.kotlin1.calendar.feature_friends.presentation.model.FriendsState
 import com.posse.kotlin1.calendar.feature_friends.presentation.model.FriendsUIEvent
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asSharedFlow
@@ -19,12 +17,14 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+@HiltViewModel
 class FriendsViewModel @Inject constructor(
     private val accountUseCases: AccountUseCases,
-    private val friendsUseCases: FriendsUseCases
+    private val friendsUseCases: FriendsUseCases,
+    savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
-    private var mail: String? = null
+    private var mail: String? = savedStateHandle["email"]
 
     private val _state = MutableStateFlow(FriendsState())
     val state get() = _state.asStateFlow()
@@ -33,57 +33,22 @@ class FriendsViewModel @Inject constructor(
     val event get() = _event.asSharedFlow()
 
     init {
-        try {
-            viewModelScope.launch {
-                mail = accountUseCases.getMyMail()
-
-                mail?.let { mail ->
-                    val friends = friendsUseCases.getFriends(mail)
-                    setFriends(friends)
-                } ?: handleError()
-            }
-        } catch (e: Exception) {
-            handleError()
-        }
-    }
-
-
-    private val friendsData: MutableSet<Friend> = mutableSetOf()
-    private lateinit var email: String
-    private val liveDataToObserve: MutableLiveData<Pair<Boolean, Set<Friend>>> =
-        MutableLiveData(Pair(false, hashSetOf()))
-
-    fun getLiveData(): LiveData<Pair<Boolean, Set<Friend>>> = liveDataToObserve
-
-    fun refreshLiveData(email: String, callback: ((Boolean?) -> Unit)) {
-        this.email = email
-        liveDataToObserve.value = Pair(false, emptySet())
-        repository.getData(Documents.Friends, email) { friends, isOffline ->
-            friendsData.clear()
+        setLoadingState(isLoading = true)
+        if (mail == null) {
             try {
-                friends?.values?.forEach { friendMap ->
-                    @Suppress("UNCHECKED_CAST")
-                    val friend = (friendMap as Map<String, Any>).toDataClass<Friend>()
-                    if (!friend.blocked) friendsData.add(friend)
+                viewModelScope.launch {
+                    mail = accountUseCases.getMyMail()
+
+                    mail?.let { mail ->
+                        val friends = friendsUseCases.getFriends(mail)
+                        val sortedFriends = friendsUseCases.sortFriends(mail, friends)
+                        setFriends(sortedFriends)
+                    } ?: handleError()
                 }
             } catch (e: Exception) {
-                callback(null)
-            }
-            sortPositions(friendsData.toList().sortedBy { it.position })
-            liveDataToObserve.value = Pair(true, friendsData)
-            if (isOffline) callback(isOffline)
-        }
-    }
-
-    private fun sortPositions(list: List<Friend>) {
-        for (i in list.indices) {
-            if (list[i].position != i) {
-                list[i].position = i
-                repository.saveItem(Documents.Friends, email, list[i])
+                handleError()
             }
         }
-        friendsData.clear()
-        friendsData.addAll(list)
     }
 
     fun friendSelected(friend: Friend) {

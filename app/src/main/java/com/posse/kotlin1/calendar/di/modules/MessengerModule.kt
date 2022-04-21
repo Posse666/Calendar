@@ -1,17 +1,21 @@
 package com.posse.kotlin1.calendar.di.modules
 
+import com.posse.kotlin1.calendar.common.data.repository.MessageHandlerImpl
 import com.posse.kotlin1.calendar.common.data.repository.MessengerImpl
+import com.posse.kotlin1.calendar.common.domain.repository.MessageHandler
 import com.posse.kotlin1.calendar.common.domain.repository.Messenger
+import dagger.Binds
 import dagger.Module
-import dagger.Provides
 import javax.inject.Singleton
 
 @Module
-class MessengerModule {
+interface MessengerModule {
 
-    @Provides
+    @Binds
     @Singleton
-    fun provideMessenger(): Messenger {
-        return MessengerImpl()
-    }
+    fun provideMessenger(messengerImpl: MessengerImpl): Messenger
+
+    @Binds
+    @Singleton
+    fun provideMessageHandler(messageHandlerImpl: MessageHandlerImpl): MessageHandler
 }

@@ -17,12 +17,14 @@ import com.posse.kotlin1.calendar.view.friends.FriendsFragment
 import com.posse.kotlin1.calendar.view.myCalendar.MyCalendarFragment
 import com.posse.kotlin1.calendar.view.settings.SettingsFragment
 import dagger.android.AndroidInjection
+import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 import kotlin.system.exitProcess
 
 private const val KEY_SELECTED = "Selected item"
 private const val BACK_BUTTON_EXIT_DELAY = 3000
 
+@AndroidEntryPoint
 class MainActivity : AppCompatActivity(), SettingsTabSwitcher, ActivityRefresher {
     @Inject
     lateinit var localeUtils: LocaleUtils

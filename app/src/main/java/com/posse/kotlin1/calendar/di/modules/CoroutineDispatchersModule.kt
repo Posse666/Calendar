@@ -2,16 +2,17 @@ package com.posse.kotlin1.calendar.di.modules
 
 import com.posse.kotlin1.calendar.common.domain.utils.DispatcherProvider
 import com.posse.kotlin1.calendar.common.domain.utils.DispatcherProviderImpl
+import dagger.Binds
 import dagger.Module
-import dagger.Provides
+import dagger.hilt.InstallIn
+import dagger.hilt.components.SingletonComponent
 import javax.inject.Singleton
 
 @Module
-class CoroutineDispatchersModule {
+@InstallIn(SingletonComponent::class)
+interface CoroutineDispatchersModule {
 
-    @Provides
+    @Binds
     @Singleton
-    fun provideDispatchers(): DispatcherProvider {
-        return DispatcherProviderImpl()
-    }
+    fun bindDispatchers(dispatcherProviderImpl: DispatcherProviderImpl): DispatcherProvider
 }

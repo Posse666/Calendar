@@ -4,8 +4,9 @@ import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.firebase.auth.FirebaseAuth
 import com.posse.kotlin1.calendar.common.domain.repository.AccountRepository
 import kotlinx.coroutines.coroutineScope
+import javax.inject.Inject
 
-class AccountRepositoryImpl(
+class AccountRepositoryImpl @Inject constructor(
     private var googleAccount: GoogleSignInAccount?
 ) : AccountRepository {
 

@@ -5,25 +5,16 @@ import com.google.firebase.firestore.FirebaseFirestoreSettings
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.firestore.ktx.firestoreSettings
 import com.google.firebase.ktx.Firebase
-import com.posse.kotlin1.calendar.common.domain.utils.DispatcherProvider
-import com.posse.kotlin1.calendar.feature_calendar.data.repository.DatesRepositoryImpl
-import com.posse.kotlin1.calendar.feature_calendar.domain.repository.DatesRepository
 import dagger.Module
 import dagger.Provides
+import dagger.hilt.InstallIn
+import dagger.hilt.components.SingletonComponent
 import javax.inject.Singleton
 
 @Suppress("FunctionName")
 @Module
+@InstallIn(SingletonComponent::class)
 class DataSourceModule {
-
-    @Provides
-    @Singleton
-    fun provideDatesRepository(
-        firestore: FirebaseFirestore,
-        dispatcherProvider: DispatcherProvider
-    ): DatesRepository {
-        return DatesRepositoryImpl(firestore, dispatcherProvider)
-    }
 
     @Provides
     @Singleton

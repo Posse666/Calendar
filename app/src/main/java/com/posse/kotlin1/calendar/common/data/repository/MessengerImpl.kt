@@ -8,8 +8,9 @@ import com.posse.kotlin1.calendar.common.domain.model.Message
 import com.posse.kotlin1.calendar.common.domain.repository.Messenger
 import com.posse.kotlin1.calendar.firebaseMessagingService.MyFirebaseMessagingService
 import java.util.*
+import javax.inject.Inject
 
-class MessengerImpl : Messenger {
+class MessengerImpl @Inject constructor() : Messenger {
     override fun sendPush(message: Message) {
         val remoteMessage = getMessage(message)
         Firebase.messaging.send(remoteMessage)

@@ -6,8 +6,9 @@ import com.posse.kotlin1.calendar.feature_calendar.presentation.model.StatisticW
 import java.time.LocalDate
 import java.time.Year
 import java.time.temporal.ChronoUnit
+import javax.inject.Inject
 
-class CalculateStatistic {
+class CalculateStatistic @Inject constructor() {
 
     operator fun invoke(days: Set<DayData>): StatisticWithDaysState {
         val dates = days.map { convertLongToLocalDale(it.date) }

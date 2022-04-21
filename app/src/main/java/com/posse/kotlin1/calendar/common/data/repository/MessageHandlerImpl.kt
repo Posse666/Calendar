@@ -11,8 +11,9 @@ import com.posse.kotlin1.calendar.common.domain.utils.NetworkStatus
 import com.posse.kotlin1.calendar.feature_calendar.domain.model.DayData
 import kotlinx.coroutines.withContext
 import java.io.IOException
+import javax.inject.Inject
 
-class MessageHandlerImpl(
+class MessageHandlerImpl @Inject constructor(
     private val messenger: Messenger,
     private val networkStatus: NetworkStatus,
     private val usersRepository: UsersRepository,

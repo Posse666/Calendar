@@ -10,19 +10,20 @@ import androidx.core.content.getSystemService
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
 import com.posse.kotlin1.calendar.R
-import com.posse.kotlin1.calendar.common.data.model.User
 import com.posse.kotlin1.calendar.common.data.model.Documents
+import com.posse.kotlin1.calendar.common.data.model.User
 import com.posse.kotlin1.calendar.common.data.utils.convertLongToLocalDale
 import com.posse.kotlin1.calendar.common.data.utils.toDataClass
 import com.posse.kotlin1.calendar.model.repository.Repository
 import com.posse.kotlin1.calendar.model.repository.RepositoryFirestoreImpl.Companion.COLLECTION_USERS
 import com.posse.kotlin1.calendar.utils.*
 import com.posse.kotlin1.calendar.view.calendar.DrinkType
-import dagger.android.AndroidInjection
+import dagger.hilt.android.AndroidEntryPoint
 import java.time.LocalDate
 import java.util.*
 import javax.inject.Inject
 
+@AndroidEntryPoint
 class MyFirebaseMessagingService : FirebaseMessagingService() {
     @Inject
     lateinit var repository: Repository
@@ -36,11 +37,6 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
     private lateinit var channelName: String
     private lateinit var channelDescriptionText: String
     private lateinit var channelID: String
-
-    override fun onCreate() {
-        AndroidInjection.inject(this)
-        super.onCreate()
-    }
 
     override fun onMessageReceived(remoteMessage: RemoteMessage) {
         val remoteMessageData = remoteMessage.data
@@ -90,7 +86,8 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
                 val drunk = resources.getString(drunkResource)
                 when (val date = convertLongToLocalDale(message.toLong())) {
                     LocalDate.now() -> "$drunk ${resources.getString(R.string.today)}!"
-                    LocalDate.now().minusDays(1) -> "$drunk ${resources.getString(R.string.yesterday)}!"
+                    LocalDate.now()
+                        .minusDays(1) -> "$drunk ${resources.getString(R.string.yesterday)}!"
                     else -> "$drunk $date!"
                 }
             }

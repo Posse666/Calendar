@@ -1,10 +1,9 @@
 package com.posse.kotlin1.calendar.feature_calendar.data.repository
 
 import com.google.firebase.firestore.DocumentSnapshot
-import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.firestore.SetOptions
 import com.posse.kotlin1.calendar.common.data.model.Documents
+import com.posse.kotlin1.calendar.common.data.repository.FirestoreRepository
 import com.posse.kotlin1.calendar.common.data.utils.toDataClass
 import com.posse.kotlin1.calendar.common.domain.model.Response
 import com.posse.kotlin1.calendar.common.domain.utils.DispatcherProvider
@@ -13,9 +12,11 @@ import com.posse.kotlin1.calendar.feature_calendar.domain.repository.DatesReposi
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.tasks.await
+import javax.inject.Inject
 
-class DatesRepositoryImpl(
+class DatesRepositoryImpl @Inject constructor(
     private val firestore: FirebaseFirestore,
+    private val firestoreRepository: FirestoreRepository,
     private val dispatcherProvider: DispatcherProvider
 ) : DatesRepository {
     override fun getDates(userMail: String) = flow<Response<List<DayData>>> {
@@ -37,24 +38,13 @@ class DatesRepositoryImpl(
         day: DayData,
         shouldDelete: Boolean
     ): Boolean {
-
-        val documentToChange = firestore
-            .collection(userMail)
-            .document(Documents.Dates.value)
-
-        val value: Any = if (shouldDelete) FieldValue.delete() else day
-
-        return try {
-            documentToChange
-                .set(
-                    mapOf(Pair(day.toString(), value)),
-                    SetOptions.merge()
-                )
-                .await()
-            true
-        } catch (e: Exception) {
-            false
-        }
+        return firestoreRepository
+            .changeItem(
+                collection = userMail,
+                document = Documents.Dates,
+                data = day,
+                delete = shouldDelete
+            )
     }
 
     private suspend fun getSnapshot(userMail: String): DocumentSnapshot {
