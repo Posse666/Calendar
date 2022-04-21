@@ -17,7 +17,7 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import com.posse.kotlin1.calendar.R
 import com.posse.kotlin1.calendar.databinding.FragmentShareBinding
-import com.posse.kotlin1.calendar.model.Contact
+import com.posse.kotlin1.calendar.common.data.model.Contact
 import com.posse.kotlin1.calendar.utils.Account
 import com.posse.kotlin1.calendar.utils.showToast
 import com.posse.kotlin1.calendar.view.update.UpdateDialog

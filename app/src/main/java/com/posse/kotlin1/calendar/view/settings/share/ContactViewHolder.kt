@@ -3,7 +3,7 @@ package com.posse.kotlin1.calendar.view.settings.share
 import androidx.recyclerview.widget.RecyclerView
 import com.posse.kotlin1.calendar.R
 import com.posse.kotlin1.calendar.databinding.ContactLayoutBinding
-import com.posse.kotlin1.calendar.model.Contact
+import com.posse.kotlin1.calendar.common.data.model.Contact
 import com.posse.kotlin1.calendar.utils.disappear
 import com.posse.kotlin1.calendar.utils.putText
 

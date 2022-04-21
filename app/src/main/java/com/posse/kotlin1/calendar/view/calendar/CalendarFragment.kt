@@ -17,8 +17,9 @@ import com.kizitonwose.calendarview.model.DayOwner
 import com.kizitonwose.calendarview.ui.DayBinder
 import com.kizitonwose.calendarview.ui.MonthHeaderFooterBinder
 import com.posse.kotlin1.calendar.R
+import com.posse.kotlin1.calendar.common.data.utils.convertLocalDateToLong
+import com.posse.kotlin1.calendar.common.data.utils.convertLongToLocalDale
 import com.posse.kotlin1.calendar.databinding.FragmentCalendarBinding
-import com.posse.kotlin1.calendar.model.DataModel
 import com.posse.kotlin1.calendar.utils.*
 import com.posse.kotlin1.calendar.view.calendar.chooseLayout.ChooseFragment
 import com.posse.kotlin1.calendar.view.statistic.StatisticFragment
@@ -49,7 +50,7 @@ class CalendarFragment : Fragment(), StatisticListener {
     private val viewModel: CalendarViewModel by lazy {
         viewModelFactory.get().create(CalendarViewModel::class.java)
     }
-    private val actualState: MutableSet<DataModel> = mutableSetOf()
+    private val actualState: MutableSet<com.posse.kotlin1.calendar.feature_calendar.domain.model.DayData> = mutableSetOf()
     private var isInitCompleted: Boolean = false
     private var email: String? = null
     private var isMyCalendar = false
@@ -223,7 +224,10 @@ class CalendarFragment : Fragment(), StatisticListener {
                         container.view.setOnClickListener {
                             ChooseFragment.newInstance(day.date.dayOfMonth) {
                                 viewModel.dayClicked(
-                                    DataModel(convertLocalDateToLong(day.date), it?.value)
+                                    com.posse.kotlin1.calendar.feature_calendar.domain.model.DayData(
+                                        convertLocalDateToLong(day.date),
+                                        it?.value
+                                    )
                                 ) {
                                     UpdateDialog.newInstance().show(childFragmentManager, null)
                                 }

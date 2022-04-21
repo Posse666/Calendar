@@ -3,7 +3,7 @@ package com.posse.kotlin1.calendar.utils
 import android.content.SharedPreferences
 import android.content.res.Configuration
 import android.content.res.Resources
-import com.posse.kotlin1.calendar.view.MainActivity
+import com.posse.kotlin1.calendar.common.presentation.MainActivity
 import java.util.*
 import javax.inject.Inject
 

@@ -1,7 +1,7 @@
 package com.posse.kotlin1.calendar.utils
 
 import androidx.recyclerview.widget.DiffUtil
-import com.posse.kotlin1.calendar.model.Person
+import com.posse.kotlin1.calendar.common.data.model.Person
 
 class DiffUtilCallback(
     private var oldItems: List<Person>,

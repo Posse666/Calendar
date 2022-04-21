@@ -19,7 +19,8 @@ import javax.inject.Singleton
         DataSourceModule::class,
         NetworkModule::class,
         ServicesModule::class,
-        GoogleModule::class
+        GoogleModule::class,
+        CoroutineDispatchersModule::class
     ]
 )
 

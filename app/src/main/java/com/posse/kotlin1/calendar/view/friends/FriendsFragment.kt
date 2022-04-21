@@ -13,7 +13,7 @@ import com.posse.kotlin1.calendar.databinding.FragmentFriendsBinding
 import com.posse.kotlin1.calendar.utils.Account
 import com.posse.kotlin1.calendar.utils.putText
 import com.posse.kotlin1.calendar.utils.showToast
-import com.posse.kotlin1.calendar.view.SettingsTabSwitcher
+import com.posse.kotlin1.calendar.common.presentation.SettingsTabSwitcher
 import com.posse.kotlin1.calendar.view.calendar.CalendarFragment
 import com.posse.kotlin1.calendar.view.friends.list.FriendsListFragment
 import com.posse.kotlin1.calendar.view.update.UpdateDialog

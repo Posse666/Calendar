@@ -10,7 +10,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.color.MaterialColors
 import com.posse.kotlin1.calendar.R
 import com.posse.kotlin1.calendar.databinding.ContactLayoutBinding
-import com.posse.kotlin1.calendar.model.Contact
+import com.posse.kotlin1.calendar.common.data.model.Contact
 import com.posse.kotlin1.calendar.utils.Animator
 import com.posse.kotlin1.calendar.utils.Change
 import com.posse.kotlin1.calendar.utils.DiffUtilCallback

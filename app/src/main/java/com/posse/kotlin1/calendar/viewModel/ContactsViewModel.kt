@@ -4,18 +4,18 @@ import android.content.SharedPreferences
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.posse.kotlin1.calendar.firebaseMessagingService.Messenger
 import com.posse.kotlin1.calendar.firebaseMessagingService.MyFirebaseMessagingService.Companion.ADDED_YOU
 import com.posse.kotlin1.calendar.firebaseMessagingService.MyFirebaseMessagingService.Companion.REMOVED_YOU
-import com.posse.kotlin1.calendar.model.Contact
-import com.posse.kotlin1.calendar.model.Friend
-import com.posse.kotlin1.calendar.model.User
-import com.posse.kotlin1.calendar.model.repository.Documents
+import com.posse.kotlin1.calendar.common.data.model.Contact
+import com.posse.kotlin1.calendar.common.data.model.Friend
+import com.posse.kotlin1.calendar.common.data.model.User
+import com.posse.kotlin1.calendar.common.data.model.Documents
 import com.posse.kotlin1.calendar.model.repository.Repository
 import com.posse.kotlin1.calendar.model.repository.RepositoryFirestoreImpl.Companion.COLLECTION_USERS
-import com.posse.kotlin1.calendar.utils.NetworkStatus
+import com.posse.kotlin1.calendar.common.domain.utils.NetworkStatus
 import com.posse.kotlin1.calendar.utils.nickName
-import com.posse.kotlin1.calendar.utils.toDataClass
+import com.posse.kotlin1.calendar.common.data.utils.toDataClass
+import com.posse.kotlin1.calendar.common.domain.repository.Messenger
 import javax.inject.Inject
 
 class ContactsViewModel @Inject constructor(

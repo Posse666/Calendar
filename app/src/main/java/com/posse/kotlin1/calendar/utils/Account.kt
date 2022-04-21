@@ -17,8 +17,10 @@ import com.google.android.gms.common.api.ApiException
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.GoogleAuthProvider
 import com.posse.kotlin1.calendar.R
-import com.posse.kotlin1.calendar.model.User
-import com.posse.kotlin1.calendar.model.repository.Documents
+import com.posse.kotlin1.calendar.common.data.model.User
+import com.posse.kotlin1.calendar.common.data.model.Documents
+import com.posse.kotlin1.calendar.common.data.utils.toDataClass
+import com.posse.kotlin1.calendar.common.domain.utils.NetworkStatus
 import com.posse.kotlin1.calendar.model.repository.Repository
 import com.posse.kotlin1.calendar.model.repository.RepositoryFirestoreImpl.Companion.COLLECTION_USERS
 import javax.inject.Inject

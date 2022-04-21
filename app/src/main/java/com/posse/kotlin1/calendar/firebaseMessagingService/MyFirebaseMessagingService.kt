@@ -10,8 +10,10 @@ import androidx.core.content.getSystemService
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
 import com.posse.kotlin1.calendar.R
-import com.posse.kotlin1.calendar.model.User
-import com.posse.kotlin1.calendar.model.repository.Documents
+import com.posse.kotlin1.calendar.common.data.model.User
+import com.posse.kotlin1.calendar.common.data.model.Documents
+import com.posse.kotlin1.calendar.common.data.utils.convertLongToLocalDale
+import com.posse.kotlin1.calendar.common.data.utils.toDataClass
 import com.posse.kotlin1.calendar.model.repository.Repository
 import com.posse.kotlin1.calendar.model.repository.RepositoryFirestoreImpl.Companion.COLLECTION_USERS
 import com.posse.kotlin1.calendar.utils.*
@@ -48,7 +50,7 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
     }
 
     private fun handleDataMessage(data: Map<String, String>) {
-        val name = data[PUSH_KEY_TITLE]
+        val name = data[PUSH_KEY_TITLE]  //  TODO get username from base by email
         val message = data[PUSH_KEY_MESSAGE]
         val drinkType = data[DRINK_TYPE]
         if (!name.isNullOrBlank() && !message.isNullOrBlank()) {
@@ -130,8 +132,6 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
     }
 
     companion object {
-        const val ADDED_YOU: Long = -1
-        const val REMOVED_YOU: Long = -2
         const val PUSH_KEY_TITLE = "title"
         const val PUSH_KEY_MESSAGE = "message"
         const val DRINK_TYPE = "drinkType"

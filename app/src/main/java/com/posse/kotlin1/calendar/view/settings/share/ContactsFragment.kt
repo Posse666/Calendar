@@ -12,7 +12,7 @@ import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.DialogFragment
 import com.posse.kotlin1.calendar.R
 import com.posse.kotlin1.calendar.databinding.FragmentContactsBinding
-import com.posse.kotlin1.calendar.model.Contact
+import com.posse.kotlin1.calendar.common.data.model.Contact
 import com.posse.kotlin1.calendar.utils.*
 import com.posse.kotlin1.calendar.view.update.UpdateDialog
 import com.posse.kotlin1.calendar.viewModel.ContactsViewModel

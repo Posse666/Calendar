@@ -34,6 +34,14 @@ var SharedPreferences.nickName: String?
             .apply()
     }
 
+var SharedPreferences.email: String?
+    get() = this.getString("email", null)
+    set(value) {
+        this.edit()
+            .putString("email", value)
+            .apply()
+    }
+
 var SharedPreferences.token: String?
     get() = this.getString("token", null)
     set(value) {

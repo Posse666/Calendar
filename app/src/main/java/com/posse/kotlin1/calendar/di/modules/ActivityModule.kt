@@ -1,6 +1,6 @@
 package com.posse.kotlin1.calendar.di.modules
 
-import com.posse.kotlin1.calendar.view.MainActivity
+import com.posse.kotlin1.calendar.common.presentation.MainActivity
 import dagger.Module
 import dagger.android.ContributesAndroidInjector
 

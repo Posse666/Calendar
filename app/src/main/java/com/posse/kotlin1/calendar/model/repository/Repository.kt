@@ -1,6 +1,7 @@
 package com.posse.kotlin1.calendar.model.repository
 
-import com.posse.kotlin1.calendar.model.User
+import com.posse.kotlin1.calendar.common.data.model.Documents
+import com.posse.kotlin1.calendar.common.data.model.User
 
 interface Repository {
     fun getData(

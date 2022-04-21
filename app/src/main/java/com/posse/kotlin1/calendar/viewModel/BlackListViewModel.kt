@@ -3,10 +3,10 @@ package com.posse.kotlin1.calendar.viewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.posse.kotlin1.calendar.model.Friend
-import com.posse.kotlin1.calendar.model.repository.Documents
+import com.posse.kotlin1.calendar.common.data.model.Friend
+import com.posse.kotlin1.calendar.common.data.model.Documents
 import com.posse.kotlin1.calendar.model.repository.Repository
-import com.posse.kotlin1.calendar.utils.toDataClass
+import com.posse.kotlin1.calendar.common.data.utils.toDataClass
 import javax.inject.Inject
 
 class BlackListViewModel @Inject constructor(private val repository: Repository) : ViewModel() {

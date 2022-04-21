@@ -9,7 +9,12 @@ import dagger.Module
 import dagger.multibindings.IntoMap
 import kotlin.reflect.KClass
 
-@Module
+@Module(
+    includes = [
+        DatesModule::class,
+        MessengerModule::class
+    ]
+)
 interface ViewModelModule {
 
     @Binds

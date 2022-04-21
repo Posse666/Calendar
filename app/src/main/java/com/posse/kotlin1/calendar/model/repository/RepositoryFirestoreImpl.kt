@@ -4,10 +4,11 @@ import android.content.SharedPreferences
 import android.util.Log
 import com.google.firebase.firestore.*
 import com.google.firebase.messaging.FirebaseMessaging
-import com.posse.kotlin1.calendar.model.User
+import com.posse.kotlin1.calendar.common.data.model.Documents
+import com.posse.kotlin1.calendar.common.data.model.User
 import com.posse.kotlin1.calendar.utils.LocaleUtils
-import com.posse.kotlin1.calendar.utils.NetworkStatus
-import com.posse.kotlin1.calendar.utils.convertLongToLocalDale
+import com.posse.kotlin1.calendar.common.domain.utils.NetworkStatus
+import com.posse.kotlin1.calendar.common.data.utils.convertLongToLocalDale
 import com.posse.kotlin1.calendar.utils.token
 import javax.inject.Inject
 
