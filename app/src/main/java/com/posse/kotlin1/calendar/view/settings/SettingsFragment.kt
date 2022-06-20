@@ -26,6 +26,8 @@ import com.posse.kotlin1.calendar.utils.*
 import com.posse.kotlin1.calendar.utils.LocaleUtils.Companion.LOCALE_EN
 import com.posse.kotlin1.calendar.utils.LocaleUtils.Companion.LOCALE_RU
 import com.posse.kotlin1.calendar.common.presentation.ActivityRefresher
+import com.posse.kotlin1.calendar.common.presentation.utils.Account
+import com.posse.kotlin1.calendar.common.presentation.utils.AccountState
 import com.posse.kotlin1.calendar.view.settings.blackList.BlackListFragment
 import com.posse.kotlin1.calendar.view.settings.share.ShareFragment
 import com.posse.kotlin1.calendar.view.update.UpdateDialog

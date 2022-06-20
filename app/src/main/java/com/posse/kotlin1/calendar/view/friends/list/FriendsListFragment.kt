@@ -10,7 +10,8 @@ import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.ItemTouchHelper
 import com.posse.kotlin1.calendar.R
 import com.posse.kotlin1.calendar.databinding.FragmentRecyclerListBinding
-import com.posse.kotlin1.calendar.common.data.model.Friend
+import com.posse.kotlin1.calendar.common.domain.model.Friend
+import com.posse.kotlin1.calendar.common.presentation.utils.Account
 import com.posse.kotlin1.calendar.utils.*
 import com.posse.kotlin1.calendar.view.deleteConfirmation.DeleteFragmentDialog
 import com.posse.kotlin1.calendar.view.update.UpdateDialog

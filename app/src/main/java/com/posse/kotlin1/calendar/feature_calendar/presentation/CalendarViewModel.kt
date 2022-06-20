@@ -12,7 +12,11 @@ import com.posse.kotlin1.calendar.feature_calendar.domain.use_case.SendMessage
 import com.posse.kotlin1.calendar.feature_calendar.presentation.model.*
 import com.posse.kotlin1.calendar.view.calendar.DrinkType
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -29,8 +33,8 @@ class CalendarViewModel @Inject constructor(
     private val _state = MutableStateFlow(CalendarState())
     val state get() = _state.asStateFlow()
 
-    private val _event = MutableSharedFlow<CalendarUIEvent>()
-    val event get() = _event.asSharedFlow()
+    private val _event = Channel<CalendarUIEvent>()
+    val event get() = _event.receiveAsFlow()
 
     private val statisticState = mutableStateOf(StatisticWithDaysState())
 
@@ -69,7 +73,7 @@ class CalendarViewModel @Inject constructor(
 
     private fun handleError() {
         viewModelScope.launch {
-            _event.emit(CalendarUIEvent.ErrorLoading)
+            _event.send(CalendarUIEvent.ErrorLoading)
         }
         setLoadingState(isLoading = false)
     }
@@ -93,7 +97,7 @@ class CalendarViewModel @Inject constructor(
                 StatisticEntry.FreshRowThisYear -> statisticState.value.freshRowThisYear
                 StatisticEntry.FreshRowOverall -> statisticState.value.freshRowOverall
             }
-            _event.emit(CalendarUIEvent.ScrollToSelectedStatistic(stats))
+            _event.send(CalendarUIEvent.ScrollToSelectedStatistic(stats))
         }
     }
 

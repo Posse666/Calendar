@@ -4,5 +4,6 @@ import javax.inject.Inject
 
 data class FriendsUseCases @Inject constructor(
     val getFriends: GetFriends,
-    val sortFriends: SortFriends
+    val saveFriend: SaveFriend,
+    val deleteFriend: DeleteFriend
 )

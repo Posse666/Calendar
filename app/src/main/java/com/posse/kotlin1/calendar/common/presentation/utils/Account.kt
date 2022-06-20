@@ -1,4 +1,4 @@
-package com.posse.kotlin1.calendar.utils
+package com.posse.kotlin1.calendar.common.presentation.utils
 
 import android.app.Activity
 import android.content.Context
@@ -17,12 +17,15 @@ import com.google.android.gms.common.api.ApiException
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.GoogleAuthProvider
 import com.posse.kotlin1.calendar.R
-import com.posse.kotlin1.calendar.common.data.model.User
 import com.posse.kotlin1.calendar.common.data.model.Documents
+import com.posse.kotlin1.calendar.common.data.model.User
 import com.posse.kotlin1.calendar.common.data.utils.toDataClass
 import com.posse.kotlin1.calendar.common.domain.utils.NetworkStatus
 import com.posse.kotlin1.calendar.model.repository.Repository
 import com.posse.kotlin1.calendar.model.repository.RepositoryFirestoreImpl.Companion.COLLECTION_USERS
+import com.posse.kotlin1.calendar.utils.StringProvider
+import com.posse.kotlin1.calendar.utils.nickName
+import com.posse.kotlin1.calendar.utils.showToast
 import javax.inject.Inject
 
 class Account @Inject constructor(

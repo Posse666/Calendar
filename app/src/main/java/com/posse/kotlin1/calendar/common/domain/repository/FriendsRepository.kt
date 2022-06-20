@@ -1,8 +1,10 @@
 package com.posse.kotlin1.calendar.common.domain.repository
 
-import com.posse.kotlin1.calendar.common.data.model.Friend
+import com.posse.kotlin1.calendar.common.domain.model.Friend
+import kotlinx.coroutines.flow.Flow
 
 interface FriendsRepository {
-    suspend fun getFriends(email: String): List<Friend>
+    fun getFriends(email: String): Flow<List<Friend>>
     suspend fun saveFriend(userMail: String, friend: Friend): Boolean
+    suspend fun deleteFriend(userMail: String, friend: Friend): Boolean
 }

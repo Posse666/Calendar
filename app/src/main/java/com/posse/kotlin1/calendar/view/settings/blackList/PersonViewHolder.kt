@@ -2,7 +2,7 @@ package com.posse.kotlin1.calendar.view.settings.blackList
 
 import androidx.recyclerview.widget.RecyclerView
 import com.posse.kotlin1.calendar.databinding.PersonLayoutBinding
-import com.posse.kotlin1.calendar.common.data.model.Friend
+import com.posse.kotlin1.calendar.common.domain.model.Friend
 import com.posse.kotlin1.calendar.utils.putText
 
 class PersonViewHolder(

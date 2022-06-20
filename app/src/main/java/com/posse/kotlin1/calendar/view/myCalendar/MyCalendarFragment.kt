@@ -7,7 +7,7 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import com.posse.kotlin1.calendar.R
 import com.posse.kotlin1.calendar.databinding.FragmentMyCalendarBinding
-import com.posse.kotlin1.calendar.utils.Account
+import com.posse.kotlin1.calendar.common.presentation.utils.Account
 import com.posse.kotlin1.calendar.view.calendar.CalendarFragment
 import dagger.android.support.AndroidSupportInjection
 import javax.inject.Inject

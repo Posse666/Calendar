@@ -9,7 +9,7 @@ import androidx.fragment.app.DialogFragment
 import androidx.lifecycle.ViewModelProvider
 import com.posse.kotlin1.calendar.R
 import com.posse.kotlin1.calendar.databinding.FragmentBlackListBinding
-import com.posse.kotlin1.calendar.common.data.model.Friend
+import com.posse.kotlin1.calendar.common.domain.model.Friend
 import com.posse.kotlin1.calendar.utils.*
 import com.posse.kotlin1.calendar.view.update.UpdateDialog
 import com.posse.kotlin1.calendar.viewModel.BlackListViewModel

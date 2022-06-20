@@ -7,7 +7,7 @@ import androidx.lifecycle.ViewModel
 import com.posse.kotlin1.calendar.firebaseMessagingService.MyFirebaseMessagingService.Companion.ADDED_YOU
 import com.posse.kotlin1.calendar.firebaseMessagingService.MyFirebaseMessagingService.Companion.REMOVED_YOU
 import com.posse.kotlin1.calendar.common.data.model.Contact
-import com.posse.kotlin1.calendar.common.data.model.Friend
+import com.posse.kotlin1.calendar.common.domain.model.Friend
 import com.posse.kotlin1.calendar.common.data.model.User
 import com.posse.kotlin1.calendar.common.data.model.Documents
 import com.posse.kotlin1.calendar.model.repository.Repository

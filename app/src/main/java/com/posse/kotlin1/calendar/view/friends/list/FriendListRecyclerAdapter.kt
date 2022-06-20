@@ -5,7 +5,7 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.posse.kotlin1.calendar.databinding.FriendLayoutBinding
-import com.posse.kotlin1.calendar.common.data.model.Friend
+import com.posse.kotlin1.calendar.common.domain.model.Friend
 import com.posse.kotlin1.calendar.utils.DiffUtilCallback
 import com.posse.kotlin1.calendar.utils.Keyboard
 
