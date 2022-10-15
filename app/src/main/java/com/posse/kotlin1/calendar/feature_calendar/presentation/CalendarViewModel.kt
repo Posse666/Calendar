@@ -1,62 +1,88 @@
 package com.posse.kotlin1.calendar.feature_calendar.presentation
 
-import androidx.compose.runtime.mutableStateOf
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.posse.kotlin1.calendar.common.domain.model.DrinkType
 import com.posse.kotlin1.calendar.common.domain.model.Response
-import com.posse.kotlin1.calendar.common.domain.use_case.AccountUseCases
 import com.posse.kotlin1.calendar.feature_calendar.domain.model.DayData
 import com.posse.kotlin1.calendar.feature_calendar.domain.use_case.DatesUseCases
+import com.posse.kotlin1.calendar.feature_calendar.domain.use_case.GetCalendarData
 import com.posse.kotlin1.calendar.feature_calendar.domain.use_case.SendMessage
 import com.posse.kotlin1.calendar.feature_calendar.presentation.model.*
-import com.posse.kotlin1.calendar.view.calendar.DrinkType
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.receiveAsFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import javax.inject.Inject
+import java.time.LocalDate
+import kotlin.random.Random
 
-@HiltViewModel
-class CalendarViewModel @Inject constructor(
+open class CalendarViewModel(
+    private val getCalendarData: GetCalendarData,
     private val datesUseCases: DatesUseCases,
-    private val accountUseCases: AccountUseCases,
     private val sendMessage: SendMessage,
-    savedStateHandle: SavedStateHandle
+    email: String,
 ) : ViewModel() {
 
-    private var mail: String? = savedStateHandle["email"]
+    protected var mail: String = email
 
     private val _state = MutableStateFlow(CalendarState())
     val state get() = _state.asStateFlow()
 
+    private val _statisticState = MutableStateFlow(StatisticWithDaysState())
+    val statisticState = _statisticState.asStateFlow()
+
     private val _event = Channel<CalendarUIEvent>()
     val event get() = _event.receiveAsFlow()
 
-    private val statisticState = mutableStateOf(StatisticWithDaysState())
+    private val _scrollEvent = Channel<LocalDate>()
+    val scrollEvent get() = _scrollEvent.receiveAsFlow()
 
     init {
-        setLoadingState(isLoading = true)
-        try {
-            viewModelScope.launch {
-                if (mail == null) {
-                    mail = accountUseCases.getMyMail()
-                }
-                mail?.let { mail ->
-                    datesUseCases.getDates(mail).onEach { response ->
-                        when (response) {
-                            is Response.Error -> handleError()
-                            is Response.Loading -> setLoadingState(isLoading = true)
-                            is Response.Success -> handleSuccessResult(response)
+        viewModelScope.launch {
+            val calendarData = getCalendarData()
+            _state.update { it.copy(calendarData = calendarData) }
+            getUserData()
+            _scrollEvent.send(LocalDate.now())
+        }
+    }
+
+//    init {
+//        setLoadingState(isLoading = true)
+//        try {
+////            mail = savedStateHandle["email"] ?: accountUseCases.getMyMail()
+//
+//            datesUseCases.getDates(mail).onEach { response ->
+//                when (response) {
+//                    is Response.Error -> handleError()
+//                    is Response.Loading -> setLoadingState(isLoading = true)
+//                    is Response.Success -> handleSuccessResult(response)
+//                }
+//            }
+//        } catch (e: Exception) {
+//            handleError()
+//        }
+//    }
+
+    private fun getUserData() {
+        _state.update { calendarState ->
+            calendarState.copy(
+                calendarData = calendarState.calendarData.map { monthData ->
+                    monthData.copy(
+                        weeks = monthData.weeks.map { week ->
+                            week.map { dayData ->
+                                val random = Random.nextFloat()
+                                dayData?.copy(
+                                    drinkType = if (random > 0.9) DrinkType.Full
+                                    else if (random > 0.8) DrinkType.Half
+                                    else null
+                                )
+                            }
                         }
-                    }
-                } ?: handleError()
-            }
-        } catch (e: Exception) {
-            handleError()
+                    )
+                }
+            )
         }
     }
 
@@ -82,9 +108,10 @@ class CalendarViewModel @Inject constructor(
         when (event) {
             is CalendarEvent.DateClicked -> changeDay(event)
             is CalendarEvent.ToggleStatistic -> {
-                _state.value = state.value.copy(isStatisticOpened = event.isExpanded)
+                _state.update { it.copy(isStatisticOpened = event.isExpanded) } //TODO save state
             }
             is CalendarEvent.StatisticClicked -> handleStatisticClick(event.statisticEntry)
+            is CalendarEvent.StatsUsed -> _state.update { it.copy(isStatsEverShown = true) } //TODO save to settings
         }
     }
 
@@ -92,30 +119,33 @@ class CalendarViewModel @Inject constructor(
         viewModelScope.launch {
             val stats = when (statisticEntry) {
                 StatisticEntry.DaysOverall -> emptyList()
-                StatisticEntry.DrunkRowThisYear -> statisticState.value.drunkRowThisYear
-                StatisticEntry.DrunkRowOverall -> statisticState.value.drunkRowOverall
-                StatisticEntry.FreshRowThisYear -> statisticState.value.freshRowThisYear
-                StatisticEntry.FreshRowOverall -> statisticState.value.freshRowOverall
+                StatisticEntry.DrunkRowThisYear -> _statisticState.value.drunkRowThisYear
+                StatisticEntry.DrunkRowOverall -> _statisticState.value.drunkRowOverall
+                StatisticEntry.FreshRowThisYear -> _statisticState.value.freshRowThisYear
+                StatisticEntry.FreshRowOverall -> _statisticState.value.freshRowOverall
             }
             _event.send(CalendarUIEvent.ScrollToSelectedStatistic(stats))
         }
     }
 
     private fun changeDay(dateClicked: CalendarEvent.DateClicked) {
-        mail?.let { mail ->
-            viewModelScope.launch {
-                val currentDates = state.value.dates.toMutableSet()
-                val isSuccess = when (dateClicked.day.drinkType) {
-                    DrinkType.Full.value, DrinkType.Half.value -> {
-                        addDay(mail, dateClicked, currentDates).also { success ->
-                            if (success) sendMessage(mail, dateClicked.day)
-                        }
-                    }
-                    else -> removeDay(mail, dateClicked, currentDates)
-                }
-                if (isSuccess) setScreenState(currentDates)
-                else handleError()
-            }
+        viewModelScope.launch {
+//            val currentDates = state.value.calendarData
+//                .mapNotNull {
+//                    if (it is CalendarComponent.CalendarDay) it.dayData
+//                    else null
+//                }
+//                .toMutableSet()
+//            val isSuccess = when (dateClicked.day.drinkType) {
+//                DrinkType.Full, DrinkType.Half -> {
+//                    addDay(mail, dateClicked, currentDates).also { success ->
+//                        if (success) sendMessage(mail, dateClicked.day)
+//                    }
+//                }
+//                else -> removeDay(mail, dateClicked, currentDates)
+//            }
+//            if (isSuccess) setScreenState(currentDates)
+//            else handleError()
         }
     }
 
@@ -143,16 +173,16 @@ class CalendarViewModel @Inject constructor(
 
     private fun setScreenState(currentDates: Set<DayData>) {
         val statistic = datesUseCases.calculateStatistic(currentDates)
-        statisticState.value = statistic
-        _state.value = state.value.copy(
-            dates = currentDates,
-            statistic = StatisticState(
-                totalDaysThisYear = statistic.daysOverall.size,
-                drinkRowThisYear = statistic.drunkRowThisYear.size,
-                drinkRowAllTime = statistic.drunkRowOverall.size,
-                freshRowThisYear = statistic.freshRowThisYear.size,
-                freshRowAllTime = statistic.freshRowOverall.size
-            )
-        )
+        _statisticState.value = statistic
+//        _state.value = state.value.copy(
+//            dates = currentDates,
+//            statistic = StatisticState(
+//                totalDaysThisYear = statistic.daysOverall.size,
+//                drinkRowThisYear = statistic.drunkRowThisYear.size,
+//                drinkRowAllTime = statistic.drunkRowOverall.size,
+//                freshRowThisYear = statistic.freshRowThisYear.size,
+//                freshRowAllTime = statistic.freshRowOverall.size
+//            )
+//        )
     }
 }

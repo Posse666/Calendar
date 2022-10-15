@@ -9,9 +9,9 @@ import com.posse.kotlin1.calendar.common.domain.model.Response
 import com.posse.kotlin1.calendar.common.domain.utils.DispatcherProvider
 import com.posse.kotlin1.calendar.feature_calendar.domain.model.DayData
 import com.posse.kotlin1.calendar.feature_calendar.domain.repository.DatesRepository
-import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.channels.awaitClose
+import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.flowOn
-import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
 
 class DatesRepositoryImpl @Inject constructor(
@@ -19,18 +19,23 @@ class DatesRepositoryImpl @Inject constructor(
     private val firestoreRepository: FirestoreRepository,
     private val dispatcherProvider: DispatcherProvider
 ) : DatesRepository {
-    override fun getDates(userMail: String) = flow<Response<List<DayData>>> {
 
-        emit(Response.Loading(null))
+    override fun getDates(userMail: String) = callbackFlow<Response<List<DayData>>> {
+        send(Response.Loading(null))
 
-        val snapshot = getSnapshot(userMail)
+        val subscription = firestore
+            .collection(userMail)
+            .document(Documents.Dates.value)
+            .addSnapshotListener { snapshot, _ ->
+                try {
+                    val result = getResult(snapshot!!)
+                    trySend(Response.Success(result.toList()))
+                } catch (e: Exception) {
+                    trySend(Response.Error("Class cast Exception", null)) //TODO standard message
+                }
+            }
 
-        try {
-            val result = getResult(snapshot)
-            emit(Response.Success(result.toList()))
-        } catch (e: Exception) {
-            emit(Response.Error("Class cast Exception", null))
-        }
+        awaitClose { subscription.remove() }
     }.flowOn(dispatcherProvider.io)
 
     override suspend fun changeDate(
@@ -45,14 +50,6 @@ class DatesRepositoryImpl @Inject constructor(
                 data = day,
                 delete = shouldDelete
             )
-    }
-
-    private suspend fun getSnapshot(userMail: String): DocumentSnapshot {
-        return firestore
-            .collection(userMail)
-            .document(Documents.Dates.value)
-            .get()
-            .await()
     }
 
     private fun getResult(snapshot: DocumentSnapshot): List<DayData> {

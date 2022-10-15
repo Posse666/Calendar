@@ -6,7 +6,7 @@ import javax.inject.Inject
 class GetMyMail @Inject constructor(
     private val accountRepository: AccountRepository
 ) {
-    suspend operator fun invoke(): String?{
-        return accountRepository.getMyMail()
+    operator fun invoke(): String {
+        return accountRepository.getMyEmailOrId()
     }
 }

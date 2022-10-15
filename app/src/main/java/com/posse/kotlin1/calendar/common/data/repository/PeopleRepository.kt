@@ -6,6 +6,7 @@ import com.posse.kotlin1.calendar.common.data.utils.toDataClass
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 class PeopleRepository @Inject constructor(
@@ -32,7 +33,7 @@ class PeopleRepository @Inject constructor(
                 }
             } else emptyList()
 
-            trySend(result)
+            launch { send(result) }
         }
 
         awaitClose { subscription.remove() }

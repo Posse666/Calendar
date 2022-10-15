@@ -12,13 +12,13 @@
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
-        android:theme="@style/Theme.AlcoCalendar">
+        android:theme="@style/Theme.App.Start">
 
         <activity
             android:name=".common.presentation.MainActivity"
             android:exported="true"
             android:screenOrientation="portrait"
-            android:theme="@style/Theme.AlcoCalendar.Splash"
+            android:theme="@style/Theme.App.Start"
             tools:ignore="LockedOrientationActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

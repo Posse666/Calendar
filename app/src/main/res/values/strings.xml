@@ -3,27 +3,6 @@
 
     <string name="backToDateButton">Back to current date</string>
 
-    <string name="january">January</string>
-    <string name="february">February</string>
-    <string name="march">March</string>
-    <string name="april">April</string>
-    <string name="may">May</string>
-    <string name="june">June</string>
-    <string name="july">July</string>
-    <string name="september">September</string>
-    <string name="august">August</string>
-    <string name="october">October</string>
-    <string name="november">November</string>
-    <string name="december">December</string>
-
-    <string name="monday">Mon</string>
-    <string name="tuesday">Tue</string>
-    <string name="wednesday">Wed</string>
-    <string name="thursday">Thu</string>
-    <string name="friday">Fri</string>
-    <string name="saturday">Sat</string>
-    <string name="sunday">Sun</string>
-
     <string name="in_this_year_you_drank">Drunk days in this year</string>
     <string name="longest_drink_marathon_in_this_year">Longest drink marathon in this year</string>
     <string name="longest_drink_marathon_all_time">Longest drink marathon for all time</string>
@@ -39,10 +18,6 @@
     <string name="allow_access">Allow</string>
     <string name="no_thanks">No, thanks</string>
     <string name="close">Close</string>
-    <string name="auto_theme_switch">System</string>
-    <string name="app_theme">App theme:</string>
-    <string name="day">Day</string>
-    <string name="night">Night</string>
 
     <string name="calendar_bottom">Calendar</string>
     <string name="friends_bottom">Friends</string>

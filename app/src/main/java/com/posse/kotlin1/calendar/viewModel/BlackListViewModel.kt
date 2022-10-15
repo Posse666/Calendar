@@ -27,7 +27,7 @@ class BlackListViewModel @Inject constructor(private val repository: Repository)
                 try {
                     @Suppress("UNCHECKED_CAST")
                     val friend = (friendMap as Map<String, Any>).toDataClass<Friend>()
-                    if (friend.blocked) friendsData.add(friend)
+//                    if (friend.blocked) friendsData.add(friend)
                 } catch (e: Exception) {
                     error()
                 }

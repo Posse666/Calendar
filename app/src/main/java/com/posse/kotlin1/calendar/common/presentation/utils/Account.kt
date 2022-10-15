@@ -23,14 +23,11 @@ import com.posse.kotlin1.calendar.common.data.utils.toDataClass
 import com.posse.kotlin1.calendar.common.domain.utils.NetworkStatus
 import com.posse.kotlin1.calendar.model.repository.Repository
 import com.posse.kotlin1.calendar.model.repository.RepositoryFirestoreImpl.Companion.COLLECTION_USERS
-import com.posse.kotlin1.calendar.utils.StringProvider
 import com.posse.kotlin1.calendar.utils.nickName
-import com.posse.kotlin1.calendar.utils.showToast
 import javax.inject.Inject
 
 class Account @Inject constructor(
     private val repository: Repository,
-    private val stringProvider: StringProvider,
     private val sharedPreferences: SharedPreferences,
     private val networkStatus: NetworkStatus,
     private var googleAccount: GoogleSignInAccount?,
@@ -85,23 +82,23 @@ class Account @Inject constructor(
         } ?: AccountState.LoggedOut
     }
 
-    fun login(fragment: Fragment, startLogin: ActivityResultLauncher<Intent>) {
-        if (networkStatus.isNetworkOnline()) {
-            oldEmail = getEmail()!!
-            val googleSignInClient = GoogleSignIn.getClient(fragment.requireActivity(), gso)
-            startLogin.launch(googleSignInClient.signInIntent)
-        } else fragment.context?.showToast(stringProvider.getString(R.string.network_offline))
-    }
+//    fun login(fragment: Fragment, startLogin: ActivityResultLauncher<Intent>) {
+//        if (networkStatus.isNetworkOnline()) {
+//            oldEmail = getEmail()!!
+//            val googleSignInClient = GoogleSignIn.getClient(fragment.requireActivity(), gso)
+//            startLogin.launch(googleSignInClient.signInIntent)
+//        } else fragment.context?.showToast(stringProvider.getString(R.string.network_offline))
+//    }
 
-    fun logout(fragment: Fragment) {
-        if (networkStatus.isNetworkOnline()) {
-            val googleSignInClient = GoogleSignIn.getClient(fragment.requireActivity(), gso)
-            googleSignInClient.signOut()
-            googleAccount = null
-            sharedPreferences.nickName = null
-            anonymousLogin(fragment.requireContext()) { getAccountState() }
-        } else fragment.context?.showToast(stringProvider.getString(R.string.network_offline))
-    }
+//    fun logout(fragment: Fragment) {
+//        if (networkStatus.isNetworkOnline()) {
+//            val googleSignInClient = GoogleSignIn.getClient(fragment.requireActivity(), gso)
+//            googleSignInClient.signOut()
+//            googleAccount = null
+//            sharedPreferences.nickName = null
+//            anonymousLogin(fragment.requireContext()) { getAccountState() }
+//        } else fragment.context?.showToast(stringProvider.getString(R.string.network_offline))
+//    }
 
     fun getEmail(): String? {
         var email = googleAccount?.email ?: FirebaseAuth.getInstance().currentUser?.email
@@ -109,19 +106,19 @@ class Account @Inject constructor(
         return email
     }
 
-    fun anonymousLogin(context: Context, callback: (String) -> Unit) {
-        FirebaseAuth.getInstance().signInAnonymously().addOnCompleteListener {
-            if (it.isSuccessful) {
-                Log.d("TAG", "signInAnonymously:success")
-                val email = it.result?.user?.uid!!
-                oldEmail = email
-                callback(email)
-            } else {
-                Log.w("TAG", "signInAnonymously:failure", it.exception)
-                context.showToast(stringProvider.getString(R.string.network_offline))
-            }
-        }
-    }
+//    fun anonymousLogin(context: Context, callback: (String) -> Unit) {
+//        FirebaseAuth.getInstance().signInAnonymously().addOnCompleteListener {
+//            if (it.isSuccessful) {
+//                Log.d("TAG", "signInAnonymously:success")
+//                val email = it.result?.user?.uid!!
+//                oldEmail = email
+//                callback(email)
+//            } else {
+//                Log.w("TAG", "signInAnonymously:failure", it.exception)
+//                context.showToast(stringProvider.getString(R.string.network_offline))
+//            }
+//        }
+//    }
 }
 
 sealed class AccountState {

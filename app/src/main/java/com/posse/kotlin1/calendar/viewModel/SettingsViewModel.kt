@@ -16,30 +16,30 @@ import javax.inject.Inject
 class SettingsViewModel @Inject constructor(
     private val repository: Repository,
     private val sharedPreferences: SharedPreferences,
-    private val locale: LocaleUtils
+//    private val locale: LocaleUtils
 ) : ViewModel() {
-    private val lastTheme: MutableLiveData<Int> = MutableLiveData(
-        if (sharedPreferences.lightTheme) {
-            ThemeUtils.THEME.DAY.themeID
-        } else {
-            ThemeUtils.THEME.NIGHT.themeID
-        }
-    )
+//    private val lastTheme: MutableLiveData<Int> = MutableLiveData(
+//        if (sharedPreferences.lightTheme) {
+//            ThemeUtils.THEME.DAY.themeID
+//        } else {
+//            ThemeUtils.THEME.NIGHT.themeID
+//        }
+//    )
 
-    var switchState: Boolean
-        get() = sharedPreferences.themeSwitch
-        set(value) {
-            sharedPreferences.themeSwitch = value
-        }
+//    var switchState: Boolean
+//        get() = sharedPreferences.themeSwitch
+//        set(value) {
+//            sharedPreferences.themeSwitch = value
+//        }
+//
+//    var lightTheme: Boolean
+//        get() = sharedPreferences.lightTheme
+//        set(value) {
+//            sharedPreferences.lightTheme = value
+//            switchTheme(value)
+//        }
 
-    var lightTheme: Boolean
-        get() = sharedPreferences.lightTheme
-        set(value) {
-            sharedPreferences.lightTheme = value
-            switchTheme(value)
-        }
-
-    fun getLastTheme(): LiveData<Int> = lastTheme
+//    fun getLastTheme(): LiveData<Int> = lastTheme
 
     fun saveNickname(email: String, nickname: String, callback: (Nickname) -> Unit) {
         repository.getData(Documents.Users, COLLECTION_USERS) { users, _ ->
@@ -61,7 +61,7 @@ class SettingsViewModel @Inject constructor(
                     }
                     sharedPreferences.nickName = nickname
                     sharedPreferences.token?.let {
-                        repository.saveUser(User(email, nickname, locale.getStringLocale(), it))
+//                        repository.saveUser(User(email, nickname, locale.getStringLocale(), it))
                     }
                     callback(Nickname.Saved)
                 }
@@ -69,14 +69,14 @@ class SettingsViewModel @Inject constructor(
         }
     }
 
-    private fun switchTheme(day: Boolean) {
-        if (day) changeTheme(ThemeUtils.THEME.DAY.themeID)
-        else changeTheme(ThemeUtils.THEME.NIGHT.themeID)
-    }
+//    private fun switchTheme(day: Boolean) {
+//        if (day) changeTheme(ThemeUtils.THEME.DAY.themeID)
+//        else changeTheme(ThemeUtils.THEME.NIGHT.themeID)
+//    }
 
-    private fun changeTheme(@StyleRes theme: Int) =
-        if (theme != lastTheme.value) lastTheme.value = theme
-        else Unit
+//    private fun changeTheme(@StyleRes theme: Int) =
+//        if (theme != lastTheme.value) lastTheme.value = theme
+//        else Unit
 
     enum class Nickname {
         Empty,

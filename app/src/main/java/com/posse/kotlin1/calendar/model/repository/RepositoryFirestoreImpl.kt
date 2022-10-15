@@ -6,16 +6,14 @@ import com.google.firebase.firestore.*
 import com.google.firebase.messaging.FirebaseMessaging
 import com.posse.kotlin1.calendar.common.data.model.Documents
 import com.posse.kotlin1.calendar.common.data.model.User
-import com.posse.kotlin1.calendar.utils.LocaleUtils
-import com.posse.kotlin1.calendar.common.domain.utils.NetworkStatus
 import com.posse.kotlin1.calendar.common.data.utils.convertLongToLocalDale
+import com.posse.kotlin1.calendar.common.domain.utils.NetworkStatus
 import com.posse.kotlin1.calendar.utils.token
 import javax.inject.Inject
 
 class RepositoryFirestoreImpl @Inject constructor(
     private val sharedPreferences: SharedPreferences,
-    private val networkStatus: NetworkStatus,
-    private val localeUtils: LocaleUtils
+    private val networkStatus: NetworkStatus
 ) : Repository {
 
     init {
@@ -32,7 +30,13 @@ class RepositoryFirestoreImpl @Inject constructor(
             .addOnSuccessListener {
                 FirebaseMessaging.getInstance().token.addOnSuccessListener { token ->
                     sharedPreferences.token = token
-                    saveUser(User(newMail, nickName, localeUtils.getStringLocale(), token))
+                    saveUser(
+                        User(
+                            email = newMail,
+                            nickname = nickName,
+                            token = token
+                        )
+                    )
                     onDatesFetchComplete(it, newMail)
                     oldUserDocument.delete()
                 }

@@ -1,14 +1,24 @@
-<vector xmlns:android="http://schemas.android.com/apk/res/android"
-    android:width="152.785dp"
-    android:height="145.485dp"
-    android:viewportWidth="15264.25"
-    android:viewportHeight="14534.93">
-  <path
-      android:strokeColor="@color/black"
-      android:strokeWidth="300"
-      android:pathData="M7632.1,499.5c-2224.9,0 -4394.2,0 -6619.1,0 -351.9,0 -565.6,233.1 -513.5,467.1 692,1963.4 1251.1,4352.8 1475.7,6489.6 273.6,2602.6 91.6,4794.4 163.8,5402.3 126.3,807.7 779.4,1134.2 1636.3,1176.9l3856.7,0 3856.7,0c856.8,-42.8 1510,-369.3 1636.3,-1176.9 72.2,-607.9 -109.8,-2799.7 163.8,-5402.3 224.7,-2136.9 783.7,-4526.2 1475.7,-6489.6 52.1,-234.1 -161.6,-467.1 -513.5,-467.1 -2224.9,0 -4394.2,0 -6619.1,0z"/>
-  <path
-      android:strokeColor="@color/black"
-      android:strokeWidth="300"
-      android:pathData="M13518.9,1384.9l-5886.7,0 -5886.7,0c703.6,1612.7 1017.5,4406.9 1755.2,7723.9 439.4,1628.3 2160.8,2322.7 4131.5,2384.3 1970.8,-61.6 3692.2,-756.1 4131.5,-2384.3 737.7,-3317 1051.6,-6111.2 1755.2,-7723.9z"/>
+<vector
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:name="vector"
+    android:width="100dp"
+    android:height="100dp"
+    android:viewportWidth="100"
+    android:viewportHeight="100">
+    <group
+        android:name="group"
+        android:translateY="3">
+        <path
+            android:name="outer"
+            android:pathData="M 50 3.273 L 6.637 3.273 C 4.332 3.273 2.93 4.801 3.273 6.332 C 7.805 19.195 11.469 34.848 12.941 48.848 C 14.734 65.898 13.539 80.258 14.012 84.242 C 14.84 89.531 19.121 91.672 24.734 91.949 L 75.266 91.949 C 80.879 91.672 85.16 89.531 85.988 84.242 C 86.461 80.258 85.266 65.898 87.059 48.848 C 88.531 34.848 92.195 19.195 96.727 6.332 C 97.07 4.801 95.668 3.273 93.363 3.273 L 50 3.273 Z M 50 3.273"
+            android:fillAlpha="0"
+            android:strokeColor="#000000"
+            android:strokeWidth="3"/>
+        <path
+            android:name="inner"
+            android:pathData="M 88.566 9.074 L 11.434 9.074 C 16.047 19.637 18.102 37.945 22.934 59.676 C 25.812 70.344 37.09 74.891 50 75.297 C 62.914 74.891 74.191 70.344 77.066 59.676 C 81.902 37.945 83.957 19.637 88.566 9.074 Z M 88.566 9.074"
+            android:fillAlpha="0"
+            android:strokeColor="#000000"
+            android:strokeWidth="3"/>
+    </group>
 </vector>

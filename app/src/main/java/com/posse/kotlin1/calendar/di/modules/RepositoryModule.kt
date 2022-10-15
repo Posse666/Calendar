@@ -11,27 +11,27 @@ import com.posse.kotlin1.calendar.feature_calendar.domain.repository.DatesReposi
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
-import dagger.hilt.components.SingletonComponent
-import javax.inject.Singleton
+import dagger.hilt.android.components.ViewModelComponent
+import dagger.hilt.android.scopes.ViewModelScoped
 
 @Module
-@InstallIn(SingletonComponent::class)
+@InstallIn(ViewModelComponent::class)
 interface RepositoryModule {
 
     @Binds
-    @Singleton
+    @ViewModelScoped
     fun bindDatesRepository(datesRepositoryImpl: DatesRepositoryImpl): DatesRepository
 
     @Binds
-    @Singleton
+    @ViewModelScoped
     fun bindAccountRepository(accountRepositoryImpl: AccountRepositoryImpl): AccountRepository
 
     @Binds
-    @Singleton
+    @ViewModelScoped
     fun bindUserRepository(usersRepositoryImpl: UsersRepositoryImpl): UsersRepository
 
     @Binds
-    @Singleton
+    @ViewModelScoped
     fun bindFriendsRepository(friendsRepositoryImpl: FriendsRepositoryImpl): FriendsRepository
 
 }

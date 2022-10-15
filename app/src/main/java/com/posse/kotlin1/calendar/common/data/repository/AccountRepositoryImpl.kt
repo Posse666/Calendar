@@ -6,7 +6,6 @@ import com.google.firebase.auth.FirebaseAuth
 import com.posse.kotlin1.calendar.common.domain.model.User
 import com.posse.kotlin1.calendar.common.domain.repository.AccountRepository
 import com.posse.kotlin1.calendar.utils.nickName
-import kotlinx.coroutines.coroutineScope
 import javax.inject.Inject
 
 class AccountRepositoryImpl @Inject constructor(
@@ -14,13 +13,12 @@ class AccountRepositoryImpl @Inject constructor(
     private val sharedPreferences: SharedPreferences
 ) : AccountRepository {
 
-    override suspend fun getMyMail(): String? {
-        return coroutineScope {
-            val firebaseAuth = FirebaseAuth.getInstance()
-            var email = googleAccount?.email ?: firebaseAuth.currentUser?.email
-            if (email == "" || email == null) email = firebaseAuth.currentUser?.uid
-            email
-        }
+    override fun getMyEmailOrId(): String {
+        val firebaseAuth = FirebaseAuth.getInstance()
+        return googleAccount?.email
+            ?: firebaseAuth.currentUser?.email
+            ?: firebaseAuth.currentUser?.uid
+            ?: throw RuntimeException("User email or Id not found")
     }
 
     override fun getCurrentUser(): User? {

@@ -16,8 +16,7 @@ class FirestoreRepository @Inject constructor(
                 .collection(collection)
                 .document(document.value)
 
-            val value: Any? = if (delete) FieldValue.delete()
-            else data
+            val value: Any? = if (delete) FieldValue.delete() else data
 
             documentToChange.set(mapOf(Pair(data.toString(), value)), SetOptions.merge()).await()
             true

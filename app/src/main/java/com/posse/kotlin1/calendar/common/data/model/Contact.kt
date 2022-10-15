@@ -4,10 +4,10 @@ data class Contact(
     val names: MutableList<String>,
     val notInContacts: Boolean = false,
     val notInBase: Boolean = true,
-    override val email: String,
-    override val selected: Boolean = false,
-    override val blocked: Boolean = false
-) : Person {
+     val email: String,
+     val selected: Boolean = false,
+     val blocked: Boolean = false
+)  {
     override fun toString(): String = email
 
     override fun equals(other: Any?): Boolean {

@@ -17,7 +17,7 @@ import com.posse.kotlin1.calendar.common.data.utils.toDataClass
 import com.posse.kotlin1.calendar.model.repository.Repository
 import com.posse.kotlin1.calendar.model.repository.RepositoryFirestoreImpl.Companion.COLLECTION_USERS
 import com.posse.kotlin1.calendar.utils.*
-import com.posse.kotlin1.calendar.view.calendar.DrinkType
+import com.posse.kotlin1.calendar.common.domain.model.DrinkType
 import dagger.hilt.android.AndroidEntryPoint
 import java.time.LocalDate
 import java.util.*
@@ -25,14 +25,14 @@ import javax.inject.Inject
 
 @AndroidEntryPoint
 class MyFirebaseMessagingService : FirebaseMessagingService() {
-    @Inject
-    lateinit var repository: Repository
+//    @Inject
+//    lateinit var repository: Repository
 
-    @Inject
-    lateinit var sharedPreferences: SharedPreferences
+//    @Inject
+//    lateinit var sharedPreferences: SharedPreferences
 
-    @Inject
-    lateinit var localeUtils: LocaleUtils
+//    @Inject
+//    lateinit var localeUtils: LocaleUtils
 
     private lateinit var channelName: String
     private lateinit var channelDescriptionText: String
@@ -56,8 +56,8 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
 
     private fun showNotification(name: String, message: String, drinkType: String?) {
         channelID = getString(R.string.drunk_channel)
-        if (message == ADDED_YOU.toString() || message == REMOVED_YOU.toString()) channelID =
-            getString(R.string.shared)
+//        if (message == ADDED_YOU.toString() || message == REMOVED_YOU.toString()) channelID =
+//            getString(R.string.shared)
         val notificationBuilder = NotificationCompat.Builder(applicationContext, channelID)
             .apply {
                 setSmallIcon(R.drawable.ic_splash_screen)
@@ -72,12 +72,12 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
     }
 
     private fun getText(name: String, message: String, drinkType: String?): String {
-        val resources = getLocalizedResources(localeUtils.getLocale(sharedPreferences.locale))
+//        val resources = getLocalizedResources(localeUtils.getLocale(sharedPreferences.locale))
         channelName = resources.getString(R.string.shared)
         channelDescriptionText = resources.getString(R.string.shared_notifications)
         val text: String = when (message) {
-            ADDED_YOU.toString() -> resources.getString(R.string.shared_with_you)
-            REMOVED_YOU.toString() -> resources.getString(R.string.removed_from_friends)
+//            ADDED_YOU.toString() -> resources.getString(R.string.shared_with_you)
+//            REMOVED_YOU.toString() -> resources.getString(R.string.removed_from_friends)
             else -> {
                 channelName = resources.getString(R.string.drunk_channel)
                 channelDescriptionText = resources.getString(R.string.drunk_notifications)
@@ -111,21 +111,26 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
     }
 
     override fun onNewToken(token: String) {
-        sharedPreferences.token = token
-        sharedPreferences.nickName?.let {
-            repository.getData(Documents.Users, COLLECTION_USERS) { users, _ ->
-                users?.forEach { userMap ->
-                    try {
-                        @Suppress("UNCHECKED_CAST")
-                        val user = (userMap.value as Map<String, Any>).toDataClass<User>()
-                        if (user.nickname == it) repository.saveUser(
-                            User(user.email, it, localeUtils.getStringLocale(), token)
-                        )
-                    } catch (e: Exception) {
-                    }
-                }
-            }
-        }
+//        sharedPreferences.token = token
+//        sharedPreferences.nickName?.let {
+//            repository.getData(Documents.Users, COLLECTION_USERS) { users, _ ->
+//                users?.forEach { userMap ->
+//                    try {
+//                        @Suppress("UNCHECKED_CAST")
+//                        val user = (userMap.value as Map<String, Any>).toDataClass<User>()
+//                        if (user.nickname == it) repository.saveUser(
+//                            User(
+//                                email = user.email,
+//                                nickname = it,
+////                                locale = localeUtils.getStringLocale(),
+//                                token = token
+//                            )
+//                        )
+//                    } catch (e: Exception) {
+//                    }
+//                }
+//            }
+//        }
     }
 
     companion object {

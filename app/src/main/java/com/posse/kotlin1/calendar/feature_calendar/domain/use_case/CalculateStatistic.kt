@@ -1,6 +1,5 @@
 package com.posse.kotlin1.calendar.feature_calendar.domain.use_case
 
-import com.posse.kotlin1.calendar.common.data.utils.convertLongToLocalDale
 import com.posse.kotlin1.calendar.feature_calendar.domain.model.DayData
 import com.posse.kotlin1.calendar.feature_calendar.presentation.model.StatisticWithDaysState
 import java.time.LocalDate
@@ -11,7 +10,7 @@ import javax.inject.Inject
 class CalculateStatistic @Inject constructor() {
 
     operator fun invoke(days: Set<DayData>): StatisticWithDaysState {
-        val dates = days.map { convertLongToLocalDale(it.date) }
+        val dates = days.map { it.date }
         return StatisticWithDaysState(
             daysOverall = getDrankDaysQuantity(dates),
             drunkRowThisYear = getDrinkMarathon(dates, THIS_YEAR),

@@ -1,114 +1,75 @@
 package com.posse.kotlin1.calendar.common.presentation
 
-import android.content.SharedPreferences
 import android.os.Bundle
-import android.os.PersistableBundle
-import androidx.annotation.IdRes
+import androidx.activity.compose.setContent
 import androidx.appcompat.app.AppCompatActivity
-import androidx.fragment.app.Fragment
-import androidx.fragment.app.FragmentTransaction
-import com.posse.kotlin1.calendar.R
-import com.posse.kotlin1.calendar.databinding.ActivityMainBinding
-import com.posse.kotlin1.calendar.utils.LocaleUtils
-import com.posse.kotlin1.calendar.utils.ThemeUtils
-import com.posse.kotlin1.calendar.utils.locale
-import com.posse.kotlin1.calendar.utils.showToast
-import com.posse.kotlin1.calendar.view.friends.FriendsFragment
-import com.posse.kotlin1.calendar.view.myCalendar.MyCalendarFragment
-import com.posse.kotlin1.calendar.view.settings.SettingsFragment
-import dagger.android.AndroidInjection
+import androidx.compose.animation.ExperimentalAnimationApi
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
+import com.google.accompanist.navigation.animation.rememberAnimatedNavController
+import com.posse.kotlin1.calendar.app_theme.AppTheme
+import com.posse.kotlin1.calendar.common.presentation.navigation.ANIMATION_DURATION
+import com.posse.kotlin1.calendar.common.presentation.navigation.ScaffoldBottomNavigation
 import dagger.hilt.android.AndroidEntryPoint
-import javax.inject.Inject
-import kotlin.system.exitProcess
-
-private const val KEY_SELECTED = "Selected item"
-private const val BACK_BUTTON_EXIT_DELAY = 3000
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
-class MainActivity : AppCompatActivity(), SettingsTabSwitcher, ActivityRefresher {
-    @Inject
-    lateinit var localeUtils: LocaleUtils
+class MainActivity : AppCompatActivity() {
 
-    @Inject
-    lateinit var themeUtils: ThemeUtils
+    private var isContentReady = false
+    private var splashDelay = true
 
-    @Inject
-    lateinit var sharedPreferences: SharedPreferences
-    private lateinit var binding: ActivityMainBinding
-    private var isBackShown = false
-    private var lastTimeBackPressed: Long = 0
-
+    @OptIn(ExperimentalAnimationApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        AndroidInjection.inject(this)
-        instance = this
-        localeUtils.setAppLocale(sharedPreferences.locale)
-        setTheme(themeUtils.getAppTheme())
-        @IdRes
-        val startPage: Int = savedInstanceState?.getInt(KEY_SELECTED) ?: R.id.bottomCalendar
-        initView(startPage)
-    }
 
-    private fun initView(@IdRes startPage: Int) {
-        binding = ActivityMainBinding.inflate(layoutInflater)
-        setContentView(binding.root)
-
-        binding.bottomNavigation.setOnItemSelectedListener { item ->
-            when (item.itemId) {
-                R.id.bottomCalendar -> replaceFragment(MyCalendarFragment.newInstance())
-                R.id.bottomFriends -> replaceFragment(FriendsFragment.newInstance())
-                R.id.bottomSettings -> replaceFragment(SettingsFragment.newInstance())
-                else -> replaceFragment(MyCalendarFragment.newInstance())
+        installSplashScreen().apply {
+            CoroutineScope(Dispatchers.IO).launch {
+                delay(1_000)
+                splashDelay = false
             }
-            true
+            setKeepOnScreenCondition { splashDelay || !isContentReady }
         }
 
-        binding.bottomNavigation.selectedItemId = startPage
+        setContent {
+            val coroutineScope = rememberCoroutineScope()
+            val navController = rememberAnimatedNavController()
+
+            StatusBarColor()
+
+            AppTheme {
+                ScaffoldBottomNavigation(
+                    navController = navController,
+                    dataReadyCallback = { delay ->
+                        coroutineScope.launch {
+                            if (!isContentReady) {
+                                if (delay) delay(ANIMATION_DURATION.toLong())
+                                isContentReady = true
+                            }
+                        }
+                    }
+                )
+            }
+        }
     }
 
-    private fun replaceFragment(fragment: Fragment) {
-        supportFragmentManager
-            .beginTransaction()
-            .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE)
-            .replace(R.id.mainContainer, fragment)
-            .commit()
-
-        isBackShown = false
+    override fun onSaveInstanceState(outState: Bundle) {
+        outState.putBoolean(CONTENT_KEY, isContentReady)
+        outState.putBoolean(SPLASH_DELAY_KEY, splashDelay)
+        super.onSaveInstanceState(outState)
     }
 
-    override fun onSaveInstanceState(outState: Bundle, outPersistentState: PersistableBundle) {
-        super.onSaveInstanceState(outState, outPersistentState)
-        outState.putInt(KEY_SELECTED, binding.bottomNavigation.selectedItemId)
+    override fun onRestoreInstanceState(savedInstanceState: Bundle) {
+        isContentReady = savedInstanceState.getBoolean(CONTENT_KEY)
+        splashDelay = savedInstanceState.getBoolean(SPLASH_DELAY_KEY)
+        super.onRestoreInstanceState(savedInstanceState)
     }
-
-    override fun onBackPressed() = with(binding) {
-        if (bottomNavigation.selectedItemId == R.id.bottomCalendar) checkExit()
-        else bottomNavigation.selectedItemId = R.id.bottomCalendar
-        lastTimeBackPressed = System.currentTimeMillis()
-    }
-
-    private fun checkExit() {
-        showToast(getString(R.string.back_again_to_exit))
-        if (System.currentTimeMillis() - lastTimeBackPressed < BACK_BUTTON_EXIT_DELAY && isBackShown)
-            exitProcess(0)
-        isBackShown = true
-    }
-
-    override fun switchToSettings() {
-        binding.bottomNavigation.selectedItemId = R.id.bottomSettings
-    }
-
-    override fun refreshNavBar() = initView(R.id.bottomSettings)
 
     companion object {
-        var instance: MainActivity? = null
+        private const val CONTENT_KEY = "content_key"
+        private const val SPLASH_DELAY_KEY = "splash_delay_key"
     }
-}
-
-interface SettingsTabSwitcher {
-    fun switchToSettings()
-}
-
-interface ActivityRefresher {
-    fun refreshNavBar()
 }

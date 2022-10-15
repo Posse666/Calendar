@@ -4,8 +4,6 @@ import android.content.SharedPreferences
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.posse.kotlin1.calendar.firebaseMessagingService.MyFirebaseMessagingService.Companion.ADDED_YOU
-import com.posse.kotlin1.calendar.firebaseMessagingService.MyFirebaseMessagingService.Companion.REMOVED_YOU
 import com.posse.kotlin1.calendar.common.data.model.Contact
 import com.posse.kotlin1.calendar.common.domain.model.Friend
 import com.posse.kotlin1.calendar.common.data.model.User
@@ -47,7 +45,7 @@ class ContactsViewModel @Inject constructor(
                     contactsCollection?.values?.forEach { contactMap ->
                         @Suppress("UNCHECKED_CAST")
                         val contact = (contactMap as Map<String, Any>).toDataClass<Contact>()
-                        contact.notInContacts = !sharedData.contains(contact)
+//                        contact.notInContacts = !sharedData.contains(contact)
                         if (!sharedData.add(contact)) {
                             sharedData.remove(contact)
                             sharedData.add(contact)
@@ -58,14 +56,14 @@ class ContactsViewModel @Inject constructor(
                         val user = (userMap.value as Map<String, Any>).toDataClass<User>()
                         val contact =
                             Contact(
-                                mutableListOf(user.nickname),
-                                user.email,
+                                names = mutableListOf(user.nickname),
+                                email = user.email,
                                 notInContacts = true,
                                 notInBase = false
                             )
                         sharedData.add(contact)
                         sharedData.forEach {
-                            if (it.email == contact.email) it.notInBase = false
+//                            if (it.email == contact.email) it.notInBase = false
                         }
                     }
                     liveDataToObserve.value = Pair(true, sharedData)
@@ -94,15 +92,15 @@ class ContactsViewModel @Inject constructor(
                                     ?: Friend(
                                         sharedPreferences.nickName ?: email,
                                         email,
-                                        selected = false,
-                                        blocked = false,
-                                        contactFriendsCollection?.size ?: Int.MAX_VALUE
+                                        isSelected = false,
+                                        isBlocked = false,
+//                                        contactFriendsCollection?.size ?: Int.MAX_VALUE
                                     )
-                            if (youInContactFriends.blocked) callback(ContactStatus.Blocked)
-                            else {
+//                            if (youInContactFriends.blocked) callback(ContactStatus.Blocked)
+//                            else {
                                 @Suppress("UNCHECKED_CAST")
                                 (usersMap?.get(newContact.email) as Map<String, Any>).toDataClass<User>()
-                                newContact.selected = !newContact.selected
+//                                newContact.selected = !newContact.selected
                                 if (newContact.selected) {
                                     repository.saveItem(Documents.Share, email, newContact)
                                     repository.saveItem(
@@ -110,7 +108,7 @@ class ContactsViewModel @Inject constructor(
                                         newContact.email,
                                         youInContactFriends
                                     )
-                                    sendNotification(newContact, ADDED_YOU)
+//                                    sendNotification(newContact, ADDED_YOU)
                                 } else {
                                     repository.removeItem(Documents.Share, email, newContact)
                                     repository.removeItem(
@@ -118,9 +116,9 @@ class ContactsViewModel @Inject constructor(
                                         newContact.email,
                                         youInContactFriends
                                     )
-                                    sendNotification(newContact, REMOVED_YOU)
+//                                    sendNotification(newContact, REMOVED_YOU)
                                 }
-                            }
+//                            }
                         } catch (e: Exception) {
                             callback.invoke(ContactStatus.Error)
                         }
@@ -140,12 +138,12 @@ class ContactsViewModel @Inject constructor(
                 users?.forEach { userMap ->
                     @Suppress("UNCHECKED_CAST")
                     val user = (userMap.value as Map<String, Any>).toDataClass<User>()
-                    if (user.email == contact.email)
-                        messenger.sendPush(
-                            sharedPreferences.nickName!!,
-                            message.toString(),
-                            user.token
-                        )
+                    if (user.email == contact.email){}
+//                        messenger.sendPush(
+//                            sharedPreferences.nickName!!,
+//                            message.toString(),
+//                            user.token
+//                        )
                 }
             }
         }
