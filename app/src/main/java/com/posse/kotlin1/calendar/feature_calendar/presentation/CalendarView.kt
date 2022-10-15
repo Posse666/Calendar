@@ -1,5 +1,7 @@
 package com.posse.kotlin1.calendar.feature_calendar.presentation
 
+import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.*
 import androidx.compose.material3.FloatingActionButton
@@ -29,16 +31,23 @@ fun CalendarView(
     )
     val coroutineScope = rememberCoroutineScope()
     val bottomSheetMinPickHeight = remember { 100.dp }
-    var bottomSheetPickHeight by remember { mutableStateOf(bottomSheetMinPickHeight) }
+
+    var autoExpandSheet by remember { mutableStateOf(false) }
+
+    val sheetHeight by animateDpAsState(
+        targetValue = if (autoExpandSheet) 200.dp
+        else bottomSheetMinPickHeight,
+        animationSpec = tween(700)
+    )
 
     LaunchedEffect(key1 = true) {
         while (!state.isStatsEverShown) {
             delay(30_000)
             if (state.isStatsEverShown) return@LaunchedEffect
-            bottomSheetPickHeight = 200.dp
+            autoExpandSheet = true
             delay(1_000)
             if (state.isStatsEverShown) return@LaunchedEffect
-            bottomSheetPickHeight = bottomSheetMinPickHeight
+            autoExpandSheet = false
         }
     }
 
@@ -51,8 +60,8 @@ fun CalendarView(
     BottomSheetScaffold(
         topBar = topBar,
         scaffoldState = bottomSheetScaffoldState,
-        sheetPeekHeight = bottomSheetPickHeight,
-        sheetContent = BottomSheet(),
+        sheetPeekHeight = sheetHeight,
+        sheetContent = BottomSheet(statistic = state.statistic),
         floatingActionButton = {
             FloatingActionButton(
                 onClick = { /*TODO*/ }
@@ -65,7 +74,6 @@ fun CalendarView(
             onDayClick = {},
             calendarData = state.calendarData,
             scrollToDate = viewModel.scrollEvent,
-            contentBottomPadding = bottomSheetMinPickHeight,
             onScrollCompleted = {},
             modifier = Modifier.padding(paddingValues)
         )

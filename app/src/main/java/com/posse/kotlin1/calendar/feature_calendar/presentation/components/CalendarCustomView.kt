@@ -1,6 +1,5 @@
 package com.posse.kotlin1.calendar.feature_calendar.presentation.components
 
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
@@ -9,7 +8,6 @@ import androidx.compose.material3.ElevatedCard
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.posse.kotlin1.calendar.feature_calendar.domain.model.MonthData
 import kotlinx.coroutines.flow.Flow
@@ -20,7 +18,6 @@ fun CalendarCustomView(
     onDayClick: (LocalDate) -> Unit,
     calendarData: List<MonthData>,
     modifier: Modifier = Modifier,
-    contentBottomPadding: Dp,
     scrollToDate: Flow<LocalDate>,
     onScrollCompleted: () -> Unit
 ) {
@@ -45,8 +42,7 @@ fun CalendarCustomView(
 
     LazyColumn(
         modifier = modifier,
-        state = state,
-        contentPadding = PaddingValues(bottom = contentBottomPadding)
+        state = state
     ) {
         calendarData.forEach { calendarMonth ->
             item(calendarMonth.yearMonth) {
@@ -60,7 +56,7 @@ fun CalendarCustomView(
                         onDayClick = onDayClick,
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(16.dp)
+                            .padding(8.dp)
                     )
                 }
             }

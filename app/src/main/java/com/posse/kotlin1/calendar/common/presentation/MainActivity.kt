@@ -38,7 +38,7 @@ class MainActivity : AppCompatActivity() {
             val coroutineScope = rememberCoroutineScope()
             val navController = rememberAnimatedNavController()
 
-            StatusBarColor()
+            StatusBarColor(false)
 
             AppTheme {
                 ScaffoldBottomNavigation(
