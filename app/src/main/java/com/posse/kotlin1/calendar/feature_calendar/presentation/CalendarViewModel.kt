@@ -3,17 +3,19 @@ package com.posse.kotlin1.calendar.feature_calendar.presentation
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.posse.kotlin1.calendar.common.domain.model.DrinkType
-import com.posse.kotlin1.calendar.common.domain.model.Response
 import com.posse.kotlin1.calendar.feature_calendar.domain.model.DayData
-import com.posse.kotlin1.calendar.feature_calendar.domain.use_case.DatesUseCases
-import com.posse.kotlin1.calendar.feature_calendar.domain.use_case.GetCalendarData
-import com.posse.kotlin1.calendar.feature_calendar.domain.use_case.SendMessage
-import com.posse.kotlin1.calendar.feature_calendar.presentation.model.*
+import com.posse.kotlin1.calendar.feature_calendar.domain.use_cases.CalculateMonthIndex
+import com.posse.kotlin1.calendar.feature_calendar.domain.use_cases.DatesUseCases
+import com.posse.kotlin1.calendar.feature_calendar.domain.use_cases.GetCalendarData
+import com.posse.kotlin1.calendar.feature_calendar.domain.use_cases.SendMessage
+import com.posse.kotlin1.calendar.feature_calendar.presentation.model.CalendarEvent
+import com.posse.kotlin1.calendar.feature_calendar.presentation.model.CalendarState
+import com.posse.kotlin1.calendar.feature_calendar.presentation.model.CalendarUIEvent
+import com.posse.kotlin1.calendar.feature_calendar.presentation.model.StatisticEntry
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.receiveAsFlow
-import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import java.time.LocalDate
 import kotlin.random.Random
@@ -21,6 +23,7 @@ import kotlin.random.Random
 open class CalendarViewModel(
     private val getCalendarData: GetCalendarData,
     private val datesUseCases: DatesUseCases,
+    private val calculateMonthIndex: CalculateMonthIndex,
     private val sendMessage: SendMessage,
     email: String,
 ) : ViewModel() {
@@ -28,23 +31,26 @@ open class CalendarViewModel(
     protected var mail: String = email
 
     private val _state = MutableStateFlow(CalendarState())
-    val state get() = _state.asStateFlow()
-
-    private val _statisticState = MutableStateFlow(StatisticWithDaysState())
-    val statisticState = _statisticState.asStateFlow()
+    val state = _state.asStateFlow()
 
     private val _event = Channel<CalendarUIEvent>()
-    val event get() = _event.receiveAsFlow()
+    val event = _event.receiveAsFlow()
 
-    private val _scrollEvent = Channel<LocalDate>()
-    val scrollEvent get() = _scrollEvent.receiveAsFlow()
+    private val _scrollEvent = Channel<Int>()
+    val scrollEvent = _scrollEvent.receiveAsFlow()
+
+    private val _animateScrollEvent = MutableSharedFlow<Int>()
+    val animateScrollEvent = _animateScrollEvent.asSharedFlow()
+
+    var statisticAnimationJob: Job? = null
 
     init {
         viewModelScope.launch {
             val calendarData = getCalendarData()
             _state.update { it.copy(calendarData = calendarData) }
             getUserData()
-            _scrollEvent.send(LocalDate.now())
+            scrollToDate(LocalDate.now())
+            launchStatisticAnimation()
         }
     }
 
@@ -66,35 +72,30 @@ open class CalendarViewModel(
 //    }
 
     private fun getUserData() {
+        setRandomData()
+        updateStatistic(state.value.calendarData.flatMap { it.weeks.flatten().filterNotNull() }
+            .toSet())
+    }
+
+    private fun setRandomData() { //TODO Remove
         _state.update { calendarState ->
-            calendarState.copy(
-                calendarData = calendarState.calendarData.map { monthData ->
-                    monthData.copy(
-                        weeks = monthData.weeks.map { week ->
-                            week.map { dayData ->
-                                val random = Random.nextFloat()
-                                dayData?.copy(
-                                    drinkType = if (random > 0.9) DrinkType.Full
-                                    else if (random > 0.8) DrinkType.Half
-                                    else null
-                                )
-                            }
-                        }
-                    )
-                }
-            )
+            calendarState.copy(calendarData = calendarState.calendarData.map { monthData ->
+                monthData.copy(weeks = monthData.weeks.map { week ->
+                    week.map { dayData ->
+                        val random = Random.nextFloat()
+                        dayData?.copy(
+                            drinkType = if (random > 0.9) DrinkType.Full
+                            else if (random > 0.8) DrinkType.Half
+                            else null
+                        )
+                    }
+                })
+            })
         }
     }
 
     private fun setLoadingState(isLoading: Boolean) {
         _state.value = state.value.copy(isLoading = isLoading)
-    }
-
-    private fun handleSuccessResult(response: Response<List<DayData>>) {
-        response.data?.let { daysData ->
-            setScreenState(daysData.toSet())
-        }
-        setLoadingState(isLoading = false)
     }
 
     private fun handleError() {
@@ -107,11 +108,36 @@ open class CalendarViewModel(
     fun onEvent(event: CalendarEvent) {
         when (event) {
             is CalendarEvent.DateClicked -> changeDay(event)
-            is CalendarEvent.ToggleStatistic -> {
-                _state.update { it.copy(isStatisticOpened = event.isExpanded) } //TODO save state
-            }
+            is CalendarEvent.ToggleStatistic -> onStatisticToggle(event.isExpanded)
             is CalendarEvent.StatisticClicked -> handleStatisticClick(event.statisticEntry)
-            is CalendarEvent.StatsUsed -> _state.update { it.copy(isStatsEverShown = true) } //TODO save to settings
+            is CalendarEvent.BackToCurrentDate -> animateScrollToDate(LocalDate.now())
+        }
+    }
+
+    private fun animateScrollToDate(date: LocalDate) {
+        viewModelScope.launch {
+            val index = calculateMonthIndex(
+                calendarData = _state.value.calendarData,
+                date = date
+            ) ?: return@launch
+            _animateScrollEvent.emit(index)
+        }
+    }
+
+    private fun scrollToDate(date: LocalDate) {
+        viewModelScope.launch {
+            val index = calculateMonthIndex(
+                calendarData = _state.value.calendarData,
+                date = date
+            ) ?: return@launch
+            _scrollEvent.send(index)
+        }
+    }
+
+    private fun onStatisticToggle(expanded: Boolean) {
+        if (!_state.value.isStatsEverShown && expanded) {
+            _state.update { it.copy(isStatsEverShown = true) }
+            // TODO save stats ever shown
         }
     }
 
@@ -119,12 +145,12 @@ open class CalendarViewModel(
         viewModelScope.launch {
             val stats = when (statisticEntry) {
                 StatisticEntry.DaysOverall -> emptyList()
-                StatisticEntry.DrunkRowThisYear -> _statisticState.value.drunkRowThisYear
-                StatisticEntry.DrunkRowOverall -> _statisticState.value.drunkRowOverall
-                StatisticEntry.FreshRowThisYear -> _statisticState.value.freshRowThisYear
-                StatisticEntry.FreshRowOverall -> _statisticState.value.freshRowOverall
-            }
-            _event.send(CalendarUIEvent.ScrollToSelectedStatistic(stats))
+                StatisticEntry.DrunkRowThisYear -> state.value.statistic.drunkRowThisYear
+                StatisticEntry.DrunkRowOverall -> state.value.statistic.drunkRowOverall
+                StatisticEntry.FreshRowThisYear -> state.value.statistic.freshRowThisYear
+                StatisticEntry.FreshRowOverall -> state.value.statistic.freshRowOverall
+            }.ifEmpty { return@launch }
+            animateScrollToDate(stats.first())
         }
     }
 
@@ -149,40 +175,35 @@ open class CalendarViewModel(
         }
     }
 
+    private fun launchStatisticAnimation() {
+        statisticAnimationJob?.cancel()
+        statisticAnimationJob = viewModelScope.launch {
+            while (!state.value.isStatsEverShown) {
+                delay(30_000)
+                if (state.value.isStatsEverShown) return@launch
+                _state.update { it.copy(isStatsExpanded = true) }
+                delay(1_000)
+                if (state.value.isStatsEverShown) return@launch
+                _state.update { it.copy(isStatsExpanded = false) }
+            }
+        }
+    }
+
     private suspend fun removeDay(
-        mail: String,
-        dateClicked: CalendarEvent.DateClicked,
-        currentDates: MutableSet<DayData>
+        mail: String, dateClicked: CalendarEvent.DateClicked
     ): Boolean {
-        return if (datesUseCases.deleteDate(mail, dateClicked.day)) {
-            currentDates.remove(dateClicked.day)
-            true
-        } else false
+        return datesUseCases.deleteDate(mail, dateClicked.day)
     }
 
     private suspend fun addDay(
-        mail: String,
-        dateClicked: CalendarEvent.DateClicked,
-        currentDates: MutableSet<DayData>
+        mail: String, dateClicked: CalendarEvent.DateClicked
     ): Boolean {
-        return if (datesUseCases.setDate(mail, dateClicked.day)) {
-            currentDates.add(dateClicked.day)
-            true
-        } else false
+        return datesUseCases.setDate(mail, dateClicked.day)
     }
 
-    private fun setScreenState(currentDates: Set<DayData>) {
+    private fun updateStatistic(currentDates: Set<DayData>) {
+        viewModelScope.launch() { }
         val statistic = datesUseCases.calculateStatistic(currentDates)
-        _statisticState.value = statistic
-//        _state.value = state.value.copy(
-//            dates = currentDates,
-//            statistic = StatisticState(
-//                totalDaysThisYear = statistic.daysOverall.size,
-//                drinkRowThisYear = statistic.drunkRowThisYear.size,
-//                drinkRowAllTime = statistic.drunkRowOverall.size,
-//                freshRowThisYear = statistic.freshRowThisYear.size,
-//                freshRowAllTime = statistic.freshRowOverall.size
-//            )
-//        )
+        _state.update { it.copy(statistic = statistic) }
     }
 }

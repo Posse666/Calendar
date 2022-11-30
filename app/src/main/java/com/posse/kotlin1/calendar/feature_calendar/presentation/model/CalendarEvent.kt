@@ -6,7 +6,7 @@ sealed interface CalendarEvent {
     data class DateClicked(val day: DayData): CalendarEvent
     data class ToggleStatistic(val isExpanded: Boolean): CalendarEvent
     data class StatisticClicked(val statisticEntry: StatisticEntry) : CalendarEvent
-    object StatsUsed : CalendarEvent
+    object BackToCurrentDate: CalendarEvent
 }
 
 enum class StatisticEntry{

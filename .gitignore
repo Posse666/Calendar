@@ -10,3 +10,4 @@
 local.properties
 signingKey.properties
 fcm.properties
+upload-keystore.jks

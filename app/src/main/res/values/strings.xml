@@ -1,7 +1,7 @@
 <resources>
     <string name="app_name">AlcoCalendar</string>
 
-    <string name="backToDateButton">Back to current date</string>
+    <string name="back_to_date_button">Back to current date</string>
 
     <string name="in_this_year_you_drank">Drunk days in this year</string>
     <string name="longest_drink_marathon_in_this_year">Longest drink marathon in this year</string>

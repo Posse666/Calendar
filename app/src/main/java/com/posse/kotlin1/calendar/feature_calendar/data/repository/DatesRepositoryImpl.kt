@@ -6,7 +6,7 @@ import com.posse.kotlin1.calendar.common.data.model.Documents
 import com.posse.kotlin1.calendar.common.data.repository.FirestoreRepository
 import com.posse.kotlin1.calendar.common.data.utils.toDataClass
 import com.posse.kotlin1.calendar.common.domain.model.Response
-import com.posse.kotlin1.calendar.common.domain.utils.DispatcherProvider
+import com.posse.kotlin1.calendar.common.utils.CoroutinesDispatchers
 import com.posse.kotlin1.calendar.feature_calendar.domain.model.DayData
 import com.posse.kotlin1.calendar.feature_calendar.domain.repository.DatesRepository
 import kotlinx.coroutines.channels.awaitClose
@@ -17,7 +17,7 @@ import javax.inject.Inject
 class DatesRepositoryImpl @Inject constructor(
     private val firestore: FirebaseFirestore,
     private val firestoreRepository: FirestoreRepository,
-    private val dispatcherProvider: DispatcherProvider
+    private val coroutinesDispatchers: CoroutinesDispatchers
 ) : DatesRepository {
 
     override fun getDates(userMail: String) = callbackFlow<Response<List<DayData>>> {
@@ -36,7 +36,7 @@ class DatesRepositoryImpl @Inject constructor(
             }
 
         awaitClose { subscription.remove() }
-    }.flowOn(dispatcherProvider.io)
+    }.flowOn(coroutinesDispatchers.io)
 
     override suspend fun changeDate(
         userMail: String,

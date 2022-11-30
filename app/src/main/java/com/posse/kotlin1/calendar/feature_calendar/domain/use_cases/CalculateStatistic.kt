@@ -1,4 +1,4 @@
-package com.posse.kotlin1.calendar.feature_calendar.domain.use_case
+package com.posse.kotlin1.calendar.feature_calendar.domain.use_cases
 
 import com.posse.kotlin1.calendar.feature_calendar.domain.model.DayData
 import com.posse.kotlin1.calendar.feature_calendar.presentation.model.StatisticWithDaysState
@@ -10,7 +10,7 @@ import javax.inject.Inject
 class CalculateStatistic @Inject constructor() {
 
     operator fun invoke(days: Set<DayData>): StatisticWithDaysState {
-        val dates = days.map { it.date }
+        val dates = days.filter { it.drinkType != null }.map { it.date }
         return StatisticWithDaysState(
             daysOverall = getDrankDaysQuantity(dates),
             drunkRowThisYear = getDrinkMarathon(dates, THIS_YEAR),

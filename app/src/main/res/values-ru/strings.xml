@@ -2,7 +2,7 @@
 <resources>
     <string name="app_name">АлкоКалендарь</string>
 
-    <string name="backToDateButton">Вернуться на текущую дату</string>
+    <string name="back_to_date_button">Вернуться на текущую дату</string>
 
     <string name="in_this_year_you_drank">"Пропитые дни в этом году </string>
     <string name="longest_drink_marathon_in_this_year">"Самая запойная серия в этом году"</string>

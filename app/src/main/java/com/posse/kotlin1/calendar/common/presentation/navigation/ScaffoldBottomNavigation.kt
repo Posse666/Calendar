@@ -2,10 +2,7 @@ package com.posse.kotlin1.calendar.common.presentation.navigation
 
 import androidx.compose.material.BottomNavigation
 import androidx.compose.material.BottomNavigationItem
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -24,13 +21,17 @@ fun ScaffoldBottomNavigation(
     val navItems = remember {
         listOf(
             BottomNavigation.Calendar,
-            BottomNavigation.Friends
+            BottomNavigation.Friends,
+            BottomNavigation.Settings
         )
     }
 
     Scaffold(
         bottomBar = {
-            BottomNavigation {
+            BottomNavigation(
+                backgroundColor = MaterialTheme.colorScheme.primaryContainer,
+                contentColor = contentColorFor(MaterialTheme.colorScheme.onPrimaryContainer),
+            ) {
                 val navBackStackEntry by navController.currentBackStackEntryAsState()
                 val currentDestination = navBackStackEntry?.destination
                 navItems.forEach { screen ->

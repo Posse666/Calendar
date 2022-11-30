@@ -1,9 +1,8 @@
-package com.posse.kotlin1.calendar.common.domain.utils
+package com.posse.kotlin1.calendar.common.utils
 
 import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.Dispatchers
 
-interface DispatcherProvider {
+interface CoroutinesDispatchers {
     val main: CoroutineDispatcher
     val io: CoroutineDispatcher
     val default: CoroutineDispatcher

@@ -1,7 +1,7 @@
 package com.posse.kotlin1.calendar.di.modules
 
-import com.posse.kotlin1.calendar.common.domain.utils.DispatcherProvider
-import com.posse.kotlin1.calendar.common.domain.utils.DispatcherProviderImpl
+import com.posse.kotlin1.calendar.common.utils.CoroutinesDispatchers
+import com.posse.kotlin1.calendar.common.utils.CoroutinesDispatchersImpl
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
@@ -14,5 +14,5 @@ interface CoroutineDispatchersModule {
 
     @Binds
     @Singleton
-    fun bindDispatchers(dispatcherProviderImpl: DispatcherProviderImpl): DispatcherProvider
+    fun bindDispatchers(dispatcherProviderImpl: CoroutinesDispatchersImpl): CoroutinesDispatchers
 }

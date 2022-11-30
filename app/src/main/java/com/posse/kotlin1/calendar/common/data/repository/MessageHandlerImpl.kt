@@ -7,7 +7,7 @@ import com.posse.kotlin1.calendar.common.domain.repository.FriendsRepository
 import com.posse.kotlin1.calendar.common.domain.repository.MessageHandler
 import com.posse.kotlin1.calendar.common.domain.repository.Messenger
 import com.posse.kotlin1.calendar.common.domain.repository.UsersRepository
-import com.posse.kotlin1.calendar.common.domain.utils.DispatcherProvider
+import com.posse.kotlin1.calendar.common.utils.CoroutinesDispatchers
 import com.posse.kotlin1.calendar.common.domain.utils.NetworkStatus
 import com.posse.kotlin1.calendar.feature_calendar.domain.model.DayData
 import kotlinx.coroutines.flow.first
@@ -20,13 +20,13 @@ class MessageHandlerImpl @Inject constructor(
     private val networkStatus: NetworkStatus,
     private val usersRepository: UsersRepository,
     private val friendsRepository: FriendsRepository,
-    private val dispatcherProvider: DispatcherProvider,
+    private val coroutinesDispatchers: CoroutinesDispatchers,
 //    private val workManager: WorkManager
 ) : MessageHandler {
 
     override suspend fun sendOrScheduleMessage(userMail: String, day: DayData) {
         if (day.drinkType == null) return
-        withContext(dispatcherProvider.io) {
+        withContext(coroutinesDispatchers.io) {
             val messages = composeMessages(userMail, day).filterNotNull()
             if (networkStatus.isNetworkOnline())
                 try {

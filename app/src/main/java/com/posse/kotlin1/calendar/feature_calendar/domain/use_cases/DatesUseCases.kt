@@ -1,4 +1,4 @@
-package com.posse.kotlin1.calendar.feature_calendar.domain.use_case
+package com.posse.kotlin1.calendar.feature_calendar.domain.use_cases
 
 import javax.inject.Inject
 

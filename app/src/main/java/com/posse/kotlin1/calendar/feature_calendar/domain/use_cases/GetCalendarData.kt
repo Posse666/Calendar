@@ -1,10 +1,12 @@
-package com.posse.kotlin1.calendar.feature_calendar.domain.use_case
+package com.posse.kotlin1.calendar.feature_calendar.domain.use_cases
 
 import com.posse.kotlin1.calendar.feature_calendar.domain.model.DayData
 import com.posse.kotlin1.calendar.feature_calendar.domain.model.MonthData
 import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.YearMonth
+import java.time.temporal.WeekFields
+import java.util.*
 import javax.inject.Inject
 
 class GetCalendarData @Inject constructor() {
@@ -48,5 +50,8 @@ class GetCalendarData @Inject constructor() {
         }
     }
 
-    private fun getInitialDayOfMonth(firstDayOfMonth: DayOfWeek) = -(firstDayOfMonth.value).minus(2)
+    private fun getInitialDayOfMonth(firstDayOfMonth: DayOfWeek): Int {
+        val firstDay = WeekFields.of(Locale.getDefault()).firstDayOfWeek
+        return -(firstDayOfMonth.value).minus(if (firstDay == DayOfWeek.SUNDAY) 1 else 2)
+    }
 }
