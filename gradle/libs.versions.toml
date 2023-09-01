@@ -1,0 +1,57 @@
+[versions]
+
+kotlin = "1.8.22" #TODO can't use 1.9.0 because moko-resources 0.23.0 is broken
+agp = "8.0.0" #TODO update to 8.1.1 after kotlin 1.9.0
+compose = "1.5.0"
+precompose = "1.5.0"
+androidx-appcompat = "1.6.1"
+androidx-activityCompose = "1.7.2"
+kotlinx-coroutines = "1.7.3"
+kotlinx-serialization = "1.5.1"
+kotlinx-datetime = "0.4.0"
+multiplatformSettings = "1.0.0"
+complete-kotlin = "1.1.0"
+firebase-bom = "32.2.3"
+android-crashlytics = "2.9.9"
+accompanist = "0.32.0"
+immutableCollections = "0.3.5"
+moko-permissions = "0.16.0"
+moko-resources = "0.23.0"
+moko-graphics = "0.9.0"
+kodein = "7.20.2"
+
+
+[libraries]
+
+androidx-appcompat = { module = "androidx.appcompat:appcompat", version.ref = "androidx-appcompat" }
+androidx-activityCompose = { module = "androidx.activity:activity-compose", version.ref = "androidx-activityCompose" }
+kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "kotlinx-coroutines" }
+kotlinx-coroutines-android = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-android", version.ref = "kotlinx-coroutines" }
+kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinx-serialization" }
+kotlinx-datetime = { module = "org.jetbrains.kotlinx:kotlinx-datetime", version.ref = "kotlinx-datetime" }
+precompose = { module = "moe.tlaster:precompose", version.ref = "precompose" }
+precompose-viewmodel = { module = "moe.tlaster:precompose-viewmodel", version.ref = "precompose" }
+multiplatformSettings = { module = "com.russhwolf:multiplatform-settings", version.ref = "multiplatformSettings" }
+multiplatformSettings-serialization = { module = "com.russhwolf:multiplatform-settings-serialization", version.ref = "multiplatformSettings" }
+firebase-bom = { module = "com.google.firebase:firebase-bom", version.ref = "firebase-bom" }
+firebase-crashlytics-ktx = { module = "com.google.firebase:firebase-crashlytics-ktx" }
+firebase-analytics-ktx = { module = "com.google.firebase:firebase-analytics-ktx" }
+android-systemUiController = { module = "com.google.accompanist:accompanist-systemuicontroller", version.ref = "accompanist" }
+immutableCollections = { module = "org.jetbrains.kotlinx:kotlinx-collections-immutable", version.ref = "immutableCollections" }
+moko-permissions = { module = "dev.icerock.moko:permissions", version.ref = "moko-permissions" }
+moko-permissions-compose = { module = "dev.icerock.moko:permissions-compose", version.ref = "moko-permissions" }
+moko-resources-core = { module = "dev.icerock.moko:resources", version.ref = "moko-resources" }
+moko-resources-compose = { module = "dev.icerock.moko:resources-compose", version.ref = "moko-resources" }
+moko-resources-graphics = { module = "dev.icerock.moko:graphics", version.ref = "moko-graphics" }
+kodein-core = { module = "org.kodein.di:kodein-di", version.ref = "kodein" }
+
+[plugins]
+
+multiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
+cocoapods = { id = "org.jetbrains.kotlin.native.cocoapods", version.ref = "kotlin" }
+compose = { id = "org.jetbrains.compose", version.ref = "compose" }
+android-application = { id = "com.android.application", version.ref = "agp" }
+kotlinx-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
+complete-kotlin = { id = "com.louiscad.complete-kotlin", version.ref = "complete-kotlin" }
+android-crashlytics = { id = "com.google.firebase.crashlytics", version.ref = "android-crashlytics" }
+moko-resources = { id = "dev.icerock.mobile.multiplatform-resources", version.ref = "moko-resources" }
