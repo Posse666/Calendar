@@ -18,7 +18,7 @@ plugins {
 @OptIn(org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi::class)
 kotlin {
     targetHierarchy.default()
-    android {//TODO androidTarget after kotlin 1.9.0
+    androidTarget {
         compilations.all {
             kotlinOptions {
                 jvmTarget = "1.8"
@@ -78,6 +78,7 @@ kotlin {
         }
 
         val androidMain by getting {
+            dependsOn(commonMain) // TODO moko 0.23.0 workaround
             dependencies {
                 implementation(libs.androidx.appcompat)
                 implementation(libs.androidx.activityCompose)
@@ -90,6 +91,7 @@ kotlin {
         }
 
         val iosMain by getting {
+            dependsOn(commonMain) // TODO moko 0.23.0 workaround
             dependencies {
             }
         }

@@ -1,7 +1,7 @@
 [versions]
 
-kotlin = "1.8.22" #TODO can't use 1.9.0 because moko-resources 0.23.0 is broken
-agp = "8.0.0" #TODO update to 8.1.1 after kotlin 1.9.0
+kotlin = "1.9.0"
+agp = "8.1.1"
 compose = "1.5.0"
 precompose = "1.5.0"
 androidx-appcompat = "1.6.1"

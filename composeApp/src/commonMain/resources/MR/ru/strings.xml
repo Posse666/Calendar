@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">АлкоКалендарь</string>
+
+    <string name="backToDateButton">Вернуться на текущую дату</string>
+
+    <string name="january">Январь</string>
+    <string name="february">Февраль</string>
+    <string name="march">Март</string>
+    <string name="april">Апрель</string>
+    <string name="may">Май</string>
+    <string name="june">Июнь</string>
+    <string name="july">Июль</string>
+    <string name="september">Сентябрь</string>
+    <string name="august">Август</string>
+    <string name="october">Октябрь</string>
+    <string name="november">Ноябрь</string>
+    <string name="december">Декабрь</string>
+
+    <string name="monday">Пн.</string>
+    <string name="tuesday">Вт.</string>
+    <string name="wednesday">Ср.</string>
+    <string name="thursday">Чт.</string>
+    <string name="friday">Пт.</string>
+    <string name="saturday">Сб.</string>
+    <string name="sunday">Вс.</string>
+
+    <string name="in_this_year_you_drank">"Пропитые дни в этом году </string>
+    <string name="longest_drink_marathon_in_this_year">"Самая запойная серия в этом году"</string>
+    <string name="longest_drink_marathon_all_time">"Самая запойная серия за все время"</string>
+
+    <string name="login_to_sync">Войдите для синхронизации</string>
+    <string name="login">Войти</string>
+    <string name="logout">Выйти</string>
+    <string name="share_calendar">Поделиться</string>
+    <string name="dialog_cancel">Отмена</string>
+    <string name="dialog_save">Сохранить</string>
+    <string name="contact_access_description">Доступ к контактам</string>
+    <string name="contact_access_message">Необходим доступ к контактам, чтобы можно было поделиться с друзьями своим календарем</string>
+    <string name="allow_access">Предоставить доступ</string>
+    <string name="no_thanks">Не надо</string>
+    <string name="close">Закрыть</string>
+    <string name="auto_theme_switch">Системная</string>
+    <string name="app_theme">Тема приложения:</string>
+    <string name="day">Дневная</string>
+    <string name="night">Ночная</string>
+    <string name="calendar_bottom">Календарь</string>
+    <string name="friends_bottom">Друзья</string>
+    <string name="settings_bottom">Настройки</string>
+    <string name="back_again_to_exit">Нажмите \"Назад\" еще раз для выхода</string>
+    <string name="login_to_see_friends_calendars">Войдите чтобы увидеть календари друзей</string>
+    <string name="select_friend">Выберите друга</string>
+    <string name="nobody_shared">Похоже, что никто не поделился с Вами календарем</string>
+    <string name="block_this_person">Заблокировать</string>
+    <string name="delete_text">Точно удалить</string>
+    <string name="delete">Удалить</string>
+    <string name="no_contacts">Нет контактов с почтой в вашей телефонной книге</string>
+    <string name="enter_e_mail">Введите почту или Имя</string>
+    <string name="contact_not_found">Контакт не найден</string>
+    <string name="nick_name">Имя</string>
+    <string name="black_list">Чёрный список</string>
+    <string name="empty_black_list">Чёрный список пуст</string>
+    <string name="you_are_in_black_list">Вы в черном списке у этого пользователя</string>
+    <string name="no_connection">Нет интернета! Используются последние данные…</string>
+    <string name="longest_fresh_marathon_in_this_year">Самая трезвая серия в этом году</string>
+    <string name="longest_fresh_marathon_all_time">Самая трезвая серия за все время</string>
+    <string name="nickname_is_busy">Это имя занято!</string>
+    <string name="no_internet">Нет интернета!</string>
+    <string name="remove_space">Уберите \"пробел\"</string>
+    <string name="network_offline">Нет интернета! Попробуйте позже.</string>
+    <string name="exit">Выход</string>
+    <string name="update">Обновите приложение!</string>
+    <string name="shared_with_you">поделился с вами!</string>
+    <string name="removed_from_friends">удалил Вас из друзей!</string>
+    <string name="drunk_res">выпил</string>
+    <string name="drunk_a_little">прибухнул</string>
+    <string name="today_res">сегодня</string>
+    <string name="yesterday_res">вчера</string>
+    <string name="shared">Поделился</string>
+    <string name="shared_notifications">Уведомление, когда кто-то поделился с Вами.</string>
+    <string name="drunk_channel">Выпил</string>
+    <string name="drunk_notifications">Уведомление, когда друг выпил.</string>
+    <string name="language">Язык</string>
+    <string name="how_much_did_you_drink">Сколько вы выпили?</string>
+    <string name="a_lot">Много</string>
+    <string name="a_little">Немножко</string>
+    <string name="i_didn_t">Не пил</string>
+</resources>

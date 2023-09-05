@@ -1,4 +1,4 @@
-package com.posse.kotlin1.calendar.theme
+package com.posse.kotlin1.calendar.common.theme
 
 import androidx.compose.ui.graphics.Color
 
