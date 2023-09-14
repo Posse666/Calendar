@@ -43,11 +43,6 @@ kotlin {
     }
 
     sourceSets {
-        all {
-            languageSettings {
-                optIn("org.jetbrains.compose.resources.ExperimentalResourceApi")
-            }
-        }
         val commonMain by getting {
             dependencies {
                 api(compose.foundation)
@@ -68,12 +63,6 @@ kotlin {
                 implementation(libs.moko.resources.compose)
                 implementation(libs.moko.resources.graphics)
                 implementation(libs.kodein.core)
-            }
-        }
-
-        val commonTest by getting {
-            dependencies {
-                implementation(kotlin("test"))
             }
         }
 
