@@ -1,8 +1,11 @@
 package com.posse.kotlin1.calendar.feature_calendar.domain.use_cases
 
+import com.posse.kotlin1.calendar.common.di.Inject
+import com.posse.kotlin1.calendar.common.utils.CoroutineDispatchers
 import com.posse.kotlin1.calendar.common.utils.DateTimeUtils
 import com.posse.kotlin1.calendar.feature_calendar.domain.model.DayData
 import com.posse.kotlin1.calendar.feature_calendar.domain.model.MonthData
+import kotlinx.coroutines.withContext
 import kotlinx.datetime.DateTimeUnit
 import kotlinx.datetime.DayOfWeek
 import kotlinx.datetime.LocalDate
@@ -12,10 +15,12 @@ import kotlinx.datetime.minus
 import kotlinx.datetime.plus
 
 class GetCalendarData {
-    operator fun invoke(
+    private val coroutineDispatchers: CoroutineDispatchers = Inject.instance()
+
+    suspend operator fun invoke(
         startDate: LocalDate = DateTimeUtils.today.minus(1, DateTimeUnit.YEAR)
-    ): List<MonthData> {
-        return getPeriod(startDate).map { date ->
+    ): List<MonthData> = withContext(coroutineDispatchers.io) {
+        getPeriod(startDate).map { date ->
             MonthData(
                 month = date.month,
                 year = date.year,
@@ -27,8 +32,8 @@ class GetCalendarData {
     private fun getPeriod(startDate: LocalDate): List<LocalDate> {
         val period = mutableListOf<LocalDate>()
         var currentMonth = startDate
-        val lastMonth = DateTimeUtils.today.plus(2, DateTimeUnit.MONTH)
-        while (currentMonth.year <= lastMonth.year && currentMonth.monthNumber < lastMonth.monthNumber) {
+        val lastMonth = DateTimeUtils.today.plus(1, DateTimeUnit.MONTH)
+        while (currentMonth.year < lastMonth.year || currentMonth.monthNumber <= lastMonth.monthNumber) {
             period.add(currentMonth)
             currentMonth = currentMonth.plus(1, DateTimeUnit.MONTH)
         }

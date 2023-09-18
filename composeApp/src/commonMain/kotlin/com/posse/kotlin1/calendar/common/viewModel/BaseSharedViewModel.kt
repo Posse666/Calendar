@@ -1,7 +1,6 @@
 package com.posse.kotlin1.calendar.common.viewModel
 
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
@@ -13,23 +12,11 @@ import moe.tlaster.precompose.viewmodel.ViewModel
 import moe.tlaster.precompose.viewmodel.viewModelScope
 
 abstract class BaseSharedViewModel<State : Any, Action, Event>(initialState: State) : ViewModel() {
-    private val _viewStates = MutableStateFlow(initialState)
-    fun viewStates(): StateFlow<State> = _viewStates.asStateFlow()
+    protected val _viewState = MutableStateFlow(initialState)
+    val viewState: StateFlow<State> = _viewState.asStateFlow()
 
-    private val _viewActions = MutableSharedFlow<Action?>(replay = 1, onBufferOverflow = BufferOverflow.DROP_OLDEST)
-    fun viewActions(): SharedFlow<Action?> = _viewActions.asSharedFlow()
-
-    protected var viewState: State
-        get() = _viewStates.value
-        set(value) {
-            _viewStates.value = value
-        }
-
-    protected var viewAction: Action?
-        get() = _viewActions.replayCache.last()
-        set(value) {
-            _viewActions.tryEmit(value)
-        }
+    protected val _viewAction = MutableSharedFlow<Action>()
+    val viewAction: SharedFlow<Action> = _viewAction.asSharedFlow()
 
     abstract fun obtainEvent(viewEvent: Event)
 

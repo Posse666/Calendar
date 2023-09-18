@@ -17,8 +17,11 @@ import com.posse.kotlin1.calendar.common.compose.utils.SlideDirection
 import com.posse.kotlin1.calendar.common.compose.utils.get
 import com.posse.kotlin1.calendar.common.compose.utils.getNavTransition
 import com.posse.kotlin1.calendar.common.theme.AppTheme
+import com.posse.kotlin1.calendar.feature_calendar.compose.CalendarView
+import com.posse.kotlin1.calendar.feature_calendar.presentation.CalendarViewModel
 import moe.tlaster.precompose.navigation.NavHost
 import moe.tlaster.precompose.navigation.rememberNavigator
+import moe.tlaster.precompose.viewmodel.viewModel
 
 @Composable
 fun Navigation(
@@ -60,22 +63,13 @@ fun Navigation(
                         }
                     ),
                 ) {
-//                    val viewModel = viewModel(modelClass = MyCalendarViewModel::class) { MyCalendarViewModel() }
-//                    val state by viewModel.viewStates().collectAsStateWithLifecycle()
-//                    val splashAction by viewModel.viewActions().collectAsStateWithLifecycle()
-//
-//                    MyCalendar(
-//                        toAccountFlow = remember {
-//                            {
-//                                multipleEventsCutter.processEvent {
-//                                    navigator.navigate(
-//                                        NavigationTree.MainFlow.AccountFlow.name,
-//                                        options = NavOptions(launchSingleTop = true)
-//                                    )
-//                                }
-//                            }
-//                        }
-//                    )
+                    val viewModel = viewModel(modelClass = CalendarViewModel::class) {
+                        CalendarViewModel(email = null)
+                    }
+
+                    CalendarView(
+                        viewModel = viewModel
+                    )
                 }
 
 //                scene(route = NavigationTree.MainFlow.AccountFlow.name) {

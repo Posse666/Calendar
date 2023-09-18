@@ -12,7 +12,7 @@ class CalculateMonthIndex {
     suspend operator fun invoke(
         calendarData: List<MonthData>,
         date: LocalDate
-    ): Int? = withContext(dispatchers.default) {
+    ): Int? = withContext(dispatchers.io) {
         val calendarMonth = calendarData.find { monthData ->
             monthData.weeks.flatMap { week ->
                 week.map { it?.date }
